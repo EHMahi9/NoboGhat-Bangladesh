@@ -1,35 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoboGhat | Connecting Bangladesh</title>
-    <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="#" class="logo-container">
-            <img src="./images/noboghat.svg" alt="NoboGhat Logo" class="logo">
-        </a>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NoboGhat</title>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="#" class="logo-link">
+                <img src="./images/noboghat.svg" alt="NoboGhat Logo" class="logo">
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Shipments</a></li>
+                <li><a href="#">Vessels</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
 
-        <ul class="nav-links">
-            <li><a href="#" class="active">Home</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Track Cargo</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
+            <a href="#" class="btn-primary">Sign In</a>
 
-        <div class="nav-actions">
-            <a href="#" class="btn-primary">Login / Register</a>
-        </div>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
 
-        <div class="hamburger" id="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </nav>
+        <!-- Hero Section with Route Search -->
+        <header class="hero">
+            <div class="hero-content">
+                <h1>Digitalizing Bangladesh's River Routes</h1>
+                <p>Share cargo space, discover boat routes, and book transport easily across inland waterways.</p>
+                
+                <!-- Search Route Box -->
+                <form class="route-search-form" action="#" method="GET">
+                    <div class="input-group">
+                        <label for="source">From</label>
+                        <input type="text" id="source" placeholder="e.g., Sadarghat">
+                    </div>
+                    <div class="input-group">
+                        <label for="destination">To</label>
+                        <input type="text" id="destination" placeholder="e.g., Barisal">
+                    </div>
+                    <div class="input-group">
+                        <label for="date">Departure Date</label>
+                        <input type="date" id="date">
+                    </div>
+                    <button type="submit" class="btn-primary">Find Boats</button>
+                </form>
+            </div>
+        </header>
 
-    <script src="script.js"></script>
-</body>
+        <script src="script.js"></script>
+    </body>
 </html>

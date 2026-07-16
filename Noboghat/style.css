@@ -1,4 +1,9 @@
-/* 1. Basic Reset & Variables */
+:root {
+    --deep-navy: #0F4C81;
+    --river-blue: #2F80ED;
+    --bd-green: #2E8B57;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,42 +11,31 @@
     font-family: system-ui, -apple-system, sans-serif;
 }
 
-:root {
-    --deep-navy: #0F4C81;
-    --river-blue: #2F80ED;
-    --bd-green: #2E8B57;
-    --light-bg: #F5F7FB;
-}
-
 body {
-    background-color: var(--light-bg);
+    background-color: #F8FAFC;
 }
 
-/* 2. Navbar Container */
 .navbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
     background-color: #ffffff;
-    padding: 16px 5%;
-    box-shadow: 0 4px 12px rgba(15, 76, 129, 0.08);
+    box-shadow: 0 4px 6px rgba(15, 76, 129, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-/* 3. Logo */
 .logo {
-    height: 48px; /* Scales the SVG perfectly */
-    cursor: pointer;
+    height: 45px;
     display: block;
 }
 
-/* 4. Navigation Links */
 .nav-links {
     display: flex;
     list-style: none;
-    gap: 32px;
+    gap: 2.5rem;
 }
 
 .nav-links a {
@@ -52,67 +46,172 @@ body {
     transition: color 0.3s ease;
 }
 
-.nav-links a:hover, 
-.nav-links a.active {
+.nav-links a:hover {
     color: var(--river-blue);
 }
 
-/* 5. Primary Button (Login/Register) */
 .btn-primary {
-    text-decoration: none;
     background-color: var(--bd-green);
-    color: white;
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 700;
+    color: #ffffff;
+    padding: 0.6rem 1.5rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
     transition: all 0.3s ease;
-    display: inline-block;
 }
 
 .btn-primary:hover {
-    background-color: #246e45; /* Darker green for hover */
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(46, 139, 87, 0.2);
+    background-color: #246e45;
+    transform: translateY(-1px);
 }
 
-/* 6. Mobile Hamburger Icon (Hidden on Desktop) */
 .hamburger {
     display: none;
-    flex-direction: column;
     cursor: pointer;
+    flex-direction: column;
     gap: 5px;
 }
 
-.hamburger span {
+.bar {
     width: 25px;
     height: 3px;
     background-color: var(--deep-navy);
-    border-radius: 3px;
     transition: all 0.3s ease;
+    border-radius: 2px;
 }
 
-/* 7. Mobile Responsive Rules */
-@media (max-width: 850px) {
-    .nav-links, .nav-actions {
-        display: none; /* Hide desktop elements */
-    }
-
-    .hamburger {
-        display: flex; /* Show mobile menu icon */
-    }
-
-    /* When JavaScript adds the "active" class to nav-links */
-    .nav-links.active {
-        display: flex;
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
         flex-direction: column;
         position: absolute;
-        top: 80px;
+        top: 75px;
         left: 0;
         width: 100%;
         background-color: #ffffff;
-        padding: 24px 0;
         text-align: center;
-        box-shadow: 0 8px 16px rgba(15, 76, 129, 0.08);
-        gap: 20px;
+        padding: 1.5rem 0;
+        box-shadow: 0 10px 15px rgba(15, 76, 129, 0.05);
+        gap: 1.5rem;
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+
+    .btn-primary {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+}
+
+/* =========================================
+   8. Hero Section
+   ========================================= */
+.hero {
+    background-color: var(--deep-navy);
+    background-image: linear-gradient(135deg, var(--deep-navy) 0%, #1562a3 100%);
+    color: #ffffff;
+    padding: 80px 5%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+}
+
+.hero-content p {
+    font-size: 1.15rem;
+    margin-bottom: 40px;
+    color: #e2e8f0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* =========================================
+   9. Route Search Form
+   ========================================= */
+.route-search-form {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    box-shadow: 0 16px 32px rgba(15, 76, 129, 0.2);
+    max-width: 850px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    flex: 1;
+    min-width: 180px;
+}
+
+.input-group label {
+    color: var(--deep-navy);
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--deep-navy);
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--river-blue);
+}
+
+.route-search-form .btn-primary {
+    padding: 14px 28px;
+    height: 50px; /* Matches input heights perfectly */
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Hero Mobile Responsive Rules */
+@media (max-width: 768px) {
+    .hero {
+        padding: 60px 5%;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .route-search-form {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px;
+    }
+
+    .route-search-form .btn-primary {
+        margin-top: 10px;
     }
 }
