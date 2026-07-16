@@ -1,0 +1,75 @@
+/* ==========================================
+   Statistics Section
+========================================== */
+
+.statistics-section {
+
+    background: #ffffff;
+
+    padding: 70px 6%;
+
+}
+
+.statistics-section .container {
+
+    max-width: 1300px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 30px;
+
+}
+
+.stat-card {
+
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    padding: 35px 25px;
+
+    text-align: center;
+
+    transition: .35s ease;
+
+    border: 1px solid rgba(15,76,129,.08);
+
+    box-shadow: 0 12px 30px rgba(15,76,129,.06);
+
+}
+
+.stat-card:hover {
+
+    transform: translateY(-8px);
+
+    box-shadow: 0 20px 45px rgba(15,76,129,.12);
+
+}
+
+.stat-number {
+
+    font-family: "Poppins", sans-serif;
+
+    font-size: 2.8rem;
+
+    font-weight: 700;
+
+    color: var(--deep-navy);
+
+    margin-bottom: 10px;
+
+}
+
+.stat-title {
+
+    font-size: 1rem;
+
+    color: #64748b;
+
+    font-weight: 500;
+
+}
