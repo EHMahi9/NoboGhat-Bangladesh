@@ -127,7 +127,7 @@ body {
             rgba(10,25,45,.55),
             rgba(10,25,45,.55)
         ),
-        url("./images/hero.png"); 
+        url("./images/noboghat-hero.png"); 
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
@@ -153,8 +153,11 @@ body {
 /* =========================================
    9. Route Search Form
    ========================================= */
-.route-search-form {
-    background: #ffffff;
+.route-search-form{
+    background:rgba(255,255,255,.12);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.25);
     padding: 24px;
     border-radius: 12px;
     display: flex;
@@ -211,18 +214,27 @@ body {
         padding: 60px 5%;
     }
 
+    .hero-content{
+        max-width:900px;
+        margin:auto;
+    }
+
     .hero-content h1 {
         font-size: 2.2rem;
+        text-shadow:
+        0 6px 18px rgba(0,0,0,.35);
+    }
+
+    .hero-content p{
+        text-shadow:
+        0 2px 8px rgba(0,0,0,.25);
     }
 
     .route-search-form {
         flex-direction: column;
         align-items: stretch;
         padding: 20px;
-        background:rgba(255,255,255,.12);
-        -webkit-backdrop-filter:blur(18px);
-        backdrop-filter:blur(18px);
-        border:1px solid rgba(255,255,255,.25);
+
     }
 
     .route-search-form .btn-primary {
@@ -234,7 +246,7 @@ body {
    10. Features Section
    ========================================= */
 .features-section {
-    padding: 80px 5%;
+    padding:120px 5%;
     background-color: #F8FAFC; /* Matches your body background */
     text-align: center;
 }
