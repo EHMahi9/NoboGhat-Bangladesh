@@ -127,7 +127,7 @@ body {
             rgba(10,25,45,.55),
             rgba(10,25,45,.55)
         ),
-        url("./images/hero.png"); 
+        url("../images/hero/hero.png"); 
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
@@ -389,4 +389,3 @@ body {
 #Mahi   {
     font-weight: bold;
 }
-
