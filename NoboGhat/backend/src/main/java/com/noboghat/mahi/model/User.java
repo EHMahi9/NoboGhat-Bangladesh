@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,13 +21,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    
-    private String name;
-    private String phone;
-    private String role; // Farmer, BoatOwner, Admin
 
-    // নতুন যোগ করা অংশ: ইউজারের সাথে নৌকার সম্পর্ক
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;
+
+    @Column(nullable = false, length = 30)
+    private String role;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonIgnore // এটি API-তে ডাটা দেখানোর সময় অসীম লুপ (Infinite Loop) তৈরি হওয়া থেকে বাঁচাবে
+    @JsonIgnore
     private List<Boat> boats;
 }

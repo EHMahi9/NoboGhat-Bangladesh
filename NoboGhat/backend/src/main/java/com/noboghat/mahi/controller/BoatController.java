@@ -2,7 +2,8 @@ package com.noboghat.mahi.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.noboghat.mahi.dto.BoatCreationDto;
 import com.noboghat.mahi.model.Boat;
 import com.noboghat.mahi.service.BoatService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/boats")
-@CrossOrigin(origins = "*")
 public class BoatController {
     private final BoatService boatService;
 
@@ -24,7 +25,8 @@ public class BoatController {
     }
 
     @PostMapping
-    public Boat addBoat(@RequestBody BoatCreationDto creationDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Boat addBoat(@Valid @RequestBody BoatCreationDto creationDto) {
         return boatService.createBoat(creationDto);
     }
 

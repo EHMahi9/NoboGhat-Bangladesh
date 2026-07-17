@@ -1,7 +1,7 @@
 package com.noboghat.mahi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.dto.BookingDto;
 import com.noboghat.mahi.model.Booking;
@@ -14,41 +14,35 @@ import com.noboghat.mahi.repository.UserRepository;
 @Service
 public class BookingService {
 
-    @Autowired
-    private BookingRepository bookingRepository;
-    
-    @Autowired
-    private TripRepository tripRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final TripRepository tripRepository;
+    private final UserRepository userRepository;
 
+    public BookingService(BookingRepository bookingRepository, TripRepository tripRepository, UserRepository userRepository) {
+        this.bookingRepository = bookingRepository;
+        this.tripRepository = tripRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
     public Booking createBooking(BookingDto bookingDto) {
-        
-        // ধাপ ১: ইউজার এবং ট্রিপ ডাটাবেসে বিদ্যমান (existing) আছে কিনা তা খুঁজে বের করা
         User user = userRepository.findById(bookingDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("Error: User not found in database."));
-                
-        Trip trip = tripRepository.findById(bookingDto.getTripId())
-                .orElseThrow(() -> new RuntimeException("Error: Trip not found in database."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+        Trip trip = tripRepository.findByIdForBooking(bookingDto.getTripId())
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found."));
 
-        // ধাপ ২: Capacity Validation লজিক (FR-06)
-        Double requestedWeight = bookingDto.getCargoWeight();
-        Double totalBoatCapacity = trip.getBoat().getCapacity();
-
-        if (requestedWeight > totalBoatCapacity) {
-            // যদি কার্গোর ওজন নৌকার ধারণক্ষমতার চেয়ে বেশি হয়, তাহলে আমরা বুকিং বাতিল করে একটি এরর থ্রো করব
-            throw new RuntimeException("Capacity Error: Requested weight exceeds total boat capacity.");
+        double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+        double requestedWeight = bookingDto.getCargoWeight();
+        double boatCapacity = trip.getBoat().getCapacity();
+        if (reservedWeight + requestedWeight > boatCapacity) {
+            throw new IllegalArgumentException("Capacity error: this booking exceeds the boat's remaining capacity.");
         }
 
-        // ধাপ ৩: নতুন বুকিং অবজেক্ট তৈরি করা এবং ডাটা সেট করা
-        Booking newBooking = new Booking();
-        newBooking.setCargoWeight(requestedWeight);
-        newBooking.setStatus("PENDING"); // ডিফল্ট স্ট্যাটাস 
-        newBooking.setUser(user);
-        newBooking.setTrip(trip);
-
-        // ধাপ ৪: সবকিছু ঠিক থাকলে ডাটাবেসে সেভ করা
-        return bookingRepository.save(newBooking);
+        Booking booking = new Booking();
+        booking.setCargoWeight(requestedWeight);
+        booking.setStatus("PENDING");
+        booking.setUser(user);
+        booking.setTrip(trip);
+        return bookingRepository.save(booking);
     }
 }

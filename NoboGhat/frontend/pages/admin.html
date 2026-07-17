@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - NoboGhat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="admin-page">
@@ -15,8 +16,10 @@
         <div class="card"><h3>Total Bookings</h3><p id="totalBookings">0</p></div>
         <div class="card"><h3>Total Cargo Weight</h3><p id="totalCargoWeight">0 kg</p></div>
     </div>
+    <p id="dashboardError" hidden></p>
 
     <!-- Script to fetch data -->
+    <script src="../assets/js/api.js"></script>
     <script src="../assets/js/admin.js"></script>
 </body>
 </html>

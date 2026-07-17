@@ -1,18 +1,20 @@
 package com.noboghat.mahi.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.noboghat.mahi.dto.UserRegistrationDto;
 import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class UserController {
     private final UserService userService;
 
@@ -21,7 +23,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User registerUser(@RequestBody UserRegistrationDto registrationDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public User registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
         return userService.registerNewUser(registrationDto);
     }
 }

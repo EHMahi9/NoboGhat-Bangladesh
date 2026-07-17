@@ -2,7 +2,6 @@ package com.noboghat.mahi.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.noboghat.mahi.dto.TripDto;
@@ -16,30 +15,26 @@ import com.noboghat.mahi.repository.TripRepository;
 @Service
 public class TripService {
 
-    @Autowired
-    private TripRepository tripRepository;
-    
-    @Autowired
-    private RouteRepository routeRepository;
-    
-    @Autowired
-    private BoatRepository boatRepository;
+    private final TripRepository tripRepository;
+    private final RouteRepository routeRepository;
+    private final BoatRepository boatRepository;
+
+    public TripService(TripRepository tripRepository, RouteRepository routeRepository, BoatRepository boatRepository) {
+        this.tripRepository = tripRepository;
+        this.routeRepository = routeRepository;
+        this.boatRepository = boatRepository;
+    }
 
     public Trip createTrip(TripDto tripDto) {
-        
-        // রুট এবং নৌকা যাচাই করা
         Route route = routeRepository.findById(tripDto.getRouteId())
-                .orElseThrow(() -> new RuntimeException("Error: Route not found."));
-                
+                .orElseThrow(() -> new IllegalArgumentException("Route not found."));
         Boat boat = boatRepository.findById(tripDto.getBoatId())
-                .orElseThrow(() -> new RuntimeException("Error: Boat not found."));
+                .orElseThrow(() -> new IllegalArgumentException("Boat not found."));
 
-        // নতুন ট্রিপ তৈরি করা
-        Trip newTrip = new Trip();
-        newTrip.setRoute(route);
-        newTrip.setBoat(boat);
-
-        return tripRepository.save(newTrip);
+        Trip trip = new Trip();
+        trip.setRoute(route);
+        trip.setBoat(boat);
+        return tripRepository.save(trip);
     }
 
     public List<Trip> getAllTrips() {

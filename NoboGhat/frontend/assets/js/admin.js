@@ -1,17 +1,17 @@
 async function loadDashboard() {
-    try {
-        const response = await fetch('http://localhost:8080/api/admin/dashboard');
-        const data = await response.json();
-
-        // HTML কার্ডগুলোতে ডাটা বসানো
-        document.getElementById('totalUsers').innerText = data.totalUsers;
-        document.getElementById('totalBoats').innerText = data.totalBoats;
-        document.getElementById('totalBookings').innerText = data.totalBookings;
-        document.getElementById('totalCargoWeight').innerText = data.totalCargoWeight + ' kg';
-    } catch (error) {
-        console.error('Error loading dashboard:', error);
-    }
+  const errorMessage = document.getElementById("dashboardError");
+  try {
+    const response = await fetch(window.NoboGhatApi.url("/api/admin/dashboard"));
+    if (!response.ok) throw new Error("Dashboard data could not be loaded.");
+    const data = await response.json();
+    document.getElementById("totalUsers").textContent = data.totalUsers;
+    document.getElementById("totalBoats").textContent = data.totalBoats;
+    document.getElementById("totalBookings").textContent = data.totalBookings;
+    document.getElementById("totalCargoWeight").textContent = `${data.totalCargoWeight} kg`;
+  } catch (error) {
+    errorMessage.textContent = error.message;
+    errorMessage.hidden = false;
+  }
 }
 
-// পেজ লোড হওয়ার সাথে সাথে ডাটা কল করা
 loadDashboard();

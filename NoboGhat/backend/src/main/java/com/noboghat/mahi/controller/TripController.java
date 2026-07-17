@@ -2,35 +2,34 @@ package com.noboghat.mahi.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.noboghat.mahi.dto.TripDto;
 import com.noboghat.mahi.model.Trip;
 import com.noboghat.mahi.service.TripService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/trips")
-@CrossOrigin(origins = "*")
 public class TripController {
 
-    @Autowired
-    private TripService tripService;
+    private final TripService tripService;
+
+    public TripController(TripService tripService) {
+        this.tripService = tripService;
+    }
 
     @PostMapping
-    public ResponseEntity<?> addTrip(@RequestBody TripDto tripDto) {
-        try {
-            Trip savedTrip = tripService.createTrip(tripDto);
-            return ResponseEntity.ok(savedTrip);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Trip addTrip(@Valid @RequestBody TripDto tripDto) {
+        return tripService.createTrip(tripDto);
     }
 
     @GetMapping

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Available Trips | NoboGhat</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo-link"><img src="../assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo"></a>
+    <a href="../index.html" class="btn-primary">Home</a>
+  </nav>
+  <main class="container" style="padding: 64px 5%; min-height: 60vh;">
+    <h1>Available River Trips</h1>
+    <p>Browse the currently published boat trips for your selected route.</p>
+    <p id="routesError" hidden></p>
+    <section id="tripResults" aria-live="polite" style="margin-top: 32px;">Loading trips...</section>
+  </main>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/routes.js"></script>
+</body>
+</html>
