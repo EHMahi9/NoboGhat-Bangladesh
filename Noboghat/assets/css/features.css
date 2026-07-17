@@ -1,107 +1,43 @@
-/* ==========================================
-   Features Section
-========================================== */
+/* frontend/assets/css/features.css */
 
-.features-section{
-
-    padding:100px 6%;
-
-    background:#ffffff;
-
+.features-section {
+    padding: 60px 5%;
+    background-color: #ffffff;
+    text-align: center;
 }
 
-.features-section .container{
-
-    max-width:1300px;
-
-    margin:auto;
-
+.section-subtitle {
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 16px;
 }
 
-.features-grid{
-
-    margin-top:60px;
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:30px;
-
+/* Utilize CSS Grid for a responsive layout */
+.features-grid {
+    display: grid;
+    /* This creates a responsive grid that fits as many 250px columns as possible */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.feature-card{
-
-    background:#ffffff;
-
-    border-radius:18px;
-
-    padding:35px;
-
-    text-align:center;
-
-    border:1px solid rgba(15,76,129,.08);
-
-    box-shadow:0 15px 40px rgba(15,76,129,.06);
-
-    transition:.35s;
-
+.feature-card {
+    padding: 30px 20px;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.feature-card:hover{
-
-    transform:translateY(-10px);
-
-    box-shadow:0 25px 45px rgba(15,76,129,.12);
-
+/* Simple hover effect to provide visual feedback to the user */
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
-.feature-icon{
-
-    width:85px;
-
-    height:85px;
-
-    margin:auto;
-
-    margin-bottom:25px;
-
-    border-radius:50%;
-
-    background:linear-gradient(
-        135deg,
-        var(--deep-navy),
-        var(--river-blue)
-    );
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    color:white;
-
-    font-size:2rem;
-
-}
-
-.feature-card h3{
-
-    font-family:"Poppins",sans-serif;
-
-    color:var(--deep-navy);
-
-    margin-bottom:18px;
-
-    font-size:1.3rem;
-
-}
-
-.feature-card p{
-
-    color:#64748b;
-
-    line-height:1.8;
-
+.feature-icon i {
+    font-size: 40px;
+    color: #0056b3; /* Match your primary brand color */
+    margin-bottom: 20px;
 }
