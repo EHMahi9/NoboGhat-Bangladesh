@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NoboGhat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/footer.css">
+    
+    <!-- Dashboard Specific CSS -->
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Reusable Navbar -->
+    <nav class="navbar">
+        <a href="../index.html" class="logo-link">
+            <!-- Using text logo for fallback, assuming SVG path is adjusted -->
+            <h2 class="logo">NoboGhat</h2> 
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="routes.html">Shipments</a></li>
+            <li><a href="dashboard.html" class="active-link">Dashboard</a></li>
+        </ul>
+
+        <a href="../index.html" class="btn-primary">Logout</a>
+
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="user-profile-summary">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <h3>Ebnul Hasan Mahi</h3>
+                <p class="role-badge trader">Trader</p>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><i class="fa-solid fa-gauge"></i> Overview</a></li>
+                <li><a href="#"><i class="fa-solid fa-box-open"></i> Active Bookings</a></li>
+                <li><a href="#"><i class="fa-solid fa-ship"></i> My Trips</a></li>
+                <li><a href="#"><i class="fa-solid fa-bell"></i> Notifications</a></li>
+                <li><a href="#"><i class="fa-solid fa-gear"></i> Profile Settings</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <h1>Welcome back, Ebnul!</h1>
+                <p>Manage your inland waterway logistics from here.</p>
+            </header>
+
+            <!-- Dashboard Action Cards -->
+            <div class="dashboard-grid">
+                <!-- Book Cargo Card (Addresses FR-05) -->
+                <div class="dash-card">
+                    <div class="card-icon"><i class="fa-solid fa-plus"></i></div>
+                    <h3>Book Cargo</h3>
+                    <p>Find shared cargo space on upcoming verified routes.</p>
+                    <button class="btn-secondary">New Booking</button>
+                </div>
+
+                <!-- Active Bookings Summary -->
+                <div class="dash-card">
+                    <div class="card-icon"><i class="fa-solid fa-spinner"></i></div>
+                    <h3>Active Bookings</h3>
+                    <p>You have <strong>2</strong> shipments currently in transit.</p>
+                    <button class="btn-outline">View Status</button>
+                </div>
+
+                <!-- Capacity Alert (Addresses FR-06) -->
+                <div class="dash-card alert-card">
+                    <div class="card-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Capacity Update</h3>
+                    <p>The Ghat-1 trip to Khulna is 90% full. Confirm pending bookings soon.</p>
+                </div>
+            </div>
+
+            <!-- Recent Booking History Table (Addresses FR-07) -->
+            <section class="recent-history">
+                <h2>Recent Booking History</h2>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Route</th>
+                                <th>Cargo Weight</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#NBG-1042</td>
+                                <td>Sadarghat → Khulna</td>
+                                <td>500 kg</td>
+                                <td>Oct 12, 2026</td>
+                                <td><span class="status completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>#NBG-1088</td>
+                                <td>Barisal → Dhaka</td>
+                                <td>250 kg</td>
+                                <td>Oct 15, 2026</td>
+                                <td><span class="status pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
