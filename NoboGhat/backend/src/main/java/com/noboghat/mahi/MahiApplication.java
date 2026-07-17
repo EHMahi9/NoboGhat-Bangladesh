@@ -1,4 +1,4 @@
-package com.Noboghat.mahi;
+package com.noboghat.mahi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
