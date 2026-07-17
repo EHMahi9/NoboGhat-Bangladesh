@@ -1,5 +1,8 @@
 package com.noboghat.mahi.model;
 
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,4 +27,8 @@ public class Trip {
     @ManyToOne
     @JoinColumn(name = "boat_id", nullable = false)
     private Boat boat;
+
+    // Added to align with Database Schema and FR-09 (Search Filter)
+    @Column(nullable = false)
+    private LocalDateTime departureTime;
 }

@@ -45,4 +45,22 @@ public class BookingService {
         booking.setTrip(trip);
         return bookingRepository.save(booking);
     }
+
+    public Booking getBookingById(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
+    }
+
+    @Transactional
+    public void cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
+
+        if ("CANCELLED".equals(booking.getStatus())) {
+            throw new IllegalStateException("Booking is already cancelled.");
+        }
+
+        booking.setStatus("CANCELLED");
+        bookingRepository.save(booking);
+    }
 }

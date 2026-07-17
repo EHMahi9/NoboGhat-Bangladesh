@@ -1,6 +1,9 @@
 package com.noboghat.mahi.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,5 +29,15 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
         return userService.registerNewUser(registrationDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> credentials) {
+        // This is a placeholder for Phase 6.
+        // It will eventually validate the phone/password and return a JWT Token.
+        String phone = credentials.get("phone");
+        String password = credentials.get("password");
+
+        return ResponseEntity.ok(Map.of("message", "Login successful for " + phone + ". JWT token will be generated here in Phase 6."));
     }
 }

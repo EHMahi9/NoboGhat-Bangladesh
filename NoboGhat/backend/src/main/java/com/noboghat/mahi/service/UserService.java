@@ -24,6 +24,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Mock login for Phase 6 pre-implementation.
+     * Validates that the phone exists in the system.
+     */
+    public User loginUser(String phone, String password) {
+        return userRepository.findByPhone(phone.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid phone number or password."));
+    }
+
     public User registerNewUser(UserRegistrationDto registrationDto) {
         String phone = registrationDto.getPhone().trim();
         if (userRepository.findByPhone(phone).isPresent()) {
