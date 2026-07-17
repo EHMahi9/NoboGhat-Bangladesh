@@ -73,3 +73,17 @@
     font-weight: 500;
 
 }
+
+@media (max-width: 576px) {
+    .statistics-section {
+        padding: 50px 4%;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .stat-card {
+        padding: 25px 16px;
+    }
+}

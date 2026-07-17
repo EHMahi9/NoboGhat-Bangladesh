@@ -184,3 +184,43 @@
     .btn-search { padding: 12px; }
     .section-title-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
+@media (max-width: 576px) {
+    .routes-header {
+        padding: 2.5rem 0;
+    }
+
+    .routes-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .routes-header p {
+        font-size: 0.95rem;
+    }
+
+    .trips-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .trips-section {
+        padding: 2rem 0;
+    }
+
+    .trip-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .trip-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .btn-book {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -149,3 +149,59 @@
 
     box-shadow:0 15px 40px rgba(47,128,237,.25);
 }
+
+@media (max-width:576px){
+
+.problem-card,
+.solution-card{
+
+padding:28px;
+
+}
+
+.section-title{
+
+font-size:2rem;
+
+}
+
+}
+
+@media (max-width:400px){
+
+.problem-section{
+
+padding:60px 4%;
+
+}
+
+.section-title{
+
+font-size:1.5rem;
+
+}
+
+.problem-card,
+.solution-card{
+
+padding:20px;
+
+}
+
+.problem-grid{
+
+gap:20px;
+
+}
+
+.arrow-box{
+
+width:60px;
+
+height:60px;
+
+font-size:1.4rem;
+
+}
+
+}

@@ -240,6 +240,51 @@ body {
     }
 }
 
+@media (max-width: 576px) {
+    .hero {
+        padding: 50px 5%;
+        min-height: 80vh;
+    }
+
+    .hero-content h1 {
+        font-size: 1.7rem;
+    }
+
+    .hero-content p {
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    .route-search-form {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .route-search-form .input-group {
+        min-width: 0;
+    }
+
+    .route-search-form .input-group input {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+    }
+
+    .route-search-form .input-group label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .hero-content h1 {
+        font-size: 1.4rem;
+    }
+
+    .hero {
+        min-height: 70vh;
+        padding: 40px 4%;
+    }
+}
+
 /* =========================================
    10. Features Section
    ========================================= */

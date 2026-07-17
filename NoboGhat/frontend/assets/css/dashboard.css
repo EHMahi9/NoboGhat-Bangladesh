@@ -209,3 +209,62 @@
     .dashboard-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e0e0e0; }
     .dashboard-main { padding: 1.5rem; }
 }
+
+@media screen and (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-main {
+        padding: 1rem;
+    }
+
+    .sidebar-menu a {
+        padding: 10px 12px;
+    }
+
+    .table-responsive {
+        border-radius: 6px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .dashboard-sidebar {
+        padding: 1rem 0.75rem;
+    }
+
+    .user-profile-summary .avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .dash-card {
+        padding: 1rem;
+    }
+
+    .history-table {
+        font-size: 0.8rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+}

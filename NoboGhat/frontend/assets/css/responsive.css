@@ -44,19 +44,89 @@ transform:rotate(90deg);
 
 }
 
+@media (max-width:768px){
+
+.problem-grid{
+    gap:20px;
+}
+
+.problem-card,
+.solution-card{
+    padding:28px;
+}
+
+.arrow-box{
+    width:64px;
+    height:64px;
+    font-size:1.3rem;
+}
+
+.problem-card h3,
+.solution-card h3{
+    font-size:1.3rem;
+}
+
+}
+
 @media (max-width:576px){
 
 .problem-card,
 .solution-card{
-
-padding:28px;
-
+    padding:24px 20px;
 }
 
 .section-title{
+    font-size:1.6rem;
+}
 
-font-size:2rem;
+.problem-grid{
+    gap:14px;
+}
 
+.arrow-box{
+    width:50px;
+    height:50px;
+    font-size:1.1rem;
+}
+
+.problem-list li,
+.solution-list li{
+    font-size:0.9rem;
+    gap:10px;
+}
+
+}
+
+@media (max-width:400px){
+
+.problem-section{
+    padding:50px 4%;
+}
+
+.problem-card,
+.solution-card{
+    padding:18px 14px;
+}
+
+.problem-card h3,
+.solution-card h3{
+    font-size:1.15rem;
+    margin-bottom:16px;
+}
+
+.problem-list,
+.solution-list{
+    gap:12px;
+}
+
+.problem-list li,
+.solution-list li{
+    font-size:0.85rem;
+    gap:8px;
+}
+
+.section-title{
+    font-size:1.3rem;
 }
 
 }
