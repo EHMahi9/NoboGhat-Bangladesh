@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
       var payload = {
         name: document.getElementById("regName").value.trim(),
         phone: document.getElementById("regPhone").value.trim(),
-        role: document.getElementById("regRole").value
+        role: document.getElementById("regRole").value,
+        password: document.getElementById("regPassword") ? document.getElementById("regPassword").value.trim() : ""
       };
 
       submitButton.disabled = true;

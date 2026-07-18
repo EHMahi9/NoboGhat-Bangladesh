@@ -1,0 +1,32 @@
+.btn{
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+
+    cursor:pointer;
+
+    border:none;
+
+    border-radius:var(--radius-md);
+
+    transition:var(--transition);
+
+    text-decoration:none;
+
+    font-weight:600;
+}
+
+.btn-primary{
+    background:var(--bd-green);
+    color:white;
+}
+
+.btn-secondary{
+    background:var(--river-blue);
+    color:white;
+}
+
+.btn-outline{
+    background:transparent;
+    border:1px solid var(--river-blue);
+}

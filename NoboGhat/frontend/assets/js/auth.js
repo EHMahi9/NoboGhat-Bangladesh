@@ -41,11 +41,22 @@ async function submitAuthForm(form, endpoint, button) {
     button.textContent = 'Processing...';
 
     try {
-        var formData = {};
+        // Map form field IDs to API field names expected by backend
         var inputs = form.querySelectorAll('input, select');
+        var formData = {};
         for (var i = 0; i < inputs.length; i++) {
             var inp = inputs[i];
-            if (inp.id) formData[inp.id] = inp.value.trim();
+            if (!inp.id) continue;
+            // Map frontend IDs to backend DTO field names
+            switch (inp.id) {
+                case 'loginPhone': formData['phone'] = inp.value.trim(); break;
+                case 'loginPassword': formData['password'] = inp.value.trim(); break;
+                case 'regName': formData['name'] = inp.value.trim(); break;
+                case 'regPhone': formData['phone'] = inp.value.trim(); break;
+                case 'regRole': formData['role'] = inp.value.trim(); break;
+                case 'regPassword': formData['password'] = inp.value.trim(); break;
+                default: formData[inp.id] = inp.value.trim(); break;
+            }
         }
 
         var response = await fetch(window.NoboGhatApi ? window.NoboGhatApi.url(endpoint) : endpoint, {

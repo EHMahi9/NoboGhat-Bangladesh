@@ -1,8 +1,14 @@
 package com.noboghat.mahi.service;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.noboghat.mahi.dto.UserRegistrationDto;
@@ -10,7 +16,7 @@ import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.UserRepository;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private static final Map<String, String> PUBLIC_ROLES = Map.of(
             "farmer", "FARMER",
             "trader", "TRADER",
@@ -19,18 +25,29 @@ public class UserService {
             "boat_owner", "BOAT_OWNER");
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    // Inject PasswordEncoder to securely hash passwords
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * Mock login for Phase 6 pre-implementation.
-     * Validates that the phone exists in the system.
+     * Required by Spring Security to load a user during the login process.
+     * We use the phone number as the unique "username" for NoboGhat.
      */
-    public User loginUser(String phone, String password) {
-        return userRepository.findByPhone(phone.trim())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid phone number or password."));
+    @Override
+    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
+        User user = userRepository.findByPhone(phone.trim())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phone));
+
+        // Map the NoboGhat User to a Spring Security UserDetails object
+        return new org.springframework.security.core.userdetails.User(
+                user.getPhone(),
+                user.getPasswordHash(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+        );
     }
 
     public User registerNewUser(UserRegistrationDto registrationDto) {
@@ -48,10 +65,11 @@ public class UserService {
         user.setName(registrationDto.getName().trim());
         user.setPhone(phone);
         user.setRole(role);
-        // Store password hash (simple hash for MVP — will use BCrypt in production)
+        
+        // Phase 6 Implementation: Replaced the simple .hashCode() with BCrypt
         String password = registrationDto.getPassword();
         if (password != null && !password.isBlank()) {
-            user.setPasswordHash(Integer.toHexString(password.hashCode()));
+            user.setPasswordHash(passwordEncoder.encode(password));
         }
         return userRepository.save(user);
     }
