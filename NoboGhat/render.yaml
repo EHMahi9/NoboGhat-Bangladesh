@@ -1,9 +1,12 @@
 services:
   - type: web
     name: noboghat-backend
-    runtime: java
-    buildCommand: cd backend && ./mvnw clean package -DskipTests
-    startCommand: java -jar backend/target/mahi-0.0.1-SNAPSHOT.jar
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
@@ -20,23 +23,22 @@ services:
           name: noboghat-mysql
           property: password
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-        value: validate
+        value: update
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://noboghat-frontend.onrender.com
+      - key: FRONTEND_URL
+        value: https://noboghat-frontend.onrender.com
       - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID
-        value: ${GOOGLE_CLIENT_ID}
+        sync: false
       - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET
-        value: ${GOOGLE_CLIENT_SECRET}
+        sync: false
       - key: JWT_SECRET
-        value: ${JWT_SECRET}
-    disk:
-      name: noboghat-data
-      mountPath: /data
-      sizeGB: 1
-    region: oregon
+        sync: false
 
-  - type: staticSite
+  - type: static
     name: noboghat-frontend
-    staticPublishPath: ./frontend
     buildCommand: echo "Static files ready"
+    staticPublishPath: ./frontend
     region: oregon
     envVars:
       - key: BACKEND_API_URL
@@ -46,13 +48,5 @@ databases:
   - name: noboghat-mysql
     databaseName: noboghat
     user: noboghat_user
+    plan: starter
     region: oregon
-    plan: free
-
-env:
-  - key: GOOGLE_CLIENT_ID
-    sync: false
-  - key: GOOGLE_CLIENT_SECRET
-    sync: false
-  - key: JWT_SECRET
-    sync: false
