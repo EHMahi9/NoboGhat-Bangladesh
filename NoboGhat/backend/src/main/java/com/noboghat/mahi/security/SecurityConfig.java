@@ -20,11 +20,9 @@ import com.noboghat.mahi.service.UserService;
 public class SecurityConfig {
 
     private final JwtRequestFilter jwtRequestFilter;
-    private final UserService userService;
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter, UserService userService) {
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
         this.jwtRequestFilter = jwtRequestFilter;
-        this.userService = userService;
     }
 
     // 1. Password Encoder: Upgrading from simple hash to secure BCrypt
@@ -35,7 +33,7 @@ public class SecurityConfig {
 
     // 2. Authentication Provider: Tells Spring how to find users and check passwords
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
@@ -49,7 +47,7 @@ public class SecurityConfig {
 
     // 4. Security Filter Chain: Defining the rules for API access
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, UserService userService) throws Exception {
         http
             // Disable CSRF because our token-based API is stateless and not vulnerable to it
             .csrf(csrf -> csrf.disable())
@@ -67,7 +65,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             // Register our Authentication Provider
-            .authenticationProvider(authenticationProvider())
+            .authenticationProvider(authenticationProvider(userService))
             
             // Insert our custom JWT filter BEFORE the standard Spring username/password filter
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
