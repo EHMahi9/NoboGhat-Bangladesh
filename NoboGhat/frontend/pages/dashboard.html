@@ -14,7 +14,7 @@
     <!-- Dashboard Specific CSS -->
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body" data-requires-auth="true">
 
     <!-- Reusable Navbar -->
     <nav class="navbar">
@@ -29,7 +29,7 @@
             <li><a href="dashboard.html" class="active-link">Dashboard</a></li>
         </ul>
 
-        <a href="../index.html" class="btn-primary">Logout</a>
+        <a href="login.html" class="btn-primary" data-action="logout">Logout</a>
 
         <div class="hamburger">
             <span class="bar"></span>
@@ -45,8 +45,8 @@
         <aside class="dashboard-sidebar">
             <div class="user-profile-summary">
                 <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                <h3>Ebnul Hasan Mahi</h3>
-                <p class="role-badge trader">Trader</p>
+                <h3 data-user-name>Loading...</h3>
+                <p class="role-badge trader" data-user-role>Loading...</p>
             </div>
             
             <ul class="sidebar-menu">
@@ -61,7 +61,7 @@
         <!-- Main Content Area -->
         <main class="dashboard-main">
             <header class="dashboard-header">
-                <h1>Welcome back, Ebnul!</h1>
+                <h1>Welcome back, <span data-user-name>Loading...</span>!</h1>
                 <p>Manage your inland waterway logistics from here.</p>
             </header>
 
@@ -127,6 +127,8 @@
         </main>
     </div>
 
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/session.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
     <script src="../assets/js/navbar.js"></script>
-    <script src="../assets/js/main.js"></script>
 </html>

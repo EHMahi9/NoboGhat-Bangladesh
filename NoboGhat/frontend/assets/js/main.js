@@ -36,7 +36,10 @@ document.addEventListener("DOMContentLoaded", function() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        var data = await response.json();
+        var data;
+        try { data = await response.json(); } catch (parseError) {
+          data = { message: "The server returned an invalid response. Check that the backend is running." };
+        }
         if (!response.ok) throw new Error(data.message || "Registration failed.");
         alert("Registration completed. Your user ID is " + data.userId + ".");
         registrationForm.reset();

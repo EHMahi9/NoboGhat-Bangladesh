@@ -94,6 +94,10 @@ async function submitAuthForm(form, endpoint, button) {
 
 // Handle Form Submissions
 document.addEventListener('DOMContentLoaded', function() {
+    var googleLogin = document.getElementById('googleLogin');
+    if (googleLogin && window.NoboGhatApi) {
+        googleLogin.href = window.NoboGhatApi.googleLoginUrl();
+    }
     
     var loginForm = document.getElementById('loginForm');
     var registerForm = document.getElementById('registerForm');

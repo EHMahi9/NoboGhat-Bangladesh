@@ -41,16 +41,42 @@ public class UserService implements UserDetailsService {
      * We use the phone number as the unique "username" for NoboGhat.
      */
     @Override
-    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
-        User user = userRepository.findByPhone(phone.trim())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phone));
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        String normalized = identifier.trim();
+        User user = userRepository.findByPhone(normalized)
+                .or(() -> userRepository.findByEmail(normalized.toLowerCase(Locale.ROOT)))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         // Map the NoboGhat User to a Spring Security UserDetails object
         return new org.springframework.security.core.userdetails.User(
-                user.getPhone(),
+                loginIdentifier(user),
                 user.getPasswordHash(),
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
         );
+    }
+
+    public User registerGoogleUser(String email, String name) {
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+        return userRepository.findByEmail(normalizedEmail).orElseGet(() -> {
+            Farmer user = new Farmer();
+            user.setName(name == null || name.isBlank() ? "Google user" : name.trim());
+            user.setEmail(normalizedEmail);
+            // Google users authenticate with Google; this value prevents a null
+            // password column without granting password-based sign-in.
+            user.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+            return userRepository.save(user);
+        });
+    }
+
+    public User getUserByIdentifier(String identifier) {
+        String normalized = identifier.trim();
+        return userRepository.findByPhone(normalized)
+                .or(() -> userRepository.findByEmail(normalized.toLowerCase(Locale.ROOT)))
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+    }
+
+    private String loginIdentifier(User user) {
+        return user.getPhone() != null ? user.getPhone() : user.getEmail();
     }
 
     public User registerNewUser(UserRegistrationDto registrationDto) {

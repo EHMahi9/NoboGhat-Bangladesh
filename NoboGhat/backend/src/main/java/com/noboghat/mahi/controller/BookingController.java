@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import com.noboghat.mahi.dto.BookingDto;
 import com.noboghat.mahi.model.Booking;
@@ -28,18 +29,22 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Booking createNewBooking(@Valid @RequestBody BookingDto bookingDto) {
-        return bookingService.createBooking(bookingDto);
+    public Booking createNewBooking(@Valid @RequestBody BookingDto bookingDto, Authentication authentication) {
+        return bookingService.createBooking(bookingDto, authentication.getName());
     }
     
     @GetMapping("/{id}")
-    public Booking getBooking(@PathVariable Long id) {
-        return bookingService.getBookingById(id);
+    public Booking getBooking(@PathVariable Long id, Authentication authentication) {
+        return bookingService.getBookingById(id, authentication.getName(), isAdmin(authentication));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelBooking(@PathVariable Long id) {
-        bookingService.cancelBooking(id);
+    public void cancelBooking(@PathVariable Long id, Authentication authentication) {
+        bookingService.cancelBooking(id, authentication.getName(), isAdmin(authentication));
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
     }
 }

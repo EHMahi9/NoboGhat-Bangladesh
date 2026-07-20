@@ -41,8 +41,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // If token is tampered with or expired, extraction will fail
-                System.out.println("JWT Token extraction failed: " + e.getMessage());
+                // Invalid or expired tokens are treated as anonymous requests.
+                // The security entry point returns a consistent JSON 401 response.
             }
         }
 

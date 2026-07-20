@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: noboghat-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: noboghat-mysql
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: noboghat-mysql
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: noboghat-mysql
+          property: password
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://noboghat-frontend.onrender.com
+      - key: FRONTEND_URL
+        value: https://noboghat-frontend.onrender.com
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID
+        sync: false
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: noboghat-frontend
+    runtime: static
+    buildCommand: echo "Static files ready"
+    staticPublishPath: ./frontend
+    region: oregon
+    envVars:
+      - key: BACKEND_API_URL
+        value: https://noboghat-backend.onrender.com
+
+databases:
+  - name: noboghat-mysql
+    databaseName: noboghat
+    user: noboghat_user
+    plan: starter
+    region: oregon

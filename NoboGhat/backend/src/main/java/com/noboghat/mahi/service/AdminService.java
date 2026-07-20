@@ -1,6 +1,5 @@
 package com.noboghat.mahi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.noboghat.mahi.dto.AdminDashboardDto;
@@ -11,9 +10,15 @@ import com.noboghat.mahi.repository.UserRepository;
 @Service
 public class AdminService {
 
-    @Autowired private UserRepository userRepository;
-    @Autowired private BoatRepository boatRepository;
-    @Autowired private BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final BoatRepository boatRepository;
+    private final BookingRepository bookingRepository;
+
+    public AdminService(UserRepository userRepository, BoatRepository boatRepository, BookingRepository bookingRepository) {
+        this.userRepository = userRepository;
+        this.boatRepository = boatRepository;
+        this.bookingRepository = bookingRepository;
+    }
 
     public AdminDashboardDto getDashboardStats() {
         long users = userRepository.count();

@@ -9,25 +9,23 @@ import com.noboghat.mahi.model.Trip;
 import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.BookingRepository;
 import com.noboghat.mahi.repository.TripRepository;
-import com.noboghat.mahi.repository.UserRepository;
 
 @Service
 public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final TripRepository tripRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public BookingService(BookingRepository bookingRepository, TripRepository tripRepository, UserRepository userRepository) {
+    public BookingService(BookingRepository bookingRepository, TripRepository tripRepository, UserService userService) {
         this.bookingRepository = bookingRepository;
         this.tripRepository = tripRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Transactional
-    public Booking createBooking(BookingDto bookingDto) {
-        User user = userRepository.findById(bookingDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+    public Booking createBooking(BookingDto bookingDto, String requester) {
+        User user = userService.getUserByIdentifier(requester);
         Trip trip = tripRepository.findByIdForBooking(bookingDto.getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found."));
 
@@ -46,15 +44,18 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public Booking getBookingById(Long id) {
-        return bookingRepository.findById(id)
+    public Booking getBookingById(Long id, String requester, boolean isAdmin) {
+        Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
+        requireOwnerOrAdmin(booking, requester, isAdmin);
+        return booking;
     }
 
     @Transactional
-    public void cancelBooking(Long id) {
+    public void cancelBooking(Long id, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
+        requireOwnerOrAdmin(booking, requester, isAdmin);
 
         if ("CANCELLED".equals(booking.getStatus())) {
             throw new IllegalStateException("Booking is already cancelled.");
@@ -62,5 +63,11 @@ public class BookingService {
 
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
+    }
+
+    private void requireOwnerOrAdmin(Booking booking, String requester, boolean isAdmin) {
+        if (!isAdmin && !booking.getUser().getUserId().equals(userService.getUserByIdentifier(requester).getUserId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You can access only your own bookings.");
+        }
     }
 }

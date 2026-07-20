@@ -44,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginDto loginDto) {
         // 1. Verify the phone and password against the database via AuthenticationManager
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getPhone(), loginDto.getPassword())

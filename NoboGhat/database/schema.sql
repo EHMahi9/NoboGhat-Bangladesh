@@ -4,7 +4,8 @@
 CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL UNIQUE,
+    phone VARCHAR(20) UNIQUE,
+    email VARCHAR(320) UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(30),
     dtype VARCHAR(31) -- Discriminator for JPA inheritance

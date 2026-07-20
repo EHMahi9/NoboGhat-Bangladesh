@@ -31,10 +31,14 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(unique = true, length = 20)
     private String phone;
 
+    @Column(unique = true, length = 320)
+    private String email;
+
     // Added to align with Database Schema and FR-02 (Authentication)
+    @JsonIgnore
     @Column(nullable = false)
     private String passwordHash;
 

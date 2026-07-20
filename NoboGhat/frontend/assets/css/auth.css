@@ -162,6 +162,11 @@
     cursor: not-allowed;
 }
 
+.oauth-divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: #6b7280; }
+.oauth-divider::before, .oauth-divider::after { content: ""; height: 1px; background: #d1d5db; flex: 1; }
+.google-login { display: block; text-align: center; text-decoration: none; background: #fff; color: #374151; border: 1px solid #d1d5db; }
+.google-login:hover { background: #f9fafb; }
+
 .auth-footer-text {
     text-align: center;
     margin-top: 1.5rem;

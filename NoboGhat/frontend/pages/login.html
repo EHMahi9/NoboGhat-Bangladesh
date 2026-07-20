@@ -56,6 +56,8 @@
                 </div>
 
                 <button type="submit" class="btn-primary auth-btn">Sign In</button>
+                <div class="oauth-divider"><span>or</span></div>
+                <a id="googleLogin" class="auth-btn google-login" href="http://localhost:8080/oauth2/authorization/google">Continue with Google</a>
                 <div class="auth-error"></div>
                 <p class="auth-footer-text">Forgot password? <a href="#">Recover account</a></p>
             </form>
@@ -110,6 +112,7 @@
     </main>
 
     <!-- Scripts -->
+    <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
 </body>
 </html>
