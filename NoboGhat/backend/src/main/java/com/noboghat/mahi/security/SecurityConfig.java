@@ -1,8 +1,8 @@
 package com.noboghat.mahi.security;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -12,9 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
 import com.noboghat.mahi.service.UserService;
 
@@ -55,7 +55,7 @@ public class SecurityConfig {
 
     // 4. Security Filter Chain: Defining the rules for API access
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
+    public SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider authProvider,
             ObjectProvider<ClientRegistrationRepository> clientRegistrations) throws Exception {
         http
             // Disable CSRF because our token-based API is stateless and not vulnerable to it
@@ -74,8 +74,8 @@ public class SecurityConfig {
             // Tell Spring NOT to create HTTP sessions (we are using JWTs instead)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // Register our Authentication Provider
-            .authenticationProvider(authenticationProvider())
+            // Register our Authentication Provider (injected as @Bean parameter - no circular dependency!)
+            .authenticationProvider(authProvider)
 
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, exception) -> {
