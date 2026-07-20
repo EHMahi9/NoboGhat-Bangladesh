@@ -23,13 +23,11 @@ import com.noboghat.mahi.service.UserService;
 public class SecurityConfig {
 
     private final JwtRequestFilter jwtRequestFilter;
-    private final UserService userService;
     private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter, UserService userService,
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter,
             GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler) {
         this.jwtRequestFilter = jwtRequestFilter;
-        this.userService = userService;
         this.googleOAuth2SuccessHandler = googleOAuth2SuccessHandler;
     }
 
@@ -40,8 +38,10 @@ public class SecurityConfig {
     }
 
     // 2. Authentication Provider: Tells Spring how to find users and check passwords
+    // UserService is injected here as a method parameter, NOT constructor parameter
+    // This breaks the circular dependency: SecurityConfig → UserService → PasswordEncoder
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
