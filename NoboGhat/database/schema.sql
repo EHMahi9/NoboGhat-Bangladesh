@@ -58,3 +58,6 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+CREATE INDEX idx_trips_departure_time ON trips (departure_time);
+CREATE INDEX idx_bookings_trip_status ON bookings (trip_id, status);

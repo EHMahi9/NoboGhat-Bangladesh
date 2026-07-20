@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.noboghat.mahi.dto.UserRegistrationDto;
+import com.noboghat.mahi.model.BoatOwner;
+import com.noboghat.mahi.model.Farmer;
+import com.noboghat.mahi.model.Trader;
 import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.UserRepository;
 
@@ -61,10 +64,16 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Select Farmer, Trader, or Boat Owner as the role.");
         }
 
-        User user = new User();
+        // The database role is the JPA discriminator, so persist its matching
+        // subtype rather than attempting to update a read-only discriminator.
+        User user = switch (role) {
+            case "FARMER" -> new Farmer();
+            case "TRADER" -> new Trader();
+            case "BOAT_OWNER" -> new BoatOwner();
+            default -> throw new IllegalStateException("Unsupported user role.");
+        };
         user.setName(registrationDto.getName().trim());
         user.setPhone(phone);
-        user.setRole(role);
         
         // Phase 6 Implementation: Replaced the simple .hashCode() with BCrypt
         String password = registrationDto.getPassword();

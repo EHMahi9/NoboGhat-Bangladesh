@@ -57,6 +57,8 @@ public class SecurityConfig {
             // Define endpoint access rules based on your API Design
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Public access
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/trips/**", "/api/routes/**", "/api/boats/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN") // Role-based access for Admin Dashboard
                 .anyRequest().authenticated() // All other routes (boats, bookings, trips) require a valid JWT
             )

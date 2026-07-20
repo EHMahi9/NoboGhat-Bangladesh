@@ -1,7 +1,10 @@
 document.addEventListener("DOMContentLoaded", async function() {
   var errorMessage = document.getElementById("dashboardError");
   try {
-    var response = await fetch("/api/admin/dashboard");
+    var api = window.NoboGhatApi;
+    var response = await fetch(api.url("/api/admin/dashboard"), {
+      headers: api.authHeaders()
+    });
     if (!response.ok) throw new Error("Dashboard data could not be loaded.");
     var data = await response.json();
     document.getElementById("totalUsers").textContent = data.totalUsers;

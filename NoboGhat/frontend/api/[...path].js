@@ -12,6 +12,8 @@ module.exports = async (request, response) => {
   const target = `${backendUrl.replace(/\/$/, "")}/api/${path || ""}${query.size ? `?${query}` : ""}`;
 
   const headers = { "Content-Type": "application/json" };
+  // Preserve the browser's JWT when a protected API request is proxied.
+  if (request.headers.authorization) headers.Authorization = request.headers.authorization;
   const options = { method: request.method, headers };
   if (!["GET", "HEAD"].includes(request.method) && request.body !== undefined) {
     options.body = typeof request.body === "string" ? request.body : JSON.stringify(request.body);

@@ -71,6 +71,12 @@ async function submitAuthForm(form, endpoint, button) {
             throw new Error(errData.message || errData.error || 'Request failed. Please try again.');
         }
 
+        var result = await response.json();
+        if (result.token) {
+            localStorage.setItem('noboghatToken', result.token);
+            localStorage.setItem('noboghatRole', result.role || '');
+        }
+
         // Success - redirect to dashboard
         window.location.href = 'dashboard.html';
     } catch (error) {
