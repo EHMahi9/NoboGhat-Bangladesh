@@ -58,7 +58,7 @@ A modern, full-stack web application for managing river cargo transport coordina
 | **Database** | MySQL 8.0+ |
 | **Security** | Spring Security, JWT, BCrypt |
 | **Auth** | Local + Google OAuth2 |
-| **DevOps** | Railway (backend), Vercel (frontend) |
+| **DevOps** | Render (backend & frontend) |
 
 ---
 
@@ -406,11 +406,11 @@ Admin:      Need JWT + ADMIN role for analytics
 4. **Demo** (3 min): Register → Login → Browse trips → Create booking
 5. **Tech Stack** (2 min): Spring Boot backend, vanilla JS frontend, MySQL
 6. **Key Features** (1 min): JWT auth, capacity checking, admin dashboard
-7. **Deployment** (1 min): Railway backend, Vercel frontend
+7. **Deployment** (1 min): Render backend & frontend
 
 ### Interview Answer
 
-> "NoboGhat is a full-stack web application that connects cargo providers with boat owners for river transport in Bangladesh. The backend is built with Spring Boot 4.1 and Java 25, implementing a REST API with JWT authentication and role-based authorization. I used JPA/Hibernate for ORM, with a MySQL database using normalized schema. The frontend is vanilla JavaScript with HTML5/CSS3, making async API calls via Fetch. Key implementation includes BCrypt password hashing, pessimistic locking for capacity validation, and Google OAuth2 integration. I deployed it on Railway for the backend and Vercel for the frontend. The project demonstrates three-tier architecture, RESTful design, security best practices, and full-stack development."
+> "NoboGhat is a full-stack web application that connects cargo providers with boat owners for river transport in Bangladesh. The backend is built with Spring Boot 4.1 and Java 25, implementing a REST API with JWT authentication and role-based authorization. I used JPA/Hibernate for ORM, with a MySQL database using normalized schema. The frontend is vanilla JavaScript with HTML5/CSS3, making async API calls via Fetch. Key implementation includes BCrypt password hashing, pessimistic locking for capacity validation, and Google OAuth2 integration. I deployed it on Render for both the backend and frontend. The project demonstrates three-tier architecture, RESTful design, security best practices, and full-stack development."
 
 ---
 

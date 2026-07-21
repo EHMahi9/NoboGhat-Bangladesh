@@ -15,7 +15,7 @@ Spring Boot REST API
 
 ## Frontend
 
-`frontend/` is a framework-free static website. `assets/js/api.js` selects the local Spring Boot URL during development and the Vercel API proxy in deployment. `session.js` manages the JWT and guards the dashboard pages. `dashboard.html` is the authenticated user dashboard; `admin.html` is a separate ADMIN-only analytics dashboard.
+`frontend/` is a framework-free static website. `assets/js/api.js` selects the local Spring Boot URL during development and the Render backend URL in production.
 
 ## Backend
 
@@ -35,7 +35,7 @@ The user table uses single-table inheritance for `FARMER`, `TRADER`, `BOAT_OWNER
 
 ## Deployment
 
-For local development, the static frontend runs on port 5500 and the API on 8080. In production, Vercel serves the frontend and proxies `/api/*` to Railway. MySQL credentials are environment variables, never frontend code or Git.
+For local development, the static frontend runs on port 5500 and the API on 8080. In production, Render serves the frontend as a static site and the backend as a Docker container. MySQL credentials are environment variables, never frontend code or Git.
 
 ## Known scope boundary
 

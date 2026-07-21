@@ -7,8 +7,8 @@ The code is complete, but Google requires credentials owned by the project. This
 3. Create an **OAuth client ID** of type **Web application**.
 4. Add these authorized redirect URIs exactly:
    * Local: `http://localhost:8080/login/oauth2/code/google`
-   * Deployed: `https://YOUR-RAILWAY-DOMAIN/login/oauth2/code/google`
-5. Put the client ID and client secret in `backend/.env` locally, or Railway variables in production:
+   * Deployed: `https://YOUR-RENDER-DOMAIN/login/oauth2/code/google`
+5. Put the client ID and client secret in `backend/.env` locally, or Render environment variables in production:
 
 ```properties
 SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=...
@@ -16,7 +16,7 @@ SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=...
 FRONTEND_URL=http://localhost:5500
 ```
 
-For Railway, set `FRONTEND_URL` to your Vercel site URL and set `BACKEND_API_URL` in Vercel to the Railway API URL. Restart/redeploy both services.
+For Render, set `FRONTEND_URL` to your frontend static site URL. The `render.yaml` blueprint handles all environment variables automatically for both backend and frontend services.
 
 The login button starts the standard Spring Security path. Google verifies the identity, the API creates or reuses a local Google user by email, creates a NoboGhat JWT, and returns the user to the dashboard. Google users are initially `FARMER`; an administrator can later add a role-selection/approval process.
 
