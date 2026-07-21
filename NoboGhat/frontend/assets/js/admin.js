@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   var tripsBody = document.getElementById("tripsBody");
   var tripRouteSelect = document.getElementById("tripRoute");
   var tripBoatSelect = document.getElementById("tripBoat");
+  var usersBody = document.getElementById("usersBody");
   var bookingsBody = document.getElementById("bookingsBody");
 
   function setBoatMessage(text, type) {
@@ -82,6 +83,22 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
+  async function loadUsers() {
+    var response = await fetch(api.url("/api/admin/users"), { headers: api.authHeaders() });
+    if (!response.ok) throw new Error("Users could not be loaded.");
+    var users = await response.json();
+    usersBody.innerHTML = "";
+    if (!users.length) {
+      usersBody.innerHTML = "<tr><td colspan=\"7\">No users found.</td></tr>";
+      return;
+    }
+    users.forEach(function (user) {
+      var row = document.createElement("tr");
+      row.innerHTML = "<td>#USR-" + user.userId + "</td><td>" + user.name + "</td><td>" + (user.phone || user.email || "—") + "</td><td>" + user.role + "</td><td>" + user.boatCount + "</td><td>" + user.bookingCount + "</td><td><button type='button' class='btn-outline' data-delete-user='" + user.userId + "'>Delete</button></td>";
+      usersBody.appendChild(row);
+    });
+  }
+
   async function loadBookings() {
     var response = await fetch(api.url("/api/admin/bookings"), { headers: api.authHeaders() });
     if (!response.ok) throw new Error("Bookings could not be loaded.");
@@ -109,6 +126,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     await loadTripOptions();
     await loadBoats();
     await loadTrips();
+    await loadUsers();
     await loadBookings();
 
     boatsBody.addEventListener("click", async function (event) {
@@ -123,6 +141,14 @@ document.addEventListener("DOMContentLoaded", async function() {
       await fetch(api.url("/api/admin/trips/" + id), { method: "DELETE", headers: api.authHeaders() });
       await loadTrips();
     });
+    if (usersBody) {
+      usersBody.addEventListener("click", async function (event) {
+        var id = event.target.getAttribute("data-delete-user");
+        if (!id) return;
+        await fetch(api.url("/api/admin/users/" + id), { method: "DELETE", headers: api.authHeaders() });
+        await loadUsers();
+      });
+    }
     bookingsBody.addEventListener("click", async function (event) {
       var id = event.target.getAttribute("data-booking");
       var status = event.target.getAttribute("data-status");
