@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
     var api = window.NoboGhatApi;
     var bookings = [];
+    var profileForm = document.getElementById("profileForm");
+    var profileMessage = document.getElementById("profileMessage");
 
     function formatDate(value) {
         if (!value) return "N/A";
@@ -141,6 +143,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    function setProfileMessage(text, type) {
+        if (!profileMessage) return;
+        profileMessage.textContent = text;
+        profileMessage.className = "booking-message " + (type || "");
+        profileMessage.hidden = !text;
+    }
+
     var viewButton = document.getElementById("viewBookingStatusBtn");
     if (viewButton) {
         viewButton.addEventListener("click", function () {
@@ -160,6 +169,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         var role = document.querySelector("[data-user-role]");
         if (role) role.textContent = (user.role || "").replace("_", " ");
+        var profileName = document.getElementById("profileName");
+        var profilePhone = document.getElementById("profilePhone");
+        if (profileName) profileName.value = user.name || "";
+        if (profilePhone) profilePhone.value = user.phone || "";
 
         var bookingsResponse = await fetch(api.url("/api/bookings"), {
             headers: api.authHeaders()
@@ -170,6 +183,44 @@ document.addEventListener("DOMContentLoaded", async function () {
         bookings = await bookingsResponse.json();
         renderBookings(bookings);
         renderTrips(bookings);
+
+        if (profileForm) {
+            profileForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                var submitButton = profileForm.querySelector("button[type='submit']");
+                if (submitButton) submitButton.disabled = true;
+                setProfileMessage("Saving changes...", "");
+
+                try {
+                    var currentPasswordValue = document.getElementById("currentPassword").value.trim();
+                    var newPasswordValue = document.getElementById("newPassword").value.trim();
+                    var payload = {
+                        name: document.getElementById("profileName").value.trim(),
+                        phone: document.getElementById("profilePhone").value.trim() || null,
+                        currentPassword: currentPasswordValue || null,
+                        newPassword: newPasswordValue || null
+                    };
+                    var response = await fetch(api.url("/api/users/profile"), {
+                        method: "PUT",
+                        headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
+                        body: JSON.stringify(payload)
+                    });
+                    var data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Profile update failed.");
+                    document.querySelectorAll("[data-user-name]").forEach(function (element) { element.textContent = data.name; });
+                    var roleNode = document.querySelector("[data-user-role]");
+                    if (roleNode) roleNode.textContent = (data.role || "").replace("_", " ");
+                    setProfileMessage(data.message || "Profile updated successfully.", "success");
+                    profileForm.reset();
+                    if (profileName) profileName.value = data.name || "";
+                    if (profilePhone) profilePhone.value = data.phone || "";
+                } catch (error) {
+                    setProfileMessage(error.message, "error");
+                } finally {
+                    if (submitButton) submitButton.disabled = false;
+                }
+            });
+        }
     } catch (error) {
         localStorage.removeItem("noboghatToken");
         localStorage.removeItem("noboghatRole");

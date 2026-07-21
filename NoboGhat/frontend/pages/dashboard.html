@@ -134,6 +134,28 @@
                     </table>
                 </div>
             </section>
+
+            <section class="recent-history" id="profile-settings-section">
+                <h2>Profile Settings</h2>
+                <div class="booking-panel">
+                    <form id="profileForm" class="booking-form">
+                        <label for="profileName">Full Name</label>
+                        <input type="text" id="profileName" required>
+
+                        <label for="profilePhone">Phone Number</label>
+                        <input type="tel" id="profilePhone">
+
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" autocomplete="current-password">
+
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" autocomplete="new-password">
+
+                        <button type="submit" class="btn-book">Save Changes</button>
+                    </form>
+                    <p id="profileMessage" class="booking-message" hidden></p>
+                </div>
+            </section>
         </main>
     </div>
 
