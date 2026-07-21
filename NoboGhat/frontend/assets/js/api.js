@@ -1,13 +1,12 @@
 (function () {
     "use strict";
 
-    // Local pages call Spring Boot directly; deployed pages call the Render backend.
+    // Local pages call Spring Boot directly; deployed pages call the Railway backend.
     var localHosts = new Set(["localhost", "127.0.0.1"]);
     var isLocal = localHosts.has(window.location.hostname);
 
-    // In production on Render, the backend is at this fixed URL.
-    // If you rename the Render service, update this value.
-    var productionBackend = "https://noboghat-backend.onrender.com";
+    // Keep this aligned with the public Railway service URL.
+    var productionBackend = "https://desktop-and-web-programming-lab-project-production.up.railway.app";
 
     var apiBaseUrl = isLocal ? "http://localhost:8080" : productionBackend;
 
