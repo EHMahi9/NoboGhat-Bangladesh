@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.noboghat.mahi.dto.AdminDashboardDto;
+import com.noboghat.mahi.dto.BookingSummaryDto;
 import com.noboghat.mahi.service.AdminService;
 
 @RestController
@@ -20,5 +21,10 @@ public class AdminController {
     @GetMapping("/dashboard")
     public AdminDashboardDto getDashboard() {
         return adminService.getDashboardStats();
+    }
+
+    @GetMapping("/bookings")
+    public java.util.List<BookingSummaryDto> getBookings() {
+        return adminService.getAllBookings();
     }
 }

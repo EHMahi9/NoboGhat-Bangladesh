@@ -75,6 +75,33 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
     }
 
+    public User updateProfile(String identifier, String name, String phone, String currentPassword, String newPassword) {
+        User user = getUserByIdentifier(identifier);
+
+        if (name != null && !name.isBlank()) user.setName(name.trim());
+        if (phone != null && !phone.isBlank() && !phone.trim().equals(user.getPhone())) {
+            String normalizedPhone = phone.trim();
+            userRepository.findByPhone(normalizedPhone).ifPresent(existing -> {
+                if (!existing.getUserId().equals(user.getUserId())) {
+                    throw new IllegalArgumentException("A user with this phone number already exists.");
+                }
+            });
+            user.setPhone(normalizedPhone);
+        }
+
+        if (newPassword != null && !newPassword.isBlank()) {
+            if (currentPassword == null || currentPassword.isBlank()) {
+                throw new IllegalArgumentException("Current password is required to change your password.");
+            }
+            if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+                throw new IllegalArgumentException("Current password is incorrect.");
+            }
+            user.setPasswordHash(passwordEncoder.encode(newPassword));
+        }
+
+        return userRepository.save(user);
+    }
+
     private String loginIdentifier(User user) {
         return user.getPhone() != null ? user.getPhone() : user.getEmail();
     }

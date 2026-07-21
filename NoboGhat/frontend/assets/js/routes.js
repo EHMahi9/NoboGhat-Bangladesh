@@ -3,13 +3,87 @@ document.addEventListener("DOMContentLoaded", function() {
     var errorMessage = document.getElementById("routesError");
     var searchForm = document.getElementById("routeSearchForm");
     var resultsCount = document.getElementById("resultsCount");
+    var bookingSection = document.getElementById("bookingSection");
+    var bookingForm = document.getElementById("bookingForm");
+    var bookingMessage = document.getElementById("bookingMessage");
+    var bookingTripIdInput = document.getElementById("bookingTripId");
+    var bookingCargoWeightInput = document.getElementById("bookingCargoWeight");
+    var bookingTripDetails = document.getElementById("bookingTripDetails");
+    var closeBookingPanel = document.getElementById("closeBookingPanel");
+    var currentSearchSource = "";
+    var currentSearchDestination = "";
+    var selectedTrip = null;
 
-    // Creates a trip card DOM element from data — no innerHTML with user content
+    function setBookingMessage(text, type) {
+        if (!bookingMessage) return;
+        bookingMessage.textContent = text;
+        bookingMessage.className = "booking-message " + (type || "");
+        bookingMessage.hidden = !text;
+    }
+
+    function formatDeparture(trip) {
+        if (!trip.departureTime) return "Scheduled departure";
+        var date = new Date(trip.departureTime);
+        if (Number.isNaN(date.getTime())) return "Scheduled departure";
+        return date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+        });
+    }
+
+    function openBookingPanel(trip) {
+        selectedTrip = trip;
+        if (bookingTripIdInput) bookingTripIdInput.value = trip.tripId;
+        if (bookingCargoWeightInput) bookingCargoWeightInput.value = "";
+        if (bookingTripDetails) {
+            bookingTripDetails.innerHTML = "";
+
+            var items = [
+                { label: "Trip ID", value: "#TRP-" + trip.tripId },
+                { label: "Route", value: (trip.route.source || "N/A") + " → " + (trip.route.destination || "N/A") },
+                { label: "Boat", value: trip.boat.name || "N/A" },
+                { label: "Departure", value: formatDeparture(trip) },
+                { label: "Available Capacity", value: (trip.boat.capacity || 0) + " kg" }
+            ];
+
+            for (var i = 0; i < items.length; i++) {
+                var chip = document.createElement("div");
+                chip.className = "booking-chip";
+
+                var label = document.createElement("strong");
+                label.textContent = items[i].label;
+
+                var value = document.createElement("span");
+                value.textContent = items[i].value;
+
+                chip.appendChild(label);
+                chip.appendChild(value);
+                bookingTripDetails.appendChild(chip);
+            }
+        }
+
+        if (bookingSection) {
+            bookingSection.hidden = false;
+            bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        setBookingMessage("", "");
+        if (bookingCargoWeightInput) bookingCargoWeightInput.focus();
+    }
+
+    function closeBookingPanelView() {
+        selectedTrip = null;
+        if (bookingSection) bookingSection.hidden = true;
+        setBookingMessage("", "");
+    }
+
     function createTripCard(trip) {
         var card = document.createElement("div");
         card.className = "trip-card";
 
-        // Header
         var header = document.createElement("div");
         header.className = "trip-header";
 
@@ -24,7 +98,6 @@ document.addEventListener("DOMContentLoaded", function() {
         header.appendChild(boatName);
         header.appendChild(badge);
 
-        // Body
         var body = document.createElement("div");
         body.className = "trip-body";
 
@@ -46,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         details.className = "trip-details";
 
         var li1 = document.createElement("li");
-        li1.innerHTML = '<i class="fa-regular fa-calendar"></i> Scheduled Departure';
+        li1.innerHTML = '<i class="fa-regular fa-calendar"></i> ' + formatDeparture(trip);
 
         var li2 = document.createElement("li");
         li2.innerHTML = '<i class="fa-solid fa-weight-scale"></i> <strong>Available Capacity:</strong> ' + (trip.boat.capacity || "0") + ' kg';
@@ -61,20 +134,25 @@ document.addEventListener("DOMContentLoaded", function() {
         body.appendChild(routeInfo);
         body.appendChild(details);
 
-        // Footer
         var footer = document.createElement("div");
         footer.className = "trip-footer";
 
         var price = document.createElement("span");
         price.className = "price-estimate";
-        price.textContent = "Est. Rate Applied";
+        price.textContent = "Live booking";
 
-        var bookLink = document.createElement("a");
-        bookLink.href = "login.html";
+        var bookLink = document.createElement("button");
+        bookLink.type = "button";
         bookLink.className = "btn-book";
-        bookLink.style.textDecoration = "none";
-        bookLink.style.textAlign = "center";
         bookLink.textContent = "Book Space";
+        bookLink.addEventListener("click", function () {
+            var token = localStorage.getItem("noboghatToken");
+            if (!token) {
+                window.location.href = "login.html?message=" + encodeURIComponent("Please sign in to book cargo.");
+                return;
+            }
+            openBookingPanel(trip);
+        });
 
         footer.appendChild(price);
         footer.appendChild(bookLink);
@@ -87,9 +165,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     async function loadTrips(searchSource, searchDestination) {
-        searchSource = searchSource || "";
-        searchDestination = searchDestination || "";
-
+        currentSearchSource = searchSource || "";
+        currentSearchDestination = searchDestination || "";
         resultsContainer.innerHTML = '<p>Loading available trips...</p>';
         errorMessage.hidden = true;
 
@@ -100,8 +177,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             var matches = trips.filter(function(trip) {
                 var route = trip.route || {};
-                var srcMatch = (route.source || "").toLowerCase().includes(searchSource.toLowerCase());
-                var dstMatch = (route.destination || "").toLowerCase().includes(searchDestination.toLowerCase());
+                var srcMatch = (route.source || "").toLowerCase().includes(currentSearchSource.toLowerCase());
+                var dstMatch = (route.destination || "").toLowerCase().includes(currentSearchDestination.toLowerCase());
                 return srcMatch && dstMatch;
             });
 
@@ -124,6 +201,65 @@ document.addEventListener("DOMContentLoaded", function() {
             resultsContainer.innerHTML = "";
             resultsCount.textContent = "Error loading trips";
         }
+    }
+
+    if (closeBookingPanel) {
+        closeBookingPanel.addEventListener("click", function () {
+            closeBookingPanelView();
+        });
+    }
+
+    if (bookingForm) {
+        bookingForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            if (!selectedTrip) {
+                setBookingMessage("Please select a trip first.", "error");
+                return;
+            }
+
+            var cargoWeight = Number(bookingCargoWeightInput ? bookingCargoWeightInput.value : "");
+            if (!cargoWeight || cargoWeight <= 0) {
+                setBookingMessage("Cargo weight must be greater than zero.", "error");
+                return;
+            }
+
+            var submitButton = bookingForm.querySelector("button[type='submit']");
+            if (submitButton) submitButton.disabled = true;
+            setBookingMessage("Submitting booking...", "");
+
+            try {
+                var response = await fetch(window.NoboGhatApi.url("/api/bookings"), {
+                    method: "POST",
+                    headers: Object.assign({
+                        "Content-Type": "application/json"
+                    }, window.NoboGhatApi.authHeaders()),
+                    body: JSON.stringify({
+                        tripId: selectedTrip.tripId,
+                        cargoWeight: cargoWeight
+                    })
+                });
+
+                if (!response.ok) {
+                    var payload = {};
+                    try {
+                        payload = await response.json();
+                    } catch (parseError) {
+                        payload = {};
+                    }
+                    throw new Error(payload.message || "Booking could not be created.");
+                }
+
+                setBookingMessage("Booking created successfully.", "success");
+                await loadTrips(currentSearchSource, currentSearchDestination);
+                bookingForm.reset();
+                selectedTrip = null;
+            } catch (error) {
+                setBookingMessage(error.message, "error");
+            } finally {
+                if (submitButton) submitButton.disabled = false;
+            }
+        });
     }
 
     if (searchForm) {

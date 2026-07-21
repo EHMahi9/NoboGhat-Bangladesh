@@ -15,6 +15,112 @@
     font-weight: bold;
 }
 
+.booking-section {
+    background-color: #f4f7f6;
+    padding: 0 0 2rem;
+}
+
+.booking-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    border: 1px solid #eee;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.booking-panel-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.booking-eyebrow {
+    margin: 0 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    color: #0056b3;
+    font-weight: 700;
+}
+
+.booking-panel h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.4rem;
+}
+
+.booking-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.booking-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.booking-chip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.8rem 0.9rem;
+    color: #334155;
+}
+
+.booking-chip strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.booking-form {
+    display: grid;
+    grid-template-columns: minmax(0, 220px) auto;
+    gap: 0.75rem 1rem;
+    align-items: end;
+}
+
+.booking-form label {
+    grid-column: 1 / -1;
+    font-weight: 600;
+    color: #334155;
+}
+
+.booking-form input {
+    padding: 0.9rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.booking-form button {
+    justify-self: start;
+}
+
+.booking-message {
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+.booking-message.success {
+    color: #166534;
+}
+
+.booking-message.error {
+    color: #b91c1c;
+}
+
 /* ==========================================
    Routes Header & Search
 ========================================== */
@@ -174,6 +280,10 @@
     cursor: pointer;
     font-weight: 500;
 }
+.btn-book:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 .btn-book:hover { background-color: #004494; }
 
 /* ==========================================
@@ -183,6 +293,8 @@
     .advanced-search-form { flex-direction: column; }
     .btn-search { padding: 12px; }
     .section-title-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .booking-form { grid-template-columns: 1fr; }
+    .booking-form button { width: 100%; }
 }
 
 @media (max-width: 576px) {

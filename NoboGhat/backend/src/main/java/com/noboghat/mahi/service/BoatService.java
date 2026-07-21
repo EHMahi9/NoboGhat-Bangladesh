@@ -3,6 +3,7 @@ package com.noboghat.mahi.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.dto.BoatCreationDto;
 import com.noboghat.mahi.model.Boat;
@@ -36,5 +37,27 @@ public class BoatService {
 
     public List<Boat> getAllBoats() {
         return boatRepository.findAll();
+    }
+
+    @Transactional
+    public Boat updateBoat(Long boatId, BoatCreationDto creationDto) {
+        Boat boat = boatRepository.findById(boatId)
+                .orElseThrow(() -> new IllegalArgumentException("Boat not found."));
+        boat.setName(creationDto.getName());
+        boat.setCapacity(creationDto.getCapacity());
+        if (creationDto.getOwnerId() != null) {
+            User owner = userRepository.findById(creationDto.getOwnerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Boat owner not found"));
+            boat.setOwner(owner);
+        }
+        return boatRepository.save(boat);
+    }
+
+    @Transactional
+    public void deleteBoat(Long boatId) {
+        if (!boatRepository.existsById(boatId)) {
+            throw new IllegalArgumentException("Boat not found.");
+        }
+        boatRepository.deleteById(boatId);
     }
 }

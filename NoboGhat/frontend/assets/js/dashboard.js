@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", async function () {
     var api = window.NoboGhatApi;
     var bookings = [];
+    var profileForm = document.getElementById("profileForm");
+    var profileMessage = document.getElementById("profileMessage");
+    var notificationsBody = document.getElementById("notificationsBody");
+    var notificationCount = document.getElementById("notificationCount");
 
     function formatDate(value) {
         if (!value) return "N/A";
@@ -141,6 +145,61 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    function setProfileMessage(text, type) {
+        if (!profileMessage) return;
+        profileMessage.textContent = text;
+        profileMessage.className = "booking-message " + (type || "");
+        profileMessage.hidden = !text;
+    }
+
+    function formatNotificationDate(value) {
+        return formatDate(value);
+    }
+
+    function renderNotifications(list) {
+        if (!notificationsBody) return;
+        var unread = 0;
+        if (list.length === 0) {
+            notificationsBody.innerHTML = "<tr><td colspan=\"4\">No notifications yet.</td></tr>";
+            if (notificationCount) notificationCount.textContent = "";
+            return;
+        }
+        notificationsBody.innerHTML = "";
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+            if (!item.read) unread += 1;
+            var row = document.createElement("tr");
+            var msg = document.createElement("td");
+            msg.textContent = item.message;
+            var date = document.createElement("td");
+            date.textContent = formatNotificationDate(item.createdAt);
+            var status = document.createElement("td");
+            status.textContent = item.read ? "Read" : "Unread";
+            var action = document.createElement("td");
+            if (!item.read) {
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn-outline";
+                btn.textContent = "Mark Read";
+                btn.addEventListener("click", async function (id) {
+                    return async function () {
+                        await fetch(api.url("/api/notifications/" + id + "/read"), { method: "PUT", headers: api.authHeaders() });
+                        location.reload();
+                    };
+                }(item.notificationId));
+                action.appendChild(btn);
+            } else {
+                action.textContent = "-";
+            }
+            row.appendChild(msg);
+            row.appendChild(date);
+            row.appendChild(status);
+            row.appendChild(action);
+            notificationsBody.appendChild(row);
+        }
+        if (notificationCount) notificationCount.textContent = unread ? "(" + unread + ")" : "";
+    }
+
     var viewButton = document.getElementById("viewBookingStatusBtn");
     if (viewButton) {
         viewButton.addEventListener("click", function () {
@@ -160,6 +219,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         var role = document.querySelector("[data-user-role]");
         if (role) role.textContent = (user.role || "").replace("_", " ");
+        var profileName = document.getElementById("profileName");
+        var profilePhone = document.getElementById("profilePhone");
+        if (profileName) profileName.value = user.name || "";
+        if (profilePhone) profilePhone.value = user.phone || "";
 
         var bookingsResponse = await fetch(api.url("/api/bookings"), {
             headers: api.authHeaders()
@@ -170,6 +233,48 @@ document.addEventListener("DOMContentLoaded", async function () {
         bookings = await bookingsResponse.json();
         renderBookings(bookings);
         renderTrips(bookings);
+        var notificationsResponse = await fetch(api.url("/api/notifications"), { headers: api.authHeaders() });
+        if (notificationsResponse.ok) {
+            renderNotifications(await notificationsResponse.json());
+        }
+
+        if (profileForm) {
+            profileForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                var submitButton = profileForm.querySelector("button[type='submit']");
+                if (submitButton) submitButton.disabled = true;
+                setProfileMessage("Saving changes...", "");
+
+                try {
+                    var currentPasswordValue = document.getElementById("currentPassword").value.trim();
+                    var newPasswordValue = document.getElementById("newPassword").value.trim();
+                    var payload = {
+                        name: document.getElementById("profileName").value.trim(),
+                        phone: document.getElementById("profilePhone").value.trim() || null,
+                        currentPassword: currentPasswordValue || null,
+                        newPassword: newPasswordValue || null
+                    };
+                    var response = await fetch(api.url("/api/users/profile"), {
+                        method: "PUT",
+                        headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
+                        body: JSON.stringify(payload)
+                    });
+                    var data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Profile update failed.");
+                    document.querySelectorAll("[data-user-name]").forEach(function (element) { element.textContent = data.name; });
+                    var roleNode = document.querySelector("[data-user-role]");
+                    if (roleNode) roleNode.textContent = (data.role || "").replace("_", " ");
+                    setProfileMessage(data.message || "Profile updated successfully.", "success");
+                    profileForm.reset();
+                    if (profileName) profileName.value = data.name || "";
+                    if (profilePhone) profilePhone.value = data.phone || "";
+                } catch (error) {
+                    setProfileMessage(error.message, "error");
+                } finally {
+                    if (submitButton) submitButton.disabled = false;
+                }
+            });
+        }
     } catch (error) {
         localStorage.removeItem("noboghatToken");
         localStorage.removeItem("noboghatRole");
