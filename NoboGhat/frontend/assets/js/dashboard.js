@@ -80,6 +80,67 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    function renderTrips(list) {
+        var tripsBody = document.getElementById("myTripsBody");
+
+        if (!tripsBody) return;
+
+        var groupedTrips = [];
+        var seenTrips = {};
+
+        for (var i = 0; i < list.length; i++) {
+            var booking = list[i];
+            var tripKey = booking.tripId;
+            if (tripKey == null || seenTrips[tripKey]) {
+                continue;
+            }
+
+            seenTrips[tripKey] = true;
+            groupedTrips.push({
+                tripId: booking.tripId,
+                source: booking.source || "N/A",
+                destination: booking.destination || "N/A",
+                boatName: booking.boatName || "N/A",
+                departureTime: booking.departureTime,
+                cargoWeight: booking.cargoWeight || 0
+            });
+        }
+
+        if (groupedTrips.length === 0) {
+            tripsBody.innerHTML = "<tr><td colspan=\"5\">No trips found for your account.</td></tr>";
+            return;
+        }
+
+        tripsBody.innerHTML = "";
+
+        for (var j = 0; j < groupedTrips.length; j++) {
+            var trip = groupedTrips[j];
+            var row = document.createElement("tr");
+
+            var tripId = document.createElement("td");
+            tripId.textContent = "#TRP-" + trip.tripId;
+
+            var route = document.createElement("td");
+            route.textContent = trip.source + " → " + trip.destination;
+
+            var boat = document.createElement("td");
+            boat.textContent = trip.boatName;
+
+            var departure = document.createElement("td");
+            departure.textContent = formatDate(trip.departureTime);
+
+            var cargo = document.createElement("td");
+            cargo.textContent = trip.cargoWeight + " kg";
+
+            row.appendChild(tripId);
+            row.appendChild(route);
+            row.appendChild(boat);
+            row.appendChild(departure);
+            row.appendChild(cargo);
+            tripsBody.appendChild(row);
+        }
+    }
+
     var viewButton = document.getElementById("viewBookingStatusBtn");
     if (viewButton) {
         viewButton.addEventListener("click", function () {
@@ -108,12 +169,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         bookings = await bookingsResponse.json();
         renderBookings(bookings);
+        renderTrips(bookings);
     } catch (error) {
         localStorage.removeItem("noboghatToken");
         localStorage.removeItem("noboghatRole");
 
         var summaryElement = document.getElementById("activeBookingsSummary");
         var tableBodyElement = document.getElementById("bookingHistoryBody");
+        var tripsBodyElement = document.getElementById("myTripsBody");
 
         if (summaryElement) summaryElement.textContent = "Unable to load your bookings.";
         if (tableBodyElement) {
@@ -124,6 +187,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             errorCell.textContent = error.message;
             errorRow.appendChild(errorCell);
             tableBodyElement.appendChild(errorRow);
+        }
+        if (tripsBodyElement) {
+            tripsBodyElement.innerHTML = "";
+            var tripsErrorRow = document.createElement("tr");
+            var tripsErrorCell = document.createElement("td");
+            tripsErrorCell.colSpan = 5;
+            tripsErrorCell.textContent = error.message;
+            tripsErrorRow.appendChild(tripsErrorCell);
+            tripsBodyElement.appendChild(tripsErrorRow);
         }
 
         window.location.replace("login.html?message=" + encodeURIComponent(error.message));

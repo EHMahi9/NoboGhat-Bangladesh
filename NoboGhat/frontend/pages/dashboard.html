@@ -51,7 +51,7 @@
             <ul class="sidebar-menu">
                 <li><a href="#" class="active"><i class="fa-solid fa-gauge"></i> Overview</a></li>
                 <li><a href="#"><i class="fa-solid fa-box-open"></i> Active Bookings</a></li>
-                <li><a href="#"><i class="fa-solid fa-ship"></i> My Trips</a></li>
+                <li><a href="#my-trips-section"><i class="fa-solid fa-ship"></i> My Trips</a></li>
                 <li><a href="#"><i class="fa-solid fa-bell"></i> Notifications</a></li>
                 <li><a href="#"><i class="fa-solid fa-gear"></i> Profile Settings</a></li>
             </ul>
@@ -107,6 +107,28 @@
                         <tbody id="bookingHistoryBody">
                             <tr>
                                 <td colspan="5">Loading your bookings...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="recent-history" id="my-trips-section">
+                <h2>My Trips</h2>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Trip ID</th>
+                                <th>Route</th>
+                                <th>Boat</th>
+                                <th>Departure</th>
+                                <th>My Cargo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myTripsBody">
+                            <tr>
+                                <td colspan="5">Loading your trips...</td>
                             </tr>
                         </tbody>
                     </table>
