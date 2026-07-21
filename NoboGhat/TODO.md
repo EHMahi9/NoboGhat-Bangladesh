@@ -1,18 +1,20 @@
-# Render Deployment Migration - Tasks ✅
+# NoboGhat Frontend Fixes — COMPLETED
 
-## Step 1: Create render.yaml at git repo root ✅
-- [x] Copy render.yaml from `NoboGhat/` to repo root `../` for Render auto-detection
+## Issue 1: "Failed to fetch" — Wrong backend URL
+- [x] Identify root cause: `api.js` points to old Render backend (`noboghat-backend.onrender.com`)
+- [x] Fix: Update `productionBackend` to Railway URL (`desktop-and-web-programming-lab-project-production.up.railway.app`)
+- [x] File changed: `frontend/assets/js/api.js`
 
-## Step 2: Remove Vercel-specific files ✅
-- [x] Delete `frontend/vercel.json`
-- [x] Delete `frontend/api/` directory (Vercel serverless proxy)
+## Issue 2: SVG logo missing on internal pages
+- [x] Identify root cause: text `<h2>` used instead of `<img>` SVG tag on internal pages
+- [x] Fix `pages/routes.html` — replaced text logo with SVG `<img>`
+- [x] Fix `pages/dashboard.html` — replaced text logo with SVG `<img>`
+- [x] Fix `pages/login.html` — replaced text logo with SVG `<img>`
+- [x] Fix `pages/admin.html` — added consistent navbar with SVG logo and hamburger menu
+- [x] Fix `pages/about.html` — upgraded to full consistent navbar with SVG logo
+- [x] Home page (`index.html`) — was already correct (SVG logo)
 
-## Step 3: Update documentation ✅
-- [x] README.md - Change Railway/Vercel → Render
-- [x] docs/ARCHITECTURE.md - Update deployment section
-- [x] docs/GOOGLE_LOGIN_SETUP.md - Update OAuth redirect URI
-- [x] docs/PRESENTATION_NOTES.md - Update deployment references
-
-## Step 4: Verify api.js ✅
-- [x] Already points to `https://noboghat-backend.onrender.com`
+## Verification
+- [ ] Test locally by opening pages in browser
+- [ ] Test on Vercel after deployment
 

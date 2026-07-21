@@ -4,17 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About | NoboGhat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/navbar.css">
 </head>
 <body>
+  <!-- Reusable Navbar -->
   <nav class="navbar">
-    <a href="../index.html" class="logo-link"><img src="../assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo"></a>
-    <a href="../index.html" class="btn-primary">Home</a>
+    <a href="../index.html" class="logo-link">
+      <img src="../assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo">
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="routes.html">Shipments</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+    </ul>
+    <a href="../index.html#register" class="btn-primary">Register</a>
+    <div class="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
   </nav>
+
   <main class="container" style="padding: 64px 5%; min-height: 60vh;">
     <h1>About NoboGhat</h1>
-    <p>NoboGhat connects cargo owners with boat operators on Bangladesh’s inland waterways. The platform supports user registration, boat and route records, trip listing, and capacity-aware booking.</p>
+    <p>NoboGhat connects cargo owners with boat operators on Bangladesh&#x2019;s inland waterways. The platform supports user registration, boat and route records, trip listing, and capacity-aware booking.</p>
     <p><a href="routes.html">Browse available trips</a> or <a href="../index.html#register">register as a user</a>.</p>
   </main>
+
+  <script src="../assets/js/navbar.js"></script>
 </body>
 </html>
+
