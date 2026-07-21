@@ -1,8 +1,11 @@
 package com.noboghat.mahi.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.noboghat.mahi.dto.BookingSummaryDto;
 import com.noboghat.mahi.dto.BookingDto;
 import com.noboghat.mahi.model.Booking;
 import com.noboghat.mahi.model.Trip;
@@ -51,6 +54,15 @@ public class BookingService {
         return booking;
     }
 
+    @Transactional(readOnly = true)
+    public List<BookingSummaryDto> getBookingsForUser(String requester) {
+        User user = userService.getUserByIdentifier(requester);
+        return bookingRepository.findAllByUserUserIdOrderByBookingIdDesc(user.getUserId())
+                .stream()
+                .map(this::toSummaryDto)
+                .toList();
+    }
+
     @Transactional
     public void cancelBooking(Long id, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
@@ -69,5 +81,19 @@ public class BookingService {
         if (!isAdmin && !booking.getUser().getUserId().equals(userService.getUserByIdentifier(requester).getUserId())) {
             throw new org.springframework.security.access.AccessDeniedException("You can access only your own bookings.");
         }
+    }
+
+    private BookingSummaryDto toSummaryDto(Booking booking) {
+        Trip trip = booking.getTrip();
+        return new BookingSummaryDto(
+                booking.getBookingId(),
+                booking.getCargoWeight(),
+                booking.getStatus(),
+                trip.getTripId(),
+                trip.getBoat() != null ? trip.getBoat().getName() : "",
+                trip.getRoute() != null ? trip.getRoute().getSource() : "",
+                trip.getRoute() != null ? trip.getRoute().getDestination() : "",
+                trip.getDepartureTime()
+        );
     }
 }

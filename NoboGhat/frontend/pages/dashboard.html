@@ -51,7 +51,7 @@
             <ul class="sidebar-menu">
                 <li><a href="#" class="active"><i class="fa-solid fa-gauge"></i> Overview</a></li>
                 <li><a href="#"><i class="fa-solid fa-box-open"></i> Active Bookings</a></li>
-                <li><a href="#"><i class="fa-solid fa-ship"></i> My Trips</a></li>
+                <li><a href="#my-trips-section"><i class="fa-solid fa-ship"></i> My Trips</a></li>
                 <li><a href="#"><i class="fa-solid fa-bell"></i> Notifications</a></li>
                 <li><a href="#"><i class="fa-solid fa-gear"></i> Profile Settings</a></li>
             </ul>
@@ -78,8 +78,8 @@
                 <div class="dash-card">
                     <div class="card-icon"><i class="fa-solid fa-spinner"></i></div>
                     <h3>Active Bookings</h3>
-                    <p>You have <strong>2</strong> shipments currently in transit.</p>
-                    <button class="btn-outline">View Status</button>
+                    <p id="activeBookingsSummary">Loading your bookings...</p>
+                    <button class="btn-outline" id="viewBookingStatusBtn" type="button">View Status</button>
                 </div>
 
                 <!-- Capacity Alert (Addresses FR-06) -->
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Recent Booking History Table (Addresses FR-07) -->
-            <section class="recent-history">
+            <section class="recent-history" id="active-bookings-section">
                 <h2>Recent Booking History</h2>
                 <div class="table-responsive">
                     <table class="history-table">
@@ -104,20 +104,31 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="bookingHistoryBody">
                             <tr>
-                                <td>#NBG-1042</td>
-                                <td>Sadarghat → Khulna</td>
-                                <td>500 kg</td>
-                                <td>Oct 12, 2026</td>
-                                <td><span class="status completed">Completed</span></td>
+                                <td colspan="5">Loading your bookings...</td>
                             </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="recent-history" id="my-trips-section">
+                <h2>My Trips</h2>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
                             <tr>
-                                <td>#NBG-1088</td>
-                                <td>Barisal → Dhaka</td>
-                                <td>250 kg</td>
-                                <td>Oct 15, 2026</td>
-                                <td><span class="status pending">Pending</span></td>
+                                <th>Trip ID</th>
+                                <th>Route</th>
+                                <th>Boat</th>
+                                <th>Departure</th>
+                                <th>My Cargo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myTripsBody">
+                            <tr>
+                                <td colspan="5">Loading your trips...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -130,4 +141,5 @@
     <script src="../assets/js/session.js"></script>
     <script src="../assets/js/dashboard.js"></script>
     <script src="../assets/js/navbar.js"></script>
+</body>
 </html>

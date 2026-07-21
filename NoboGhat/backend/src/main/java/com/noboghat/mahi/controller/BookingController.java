@@ -1,5 +1,7 @@
 package com.noboghat.mahi.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 
 import com.noboghat.mahi.dto.BookingDto;
+import com.noboghat.mahi.dto.BookingSummaryDto;
 import com.noboghat.mahi.model.Booking;
 import com.noboghat.mahi.service.BookingService;
 
@@ -31,6 +34,11 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     public Booking createNewBooking(@Valid @RequestBody BookingDto bookingDto, Authentication authentication) {
         return bookingService.createBooking(bookingDto, authentication.getName());
+    }
+
+    @GetMapping
+    public List<BookingSummaryDto> getMyBookings(Authentication authentication) {
+        return bookingService.getBookingsForUser(authentication.getName());
     }
     
     @GetMapping("/{id}")
