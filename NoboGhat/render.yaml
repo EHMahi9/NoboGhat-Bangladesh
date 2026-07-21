@@ -41,3 +41,9 @@ services:
 
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
+
+databases:
+  - name: noboghat-db
+    databaseName: noboghat
+    plan: free
+    region: oregon
