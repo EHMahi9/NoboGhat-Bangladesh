@@ -1,6 +1,5 @@
 package com.noboghat.mahi.security;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -22,16 +21,6 @@ import com.noboghat.mahi.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtRequestFilter jwtRequestFilter;
-    private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
-
-    public SecurityConfig(
-            JwtRequestFilter jwtRequestFilter,
-            GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler) {
-        this.jwtRequestFilter = jwtRequestFilter;
-        this.googleOAuth2SuccessHandler = googleOAuth2SuccessHandler;
-    }
-
     // 1. Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,9 +29,9 @@ public class SecurityConfig {
 
     // 2. Authentication Provider
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(UserService userService) {
+    public DaoAuthenticationProvider authenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
@@ -57,7 +46,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity http,
             DaoAuthenticationProvider authProvider,
-            ObjectProvider<ClientRegistrationRepository> clientRegistrations)
+            JwtRequestFilter jwtRequestFilter,
+            GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler,
+            org.springframework.beans.factory.ObjectProvider<ClientRegistrationRepository> clientRegistrations)
             throws Exception {
 
         http

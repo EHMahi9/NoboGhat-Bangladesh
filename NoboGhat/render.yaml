@@ -11,17 +11,11 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: production
       - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: noboghat-mysql
-          property: connectionString
+        sync: false
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: noboghat-mysql
-          property: user
+        sync: false
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: noboghat-mysql
-          property: password
+        sync: false
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: CORS_ALLOWED_ORIGINS
@@ -40,14 +34,6 @@ services:
     runtime: static
     buildCommand: echo "Static files ready"
     staticPublishPath: ./NoboGhat/frontend
-    region: oregon
     envVars:
       - key: BACKEND_API_URL
         value: https://noboghat-backend.onrender.com
-
-databases:
-  - name: noboghat-mysql
-    databaseName: noboghat
-    user: noboghat_user
-    plan: starter
-    region: oregon
