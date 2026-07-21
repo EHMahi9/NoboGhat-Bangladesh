@@ -39,6 +39,23 @@
             <div class="card"><h3>Total Bookings</h3><p id="totalBookings">0</p></div>
             <div class="card"><h3>Total Cargo Weight</h3><p id="totalCargoWeight">0 kg</p></div>
         </div>
+        <div class="booking-panel" style="margin-top: 32px;">
+            <h2>Manage Boats</h2>
+            <form id="boatForm" class="booking-form">
+                <label for="boatName">Boat Name</label>
+                <input type="text" id="boatName" required>
+                <label for="boatCapacity">Capacity</label>
+                <input type="number" id="boatCapacity" min="1" step="0.1" required>
+                <button type="submit" class="btn-book">Save Boat</button>
+            </form>
+            <p id="boatMessage" class="booking-message" hidden></p>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="history-table">
+                    <thead><tr><th>Name</th><th>Capacity</th><th>Action</th></tr></thead>
+                    <tbody id="boatsBody"><tr><td colspan="3">Loading boats...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
         <p id="dashboardError" hidden></p>
     </main>
 
