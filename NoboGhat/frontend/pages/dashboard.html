@@ -49,11 +49,11 @@
             </div>
             
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fa-solid fa-gauge"></i> Overview</a></li>
-                <li><a href="#"><i class="fa-solid fa-box-open"></i> Active Bookings</a></li>
-                <li><a href="#my-trips-section"><i class="fa-solid fa-ship"></i> My Trips</a></li>
-                <li><a href="#notifications-section"><i class="fa-solid fa-bell"></i> Notifications <span id="notificationCount"></span></a></li>
-                <li><a href="#"><i class="fa-solid fa-gear"></i> Profile Settings</a></li>
+                <li><a href="#overview" class="active" data-dashboard-link="overview"><i class="fa-solid fa-gauge"></i> Overview</a></li>
+                <li><a href="#active-bookings-section" data-dashboard-link="active-bookings"><i class="fa-solid fa-box-open"></i> Active Bookings</a></li>
+                <li><a href="#my-trips-section" data-dashboard-link="my-trips"><i class="fa-solid fa-ship"></i> My Trips</a></li>
+                <li><a href="#notifications-section" data-dashboard-link="notifications"><i class="fa-solid fa-bell"></i> Notifications <span id="notificationCount"></span></a></li>
+                <li><a href="#profile-settings-section" data-dashboard-link="profile-settings"><i class="fa-solid fa-gear"></i> Profile Settings</a></li>
             </ul>
         </aside>
 
@@ -65,7 +65,7 @@
             </header>
 
             <!-- Dashboard Action Cards -->
-            <div class="dashboard-grid">
+            <div class="dashboard-grid dashboard-section" data-dashboard-section="overview">
                 <!-- Book Cargo Card (Addresses FR-05) -->
                 <div class="dash-card">
                     <div class="card-icon"><i class="fa-solid fa-plus"></i></div>
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Recent Booking History Table (Addresses FR-07) -->
-            <section class="recent-history" id="active-bookings-section">
+            <section class="recent-history dashboard-section" id="active-bookings-section" data-dashboard-section="active-bookings">
                 <h2>Recent Booking History</h2>
                 <div class="table-responsive">
                     <table class="history-table">
@@ -113,7 +113,7 @@
                 </div>
             </section>
 
-            <section class="recent-history" id="my-trips-section">
+            <section class="recent-history dashboard-section" id="my-trips-section" data-dashboard-section="my-trips">
                 <h2>My Trips</h2>
                 <div class="table-responsive">
                     <table class="history-table">
@@ -135,7 +135,7 @@
                 </div>
             </section>
 
-            <section class="recent-history" id="profile-settings-section">
+            <section class="recent-history dashboard-section" id="profile-settings-section" data-dashboard-section="profile-settings">
                 <h2>Profile Settings</h2>
                 <div class="booking-panel">
                     <form id="profileForm" class="booking-form">
@@ -157,7 +157,7 @@
                 </div>
             </section>
 
-            <section class="recent-history" id="notifications-section">
+            <section class="recent-history dashboard-section" id="notifications-section" data-dashboard-section="notifications">
                 <h2>Notifications</h2>
                 <div class="table-responsive">
                     <table class="history-table">
