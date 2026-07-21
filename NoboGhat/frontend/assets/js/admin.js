@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
     bookings.forEach(function (booking) {
       var row = document.createElement("tr");
-      row.innerHTML = "<td>#NBG-" + booking.bookingId + "</td><td>" + booking.source + " → " + booking.destination + "</td><td>" + booking.cargoWeight + " kg</td><td>" + booking.status + "</td><td><button type='button' class='btn-outline' data-cancel='" + booking.bookingId + "'>Cancel</button></td>";
+      row.innerHTML = "<td>#NBG-" + booking.bookingId + "</td><td>" + booking.source + " → " + booking.destination + "</td><td>" + booking.cargoWeight + " kg</td><td>" + booking.status + "</td><td><button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CONFIRMED'>Confirm</button> <button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CANCELLED'>Cancel</button></td>";
       bookingsBody.appendChild(row);
     });
   }
@@ -63,9 +63,14 @@ document.addEventListener("DOMContentLoaded", async function() {
       await loadBoats();
     });
     bookingsBody.addEventListener("click", async function (event) {
-      var id = event.target.getAttribute("data-cancel");
+      var id = event.target.getAttribute("data-booking");
+      var status = event.target.getAttribute("data-status");
       if (!id) return;
-      await fetch(api.url("/api/bookings/" + id), { method: "DELETE", headers: api.authHeaders() });
+      await fetch(api.url("/api/admin/bookings/" + id + "/status"), {
+        method: "PATCH",
+        headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
+        body: JSON.stringify({ status: status })
+      });
       await loadBookings();
     });
 
