@@ -34,10 +34,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateKey(DataIntegrityViolationException exception) {
-        String message = exception.getRootCause() != null ? exception.getRootCause().getMessage() : "Duplicate entry detected.";
-        if (message.contains("phone")) {
+        Throwable rootCause = exception.getRootCause();
+        String rootMessage = rootCause != null ? rootCause.getMessage() : null;
+        String message = rootMessage != null ? rootMessage : "Duplicate entry detected.";
+        if (message.contains("phone") || message.contains("PHONE") || message.contains("Phone")) {
             message = "This phone number is already registered.";
-        } else if (message.contains("email")) {
+        } else if (message.contains("email") || message.contains("EMAIL") || message.contains("Email")) {
             message = "This email is already registered.";
         }
         return ResponseEntity.status(409).body(Map.of("message", message));
