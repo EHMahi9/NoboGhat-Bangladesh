@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.dto.TripDto;
+import com.noboghat.mahi.dto.TripWithCapacityDto;
 import com.noboghat.mahi.model.Boat;
 import com.noboghat.mahi.model.Route;
 import com.noboghat.mahi.model.Trip;
@@ -52,6 +53,34 @@ public class TripService {
     @Transactional(readOnly = true)
     public List<Trip> getAllTrips() {
         return tripRepository.findAll();
+    }
+
+    /**
+     * Returns all trips as flat DTOs with a precomputed remainingCapacity field.
+     * remainingCapacity = boatCapacity - sum of cargo weight on PENDING/CONFIRMED bookings.
+     */
+    @Transactional(readOnly = true)
+    public List<TripWithCapacityDto> getAllTripsWithCapacity() {
+        return tripRepository.findAll().stream()
+                .map(trip -> {
+                    Route route = trip.getRoute();
+                    Boat boat = trip.getBoat();
+                    double reserved = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+                    double capacity = boat != null && boat.getCapacity() != null ? boat.getCapacity() : 0.0;
+                    double remaining = Math.max(0.0, capacity - reserved);
+                    return new TripWithCapacityDto(
+                            trip.getTripId(),
+                            route != null ? route.getRouteId() : null,
+                            route != null ? route.getSource() : "",
+                            route != null ? route.getDestination() : "",
+                            boat != null ? boat.getBoatId() : null,
+                            boat != null ? boat.getName() : "",
+                            capacity,
+                            trip.getDepartureTime(),
+                            remaining
+                    );
+                })
+                .toList();
     }
 
     @Transactional

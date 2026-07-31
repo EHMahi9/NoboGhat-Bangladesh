@@ -357,6 +357,29 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
             });
         }
+        // Deactivate account handler
+        var deactivateBtn = document.getElementById("deactivateAccountBtn");
+        if (deactivateBtn) {
+            deactivateBtn.addEventListener("click", async function () {
+                if (!confirm("Are you sure you want to deactivate your account? This cannot be undone.")) return;
+                if (!confirm("All your active bookings will be cancelled. Proceed?")) return;
+                try {
+                    var resp = await fetch(api.url("/api/users/profile"), {
+                        method: "DELETE",
+                        headers: api.authHeaders()
+                    });
+                    if (!resp.ok) {
+                        var err = await resp.json();
+                        throw new Error(err.message || "Deactivation failed.");
+                    }
+                    localStorage.removeItem("noboghatToken");
+                    localStorage.removeItem("noboghatRole");
+                    window.location.replace("login.html?message=" + encodeURIComponent("Your account has been deactivated."));
+                } catch (error) {
+                    setProfileMessage(error.message, "error");
+                }
+            });
+        }
     } catch (error) {
         localStorage.removeItem("noboghatToken");
         localStorage.removeItem("noboghatRole");

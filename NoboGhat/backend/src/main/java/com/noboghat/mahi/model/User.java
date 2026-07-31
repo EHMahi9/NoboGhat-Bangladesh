@@ -46,6 +46,9 @@ public class User {
     @Column(name = "role", insertable = false, updatable = false, length = 30)
     private String role;
 
+    @Column(nullable = false)
+    private boolean isActive = true;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Boat> boats;

@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.noboghat.mahi.dto.UserRegistrationDto;
 import com.noboghat.mahi.model.BoatOwner;
 import com.noboghat.mahi.model.Farmer;
+import com.noboghat.mahi.model.PasswordResetToken;
 import com.noboghat.mahi.model.PendingUser;
 import com.noboghat.mahi.model.Trader;
 import com.noboghat.mahi.model.User;
+import com.noboghat.mahi.repository.PasswordResetTokenRepository;
 import com.noboghat.mahi.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
@@ -34,24 +36,31 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     // Inject PasswordEncoder to securely hash passwords
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager,
+            PasswordResetTokenRepository passwordResetTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     /**
      * Required by Spring Security to load a user during the login process.
-     * We use the phone number as the unique "username" for NoboGhat.
+     * We use the email address as the unique "username" for NoboGhat.
      */
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        String normalized = identifier.trim();
-        User user = userRepository.findByPhone(normalized)
-                .or(() -> userRepository.findByEmail(normalized.toLowerCase(Locale.ROOT)))
+        String normalized = identifier.trim().toLowerCase(Locale.ROOT);
+        User user = userRepository.findByEmail(normalized)
+                .or(() -> userRepository.findByPhone(normalized))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
+
+        if (!user.isActive()) {
+            throw new org.springframework.security.authentication.DisabledException("This account has been deactivated.");
+        }
 
         // Map the NoboGhat User to a Spring Security UserDetails object
         // Prefix with ROLE_ so that hasRole("ADMIN") works correctly in Spring Security
@@ -76,10 +85,73 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUserByIdentifier(String identifier) {
-        String normalized = identifier.trim();
-        return userRepository.findByPhone(normalized)
-                .or(() -> userRepository.findByEmail(normalized.toLowerCase(Locale.ROOT)))
+        String normalized = identifier.trim().toLowerCase(Locale.ROOT);
+        return userRepository.findByEmail(normalized)
+                .or(() -> userRepository.findByPhone(normalized))
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
+    }
+
+    /**
+     * Soft-deletes the authenticated user by setting isActive = false.
+     * This keeps the account row in the DB (for auditing/history) while
+     * blocking future sign-ins via DisabledException in loadUserByUsername().
+     */
+    @Transactional
+    public void deactivateAccount(String identifier) {
+        User user = getUserByIdentifier(identifier);
+        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+            throw new IllegalStateException("Admin accounts cannot be deactivated.");
+        }
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    // ==================== Password Recovery (Task 3) ====================
+
+    /** Generates a random OTP/token, persists it, and prints it to the server console. */
+    @Transactional
+    public String generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email.trim().toLowerCase(Locale.ROOT))
+                .orElseThrow(() -> new IllegalArgumentException("No account is associated with that email address."));
+        if (!user.isActive()) {
+            throw new IllegalStateException("This account has been deactivated.");
+        }
+
+        // Invalidate any previously issued token for this user
+        passwordResetTokenRepository.findByUserId(user.getUserId()).ifPresent(passwordResetTokenRepository::delete);
+
+        String token = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(java.time.LocalDateTime.now().plusMinutes(15));
+        passwordResetTokenRepository.save(resetToken);
+
+        // Mock delivery – print the token to the server console
+        System.out.println("==========================================");
+        System.out.println("NoboGhat password recovery token for " + email + ": " + token);
+        System.out.println("Token expires in 15 minutes.");
+        System.out.println("==========================================");
+        return token;
+    }
+
+    /** Validates a token and updates the user's password. */
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or unknown recovery token."));
+        if (resetToken.isUsed()) {
+            throw new IllegalArgumentException("This recovery token has already been used.");
+        }
+        if (resetToken.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("This recovery token has expired. Please request a new one.");
+        }
+
+        User user = resetToken.getUser();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        resetToken.setUsed(true);
+        userRepository.save(user);
+        passwordResetTokenRepository.save(resetToken);
     }
 
     public User updateProfile(String identifier, String name, String phone, String currentPassword, String newPassword) {

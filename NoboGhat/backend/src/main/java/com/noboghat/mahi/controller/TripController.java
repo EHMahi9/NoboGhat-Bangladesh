@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.noboghat.mahi.dto.TripDto;
+import com.noboghat.mahi.dto.TripWithCapacityDto;
 import com.noboghat.mahi.model.Trip;
 import com.noboghat.mahi.service.TripService;
 
@@ -43,8 +44,8 @@ public class TripController {
     }
 
     @GetMapping
-    public List<Trip> getAllTrips() {
-        return tripService.getAllTrips();
+    public List<TripWithCapacityDto> getAllTrips() {
+        return tripService.getAllTripsWithCapacity();
     }
 
     @DeleteMapping("/{id}")

@@ -23,25 +23,23 @@ document.addEventListener("DOMContentLoaded", function() {
     var authBtn = document.querySelector(".auth-btn-nav");
     if (authBtn) {
         if (token) {
-            // Logged in: show Dashboard link
-            authBtn.innerHTML = '<a href="pages/dashboard.html" class="btn-primary">Dashboard</a>';
-            // Add logout button next to it
-            var logoutBtn = document.createElement("a");
-            logoutBtn.href = "#";
-            logoutBtn.className = "btn-outline";
-            logoutBtn.textContent = "Logout";
-            logoutBtn.style.marginLeft = "8px";
-            logoutBtn.addEventListener("click", function(e) {
-                e.preventDefault();
-                localStorage.removeItem("noboghatToken");
-                localStorage.removeItem("noboghatRole");
-                window.location.href = "index.html";
-            });
-            authBtn.parentNode.insertBefore(logoutBtn, authBtn.nextSibling);
+            // Logged in: Dashboard + Logout as plain text links
+            var linkStyle = "text-decoration:none;color:var(--deep-navy);font-weight:600;font-size:1rem;";
+            authBtn.innerHTML = '<a href="pages/dashboard.html" style="' + linkStyle + '">Dashboard</a>' +
+                '<a href="#" id="logoutNavLink" style="' + linkStyle + 'margin-left:16px;">Logout</a>';
+            var logoutLink = document.getElementById("logoutNavLink");
+            if (logoutLink) {
+                logoutLink.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem("noboghatToken");
+                    localStorage.removeItem("noboghatRole");
+                    window.location.href = "/";
+                });
+            }
         } else {
-            // Not logged in: show Login and Register
-            authBtn.innerHTML = '<a href="pages/login.html" class="btn-primary">Login</a>' +
-                '<a href="pages/login.html#register" class="btn-outline" style="margin-left:8px">Register</a>';
+            // Not logged in: Login + Register as solid buttons
+            authBtn.innerHTML = '<a href="pages/login.html" class="btn btn-primary">Login</a>' +
+                '<a href="pages/login.html#register" class="btn btn-primary" style="margin-left:8px">Register</a>';
         }
     }
 });

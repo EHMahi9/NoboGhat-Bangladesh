@@ -49,10 +49,10 @@ async function submitAuthForm(form, endpoint, button) {
             if (!inp.id) continue;
             // Map frontend IDs to backend DTO field names
             switch (inp.id) {
-                case 'loginPhone': formData['phone'] = inp.value.trim(); break;
+                case 'loginEmail': formData['email'] = inp.value.trim(); break;
                 case 'loginPassword': formData['password'] = inp.value.trim(); break;
                 case 'regName': formData['name'] = inp.value.trim(); break;
-                case 'regPhone': formData['phone'] = inp.value.trim(); break;
+                case 'regEmail': formData['email'] = inp.value.trim(); break;
                 case 'regRole': formData['role'] = inp.value.trim(); break;
                 case 'regPassword': formData['password'] = inp.value.trim(); break;
                 default: formData[inp.id] = inp.value.trim(); break;
@@ -128,5 +128,131 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if the URL came with a hash (e.g., index.html#register)
     if (window.location.hash === '#register') {
         toggleAuth('register');
+    }
+
+    // ============ Password Recovery Modal (Task 3) ============
+    var recoverModal = document.getElementById("recoverModal");
+    var forgotPasswordLink = document.getElementById("forgotPasswordLink");
+    var forgotPasswordForm = document.getElementById("forgotPasswordForm");
+    var resetPasswordForm = document.getElementById("resetPasswordForm");
+    var recoverMessage = document.getElementById("recoverMessage");
+    var resetMessage = document.getElementById("resetMessage");
+
+    function openRecoverModal() {
+        if (!recoverModal) return;
+        recoverModal.style.display = "flex";
+        if (forgotPasswordForm) forgotPasswordForm.style.display = "block";
+        if (resetPasswordForm) resetPasswordForm.style.display = "none";
+        if (recoverMessage) { recoverMessage.textContent = ""; recoverMessage.hidden = true; }
+        if (resetMessage) { resetMessage.textContent = ""; resetMessage.hidden = true; }
+    }
+
+    function closeRecoverModal() {
+        if (recoverModal) recoverModal.style.display = "none";
+    }
+
+    if (forgotPasswordLink) forgotPasswordLink.addEventListener("click", function(e) {
+        e.preventDefault();
+        openRecoverModal();
+    });
+    var closeRecover = document.getElementById("closeRecoverModal");
+    var closeRecover2 = document.getElementById("closeRecoverModal2");
+    if (closeRecover) closeRecover.addEventListener("click", function(e) { e.preventDefault(); closeRecoverModal(); });
+    if (closeRecover2) closeRecover2.addEventListener("click", function(e) { e.preventDefault(); closeRecoverModal(); });
+    var backToForgot = document.getElementById("backToForgot");
+    if (backToForgot) backToForgot.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (forgotPasswordForm) forgotPasswordForm.style.display = "block";
+        if (resetPasswordForm) resetPasswordForm.style.display = "none";
+    });
+    // Click outside modal to close
+    if (recoverModal) recoverModal.addEventListener("click", function(e) {
+        if (e.target === recoverModal) closeRecoverModal();
+    });
+
+    // Step 1: Submit email to get a token
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            var btn = forgotPasswordForm.querySelector("button[type='submit']");
+            if (!btn) return;
+            var originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Sending...";
+            if (recoverMessage) { recoverMessage.textContent = ""; recoverMessage.hidden = true; }
+            try {
+                var email = document.getElementById("recoverEmail").value.trim();
+                var response = await fetch(window.NoboGhatApi.url("/api/auth/forgot-password"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email })
+                });
+                var data;
+                try { data = await response.json(); } catch (err) { data = {}; }
+                if (!response.ok) throw new Error(data.message || "Could not request password reset.");
+                if (recoverMessage) {
+                    recoverMessage.textContent = data.message || "Token generated. Check the server console for your recovery token.";
+                    recoverMessage.className = "booking-message success";
+                    recoverMessage.hidden = false;
+                }
+                // Show step 2
+                if (forgotPasswordForm) forgotPasswordForm.style.display = "none";
+                if (resetPasswordForm) resetPasswordForm.style.display = "block";
+            } catch (error) {
+                if (recoverMessage) {
+                    recoverMessage.textContent = error.message;
+                    recoverMessage.className = "booking-message error";
+                    recoverMessage.hidden = false;
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+    }
+
+    // Step 2: Submit token + new password
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            var btn = resetPasswordForm.querySelector("button[type='submit']");
+            if (!btn) return;
+            var originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Resetting...";
+            if (resetMessage) { resetMessage.textContent = ""; resetMessage.hidden = true; }
+            try {
+                var token = document.getElementById("resetToken").value.trim();
+                var newPassword = document.getElementById("resetNewPassword").value.trim();
+                var response = await fetch(window.NoboGhatApi.url("/api/auth/reset-password"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: token, newPassword: newPassword })
+                });
+                var data;
+                try { data = await response.json(); } catch (err) { data = {}; }
+                if (!response.ok) throw new Error(data.message || "Password reset failed.");
+                if (resetMessage) {
+                    resetMessage.textContent = data.message || "Password reset successful. You can now sign in.";
+                    resetMessage.className = "booking-message success";
+                    resetMessage.hidden = false;
+                }
+                // After a short delay, close modal and let user log in
+                setTimeout(function() {
+                    closeRecoverModal();
+                    if (forgotPasswordForm) forgotPasswordForm.style.display = "block";
+                    if (resetPasswordForm) resetPasswordForm.style.display = "none";
+                }, 1800);
+            } catch (error) {
+                if (resetMessage) {
+                    resetMessage.textContent = error.message;
+                    resetMessage.className = "booking-message error";
+                    resetMessage.hidden = false;
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
     }
 });

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noboghat.mahi.dto.ForgotPasswordDto;
 import com.noboghat.mahi.dto.LoginDto;
+import com.noboghat.mahi.dto.ResetPasswordDto;
 import com.noboghat.mahi.dto.UserRegistrationDto;
 import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.security.JwtUtil;
@@ -58,9 +60,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginDto loginDto) {
-        // 1. Verify the phone and password against the database via AuthenticationManager
+        // 1. Verify the email and password against the database via AuthenticationManager
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getPhone(), loginDto.getPassword())
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
 
         // 2. If successful, fetch the verified details
@@ -73,7 +75,7 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Login successful.");
         response.put("token", jwt);
-        response.put("phone", userDetails.getUsername());
+        response.put("email", userDetails.getUsername());
         
         // Extract the user's role to send back to the frontend
         // Strip the ROLE_ prefix for frontend compatibility
@@ -83,6 +85,25 @@ public class AuthController {
         }
         response.put("role", role);
 
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@Valid @RequestBody ForgotPasswordDto forgotPasswordDto) {
+        String token = userService.generatePasswordResetToken(forgotPasswordDto.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "A recovery token has been generated. In this demo, check the server console for the token.");
+        response.put("token", token); // Demo convenience so the flow is testable end-to-end
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+        userService.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Password reset successful. You can now sign in with your new password.");
         return ResponseEntity.ok(response);
     }
 }
