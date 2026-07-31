@@ -61,6 +61,13 @@
 - [x] Problem section: fragmented communication, broker reliance, underutilized boats
 - [x] Who We Serve: 3 persona cards (Farmers / Small Traders / Boat Owners)
 
+## Task 9: Navbar Join CTA + About Link (Final Polish)
+- [x] index.html navbar: added About link, removed duplicate Vessels link
+- [x] navbar: Login/Register replaced with single "Join NoboGhat" solid CTA (same UI as About page)
+- [x] navbar.js: logged-out state renders single "Join NoboGhat" button → login.html#register
+- [x] routes.html / about.html: About link added to nav-links, single Join CTA
+- [x] About page active-link state on its own navbar
+
 ## Final Verification
 - [x] Backend compiles (`./mvnw -q compile`) — PASSES
 - [x] Frontend fetch() URLs all map to existing @RestController endpoints

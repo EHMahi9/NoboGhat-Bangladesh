@@ -50,11 +50,10 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
     } else {
-        // Not logged in: outlined/ghost Login + solid Register.
-        // Register opens the registration tab on the login page via #register.
+        // Not logged in: single "Join NoboGhat" CTA that opens the register tab.
         authBtn.innerHTML =
-            '<a href="' + basePath + 'login.html" class="nav-auth-btn btn-outline">Login</a>' +
-            '<a href="' + basePath + 'login.html#register" class="nav-auth-btn btn-primary">Register</a>';
+            '<a href="' + basePath + 'login.html#register" class="nav-auth-btn btn-primary">' +
+            '<i class="fa-solid fa-user-plus" style="margin-right:8px;"></i>Join NoboGhat</a>';
     }
 });
 
