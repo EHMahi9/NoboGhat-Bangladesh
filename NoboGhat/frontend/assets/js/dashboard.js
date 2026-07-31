@@ -219,10 +219,68 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
+    // Role Selection Modal Logic
+    var roleModal = document.getElementById("roleSelectionModal");
+    var roleError = document.getElementById("roleError");
+
+    function showRoleModal() {
+        if (roleModal) roleModal.style.display = "flex";
+    }
+
+    function hideRoleModal() {
+        if (roleModal) roleModal.style.display = "none";
+    }
+
+    // Attach role selection button handlers
+    if (roleModal) {
+        var roleButtons = roleModal.querySelectorAll(".role-btn");
+        roleButtons.forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                var selectedRole = btn.getAttribute("data-role");
+                if (!selectedRole) return;
+                btn.disabled = true;
+                btn.textContent = "Saving...";
+                if (roleError) roleError.style.display = "none";
+                try {
+                    var response = await fetch(api.url("/api/users/update-role"), {
+                        method: "PUT",
+                        headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
+                        body: JSON.stringify({ role: selectedRole })
+                    });
+                    var data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Role update failed.");
+                    // Update stored token and role
+                    localStorage.setItem("noboghatToken", data.token);
+                    localStorage.setItem("noboghatRole", data.role);
+                    // Reload the page to reflect the new role
+                    window.location.reload();
+                } catch (error) {
+                    if (roleError) {
+                        roleError.textContent = error.message;
+                        roleError.style.display = "block";
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = btn.getAttribute("data-original-html") || btn.innerHTML;
+                }
+            });
+            // Save original button HTML for restoration
+            btn.setAttribute("data-original-html", btn.innerHTML);
+        });
+    }
+
     try {
         var profileResponse = await fetch(api.url("/api/users/profile"), { headers: api.authHeaders() });
         if (!profileResponse.ok) throw new Error("Your session has expired. Please sign in again.");
         var user = await profileResponse.json();
+
+        // Check if user role is PENDING – show role selection modal
+        if (user.role === "PENDING") {
+            showRoleModal();
+            // Hide the dashboard content behind the modal
+            document.querySelector(".dashboard-container").style.opacity = "0.3";
+            document.querySelector(".dashboard-container").style.pointerEvents = "none";
+            return; // Stop further dashboard loading
+        }
 
         document.querySelectorAll("[data-user-name]").forEach(function (element) {
             element.textContent = user.name;

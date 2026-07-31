@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +33,10 @@ public class TripController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Trip addTrip(@Valid @RequestBody TripDto tripDto, Authentication authentication) {
         String role = authentication.getAuthorities().iterator().next().getAuthority();
-        if (!"ADMIN".equals(role)) {
+        if (!"ROLE_ADMIN".equals(role)) {
             throw new AccessDeniedException("Only administrators can create trips.");
         }
         return tripService.createTrip(tripDto);
@@ -47,9 +49,10 @@ public class TripController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteTrip(@PathVariable Long id, Authentication authentication) {
         String role = authentication.getAuthorities().iterator().next().getAuthority();
-        if (!"ADMIN".equals(role)) {
+        if (!"ROLE_ADMIN".equals(role)) {
             throw new AccessDeniedException("Only administrators can delete trips.");
         }
         tripService.deleteTrip(id);
