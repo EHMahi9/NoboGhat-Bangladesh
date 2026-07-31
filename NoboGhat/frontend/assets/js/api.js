@@ -5,9 +5,8 @@
     var localHosts = new Set(["localhost", "127.0.0.1"]);
     var isLocal = localHosts.has(window.location.hostname);
 
-    // In production on Railway, the backend is at this fixed URL.
-    // If you rename the Railway service, update this value.
-    var productionBackend = "https://desktop-and-web-programming-lab-project-production.up.railway.app";
+    // In production, requests go to the Railway backend.
+    var productionBackend = "https://noboghat-production.up.railway.app";
 
     var apiBaseUrl = isLocal
         ? "http://localhost:8080"

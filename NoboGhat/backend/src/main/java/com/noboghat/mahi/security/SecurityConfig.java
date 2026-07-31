@@ -28,6 +28,9 @@ import com.noboghat.mahi.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${app.cors.allowed-origins:}")
+    private String allowedOrigins;
+
     // 1. Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,16 +54,13 @@ public class SecurityConfig {
     // 4. CORS configuration source – reads allowed origins from app.cors.allowed-origins
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(origin -> origin != null ? origin.trim() : null)
-                .filter(origin -> origin != null && !origin.isBlank())
+        List<String> origins = Arrays.stream((allowedOrigins == null ? "" : allowedOrigins).split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
                 .toList();
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(configuredOrigins == null ? "" : configuredOrigins.split(","))
-                .map(origin -> origin != null ? origin.trim() : "")
-                .filter(origin -> !origin.isBlank())
-                .toList());
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setExposedHeaders(List.of("Authorization"));
