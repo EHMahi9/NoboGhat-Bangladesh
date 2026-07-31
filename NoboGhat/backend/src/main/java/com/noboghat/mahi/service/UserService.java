@@ -48,10 +48,11 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         // Map the NoboGhat User to a Spring Security UserDetails object
+        // Prefix with ROLE_ so that hasRole("ADMIN") works correctly in Spring Security
         return new org.springframework.security.core.userdetails.User(
                 loginIdentifier(user),
                 user.getPasswordHash(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }
 
@@ -107,8 +108,14 @@ public class UserService implements UserDetailsService {
     }
 
     public User registerNewUser(UserRegistrationDto registrationDto) {
-        String phone = registrationDto.getPhone().trim();
-        if (userRepository.findByPhone(phone).isPresent()) {
+        // Check for duplicate email
+        if (registrationDto.getEmail() != null && !registrationDto.getEmail().isBlank()
+                && userRepository.existsByEmail(registrationDto.getEmail().trim().toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
+
+        String phone = registrationDto.getPhone() != null ? registrationDto.getPhone().trim() : null;
+        if (phone != null && !phone.isBlank() && userRepository.findByPhone(phone).isPresent()) {
             throw new IllegalArgumentException("A user with this phone number already exists.");
         }
 
@@ -126,7 +133,12 @@ public class UserService implements UserDetailsService {
             default -> throw new IllegalStateException("Unsupported user role.");
         };
         user.setName(registrationDto.getName().trim());
-        user.setPhone(phone);
+        if (phone != null && !phone.isBlank()) {
+            user.setPhone(phone);
+        }
+        if (registrationDto.getEmail() != null && !registrationDto.getEmail().isBlank()) {
+            user.setEmail(registrationDto.getEmail().trim().toLowerCase(Locale.ROOT));
+        }
         
         // Phase 6 Implementation: Replaced the simple .hashCode() with BCrypt
         String password = registrationDto.getPassword();

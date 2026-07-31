@@ -39,16 +39,19 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody UserRegistrationDto registrationDto) {
         User newUser = userService.registerNewUser(registrationDto);
         
-        // Generate JWT for immediate login so the user doesn't have to sign in again
-        UserDetails userDetails = userService.loadUserByUsername(newUser.getPhone() != null ? newUser.getPhone() : newUser.getEmail());
-        String jwt = jwtUtil.generateToken(userDetails);
-        
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Registration successful.");
-        response.put("token", jwt);
         response.put("userId", newUser.getUserId());
         response.put("name", newUser.getName());
         response.put("role", newUser.getRole());
+        
+        // Generate JWT for immediate login if an identifier (phone or email) is available
+        String identifier = newUser.getPhone() != null ? newUser.getPhone() : newUser.getEmail();
+        if (identifier != null) {
+            UserDetails userDetails = userService.loadUserByUsername(identifier);
+            String jwt = jwtUtil.generateToken(userDetails);
+            response.put("token", jwt);
+        }
         
         return ResponseEntity.ok(response);
     }
@@ -73,7 +76,11 @@ public class AuthController {
         response.put("phone", userDetails.getUsername());
         
         // Extract the user's role to send back to the frontend
+        // Strip the ROLE_ prefix for frontend compatibility
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        if (role != null && role.startsWith("ROLE_")) {
+            role = role.substring(5);
+        }
         response.put("role", role);
 
         return ResponseEntity.ok(response);
