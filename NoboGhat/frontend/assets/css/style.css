@@ -413,7 +413,7 @@ button {
 
 .footer-brand p {
     line-height: 1.6;
-    color: #94a3b8;
+    color: #E2E8F0;
     max-width: 300px;
 }
 
@@ -447,19 +447,25 @@ button {
 }
 
 .footer-links ul li a {
-    color: #94a3b8;
+    color: #E2E8F0;
     text-decoration: none;
     transition: color 0.3s ease, padding-left 0.3s ease;
 }
 
 .footer-links ul li a:hover {
-    color: var(--river-blue);
+    color: #60A5FA;
     padding-left: 5px; /* Slight indent effect on hover */
+}
+
+.footer-links ul li a:focus-visible {
+    outline: 2px solid #60A5FA;
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .footer-contact p {
     margin-bottom: 12px;
-    color: #94a3b8;
+    color: #E2E8F0;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -468,7 +474,7 @@ button {
 .footer-bottom {
     text-align: center;
     padding-top: 25px;
-    color: #cbd5e1;
+    color: #E2E8F0;
     font-size: 0.85rem;
     letter-spacing: 0.2px;
     line-height: 1.6;
@@ -477,6 +483,27 @@ button {
 #Mahi {
     font-weight: 700;
     color: #7dd3fc;
+}
+
+/* High-contrast hover/focus for mailto links in footer */
+.footer-contact a[href^="mailto:"] {
+    color: #7dd3fc;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 500;
+}
+
+.footer-contact a[href^="mailto:"]:hover,
+.footer-contact a[href^="mailto:"]:focus-visible {
+    color: #93C5FD;
+    outline: none;
+    text-decoration: underline;
+}
+
+.footer-contact a[href^="mailto:"]:focus-visible {
+    outline: 2px solid #60A5FA;
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 
