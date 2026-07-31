@@ -21,25 +21,40 @@ document.addEventListener("DOMContentLoaded", function() {
     // Auth-aware navbar: check if user is logged in
     var token = localStorage.getItem("noboghatToken");
     var authBtn = document.querySelector(".auth-btn-nav");
-    if (authBtn) {
-        if (token) {
-            // Logged in: Dashboard + Logout as plain text links
-            var linkStyle = "text-decoration:none;color:var(--deep-navy);font-weight:600;font-size:1rem;";
-            authBtn.innerHTML = '<a href="pages/dashboard.html" style="' + linkStyle + '">Dashboard</a>' +
-                '<a href="#" id="logoutNavLink" style="' + linkStyle + 'margin-left:16px;">Logout</a>';
-            var logoutLink = document.getElementById("logoutNavLink");
-            if (logoutLink) {
-                logoutLink.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem("noboghatToken");
-                    localStorage.removeItem("noboghatRole");
-                    window.location.href = "/";
-                });
-            }
-        } else {
-            // Not logged in: Login + Register as solid buttons
-            authBtn.innerHTML = '<a href="pages/login.html" class="btn btn-primary">Login</a>' +
-                '<a href="pages/login.html#register" class="btn btn-primary" style="margin-left:8px">Register</a>';
+    if (!authBtn) return;
+
+    // Space the two auth buttons so they never touch each other
+    authBtn.style.display = "flex";
+    authBtn.style.alignItems = "center";
+    authBtn.style.gap = "10px";
+
+    // Fix routing: pages inside /pages/ need sibling-relative links,
+    // while root pages (index.html) need the pages/ prefix.
+    var isInPagesFolder = window.location.pathname.indexOf("/pages/") !== -1;
+    var basePath = isInPagesFolder ? "" : "pages/";
+    var homePath = isInPagesFolder ? "../index.html" : "index.html";
+
+    if (token) {
+        // Logged in: Dashboard + Logout as plain text links
+        authBtn.innerHTML =
+            '<a href="' + basePath + 'dashboard.html" class="nav-auth-link">Dashboard</a>' +
+            '<a href="#" id="logoutNavLink" class="nav-auth-link">Logout</a>';
+
+        var logoutLink = document.getElementById("logoutNavLink");
+        if (logoutLink) {
+            logoutLink.addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.removeItem("noboghatToken");
+                localStorage.removeItem("noboghatRole");
+                window.location.href = homePath;
+            });
         }
+    } else {
+        // Not logged in: outlined/ghost Login + solid Register.
+        // Register opens the registration tab on the login page via #register.
+        authBtn.innerHTML =
+            '<a href="' + basePath + 'login.html" class="nav-auth-btn btn-outline">Login</a>' +
+            '<a href="' + basePath + 'login.html#register" class="nav-auth-btn btn-primary">Register</a>';
     }
 });
+

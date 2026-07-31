@@ -1,77 +1,137 @@
-@media screen and (max-width:768px){
+/* =============================================
+   Navbar - Auth-aware buttons & base layout
+   ============================================= */
 
-.navbar{
-    position:relative;
-    padding:1rem 5%;
+/* Container holding the Login/Register (or Dashboard/Logout) buttons */
+.auth-btn-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.hamburger{
-    display:flex;
-    flex-direction:column;
-    gap:5px;
-    cursor:pointer;
-    z-index:1001;
+/* Shared button styling for the navbar auth buttons */
+.nav-auth-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+    white-space: nowrap;
 }
 
-.navbar .btn-primary{
-    display:none;
+/* Login: outlined / ghost button */
+.nav-auth-btn.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--river-blue);
+    color: var(--river-blue);
 }
 
-.nav-links{
-    position:absolute;
-    top:100%;
-    left:0;
-
-    width:100%;
-    background:#fff;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:20px;
-
-    padding:25px 0;
-
-    list-style:none;
-
-    transform:translateY(-20px);
-    opacity:0;
-    visibility:hidden;
-
-    transition:.3s ease;
-    z-index:1000;
-
-    border-top:1px solid #ddd;
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
+.nav-auth-btn.btn-outline:hover {
+    background: var(--river-blue);
+    color: #ffffff;
 }
 
-.nav-links.active{
-    opacity:1;
-    visibility:visible;
-    transform:translateY(0);
+/* Register: solid primary button */
+.nav-auth-btn.btn-primary {
+    background: var(--bd-green);
+    border: 1.5px solid var(--bd-green);
+    color: #ffffff;
 }
 
-.nav-links li{
-    margin:0;
+.nav-auth-btn.btn-primary:hover {
+    background: #1f5c35;
+    border-color: #1f5c35;
+    transform: translateY(-1px);
 }
 
-.nav-links a{
-    font-size:18px;
-    text-decoration:none;
-    color:#333;
+/* Logged-in state: plain text links (Dashboard / Logout) */
+.nav-auth-link {
+    text-decoration: none;
+    color: var(--deep-navy);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
-.hamburger.active .bar:nth-child(1){
-    transform:translateY(8px) rotate(45deg);
+.nav-auth-link:hover {
+    color: var(--river-blue);
 }
 
-.hamburger.active .bar:nth-child(2){
-    opacity:0;
-}
+@media screen and (max-width: 768px) {
 
-.hamburger.active .bar:nth-child(3){
-    transform:translateY(-8px) rotate(-45deg);
-}
+    .navbar {
+        position: relative;
+        padding: 1rem 5%;
+    }
 
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .navbar .btn-primary {
+        display: none;
+    }
+
+    .auth-btn-nav {
+        display: none;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 25px 0;
+        list-style: none;
+        transform: translateY(-20px);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s ease;
+        z-index: 1000;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-links.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .nav-links li {
+        margin: 0;
+    }
+
+    .nav-links a {
+        font-size: 18px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .hamburger.active .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
 }
 

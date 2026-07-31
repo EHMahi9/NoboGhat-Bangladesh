@@ -1,39 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About | NoboGhat</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="../assets/css/navbar.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | NoboGhat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/footer.css">
+    <link rel="stylesheet" href="../assets/css/about.css">
 </head>
 <body>
-  <!-- Reusable Navbar -->
-  <nav class="navbar">
-    <a href="../index.html" class="logo-link">
-      <img src="../assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo">
-    </a>
-    <ul class="nav-links">
-      <li><a href="../index.html">Home</a></li>
-      <li><a href="routes.html">Shipments</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
-    </ul>
-    <a href="../index.html#register" class="btn-primary">Register</a>
-    <div class="hamburger">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </div>
-  </nav>
+    <!-- Reusable Navbar (auth-aware, populated by navbar.js) -->
+    <nav class="navbar">
+        <a href="../index.html" class="logo-link">
+            <img src="../assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo">
+        </a>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="routes.html">Shipments</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+        <div class="auth-btn-nav">
+            <a href="login.html" class="nav-auth-btn btn-outline">Login</a>
+            <a href="login.html#register" class="nav-auth-btn btn-primary">Register</a>
+        </div>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
 
-  <main class="container" style="padding: 64px 5%; min-height: 60vh;">
-    <h1>About NoboGhat</h1>
-    <p>NoboGhat connects cargo owners with boat operators on Bangladesh&#x2019;s inland waterways. The platform supports user registration, boat and route records, trip listing, and capacity-aware booking.</p>
-    <p><a href="routes.html">Browse available trips</a> or <a href="../index.html#register">register as a user</a>.</p>
-  </main>
+    <main>
+        <!-- Hero -->
+        <header class="about-hero">
+            <div class="about-hero-content">
+                <span class="about-eyebrow"><i class="fa-solid fa-anchor"></i> About NoboGhat</span>
+                <h1>Digitalizing Bangladesh's Inland Waterways</h1>
+                <p>NoboGhat is a cargo-sharing platform that connects farmers, traders and boat owners on the rivers of Bangladesh — making freight transport affordable, transparent and reliable.</p>
+                <div class="about-hero-actions">
+                    <a href="routes.html" class="btn-primary">Browse Available Trips</a>
+                    <a href="login.html#register" class="btn-outline">Join NoboGhat</a>
+                </div>
+            </div>
+        </header>
 
-  <script src="../assets/js/navbar.js"></script>
+        <!-- Mission & Vision -->
+        <section class="mission-vision">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-subtitle">Our Purpose</p>
+                    <h2 class="section-title">Mission &amp; Vision</h2>
+                    <p class="section-description">Everything we build is guided by a simple belief: technology should remove barriers, not create them.</p>
+                </div>
+                <div class="mv-grid">
+                    <div class="mv-card">
+                        <div class="mv-icon"><i class="fa-solid fa-bullseye"></i></div>
+                        <h2>Our Mission</h2>
+                        <p>Reduce transport barriers for rural communities through accessible technology.</p>
+                    </div>
+                    <div class="mv-card">
+                        <div class="mv-icon"><i class="fa-solid fa-eye"></i></div>
+                        <h2>Our Vision</h2>
+                        <p>To become Bangladesh's trusted digital platform for inland water logistics and shared cargo transport.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Problem We Solve -->
+        <section class="about-problem">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-subtitle">The Challenge</p>
+                    <h2 class="section-title">The Problem We Solve</h2>
+                    <p class="section-description">Moving goods on Bangladesh's rivers has long been slow and fragmented. Here is what we're changing.</p>
+                </div>
+                <div class="problem-grid-about">
+                    <div class="problem-card-about">
+                        <div class="prob-icon"><i class="fa-solid fa-comments"></i></div>
+                        <h3>Fragmented Communication</h3>
+                        <p>Cargo owners and boat captains depend on phone calls and word of mouth. There is no central place to find a boat, compare options, or plan a shipment.</p>
+                    </div>
+                    <div class="problem-card-about">
+                        <div class="prob-icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                        <h3>Reliance on Brokers</h3>
+                        <p>Middlemen control routes and pricing, inflating costs for farmers and small traders while leaving boat owners with unpredictable income.</p>
+                    </div>
+                    <div class="problem-card-about">
+                        <div class="prob-icon"><i class="fa-solid fa-ship"></i></div>
+                        <h3>Underutilized Boats</h3>
+                        <p>Vessels sail with empty cargo holds because capacity is invisible. Better matching means fuller boats and lower per-kg costs for everyone.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Who We Serve -->
+        <section class="who-we-serve">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-subtitle">Our Community</p>
+                    <h2 class="section-title">Who We Serve</h2>
+                    <p class="section-description">NoboGhat is built for the people who move and grow Bangladesh.</p>
+                </div>
+                <div class="persona-grid">
+                    <div class="persona-card farmer">
+                        <div class="persona-icon"><i class="fa-solid fa-seedling"></i></div>
+                        <p class="persona-role">Farmers</p>
+                        <h3>Affordable Harvest Shipping</h3>
+                        <p>Farmers seek affordable transport and can now share cargo space for small agricultural harvests instead of paying for an entire boat.</p>
+                    </div>
+                    <div class="persona-card trader">
+                        <div class="persona-icon"><i class="fa-solid fa-store"></i></div>
+                        <p class="persona-role">Small Traders</p>
+                        <h3>Reliable, Transparent Shipping</h3>
+                        <p>Small traders shipping commercial products between districts get reliable scheduling and transparent pricing on every trip.</p>
+                    </div>
+                    <div class="persona-card owner">
+                        <div class="persona-icon"><i class="fa-solid fa-sailboat"></i></div>
+                        <p class="persona-role">Boat Owners</p>
+                        <h3>Higher Utilization, Easier Booking</h3>
+                        <p>Boat owners want higher boat utilization and easier online booking management — NoboGhat brings bookings directly to their dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="about-cta">
+            <div class="container">
+                <h2>Ready to move goods the smarter way?</h2>
+                <p>Join the growing community on Bangladesh's rivers and book your first shared cargo trip today.</p>
+                <a href="login.html#register" class="btn-primary">Get Started</a>
+                <a href="routes.html" class="btn-cta-ghost">Explore Trips</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Standard Site Footer -->
+    <footer id="contact" class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h2>NoboGhat</h2>
+                <p>Connecting Bangladesh through rivers. Digitalizing inland waterway logistics for a smarter, more efficient tomorrow.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="about.html">About NoboGhat</a></li>
+                    <li><a href="../index.html">How It Works</a></li>
+                    <li><a href="routes.html">Available Trips</a></li>
+                    <li><a href="mailto:vaibongo20@gmail.com">Help &amp; Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p>📍 Sadarghat Terminal, Dhaka, Bangladesh</p>
+                <p>📞 +880 1879 450876</p>
+                <p>✉️ vaibongo20@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 NoboGhat. All rights reserved. Developed by <span id="Mahi">Ebnul Hasan Mahi</span>.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/navbar.js"></script>
 </body>
 </html>
 

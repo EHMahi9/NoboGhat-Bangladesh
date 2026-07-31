@@ -28,5 +28,20 @@
 
 .btn-outline{
     background:transparent;
-    border:1px solid var(--river-blue);
+    border:1.5px solid var(--river-blue);
+    color:var(--river-blue);
+    padding:0.6rem 1.4rem;
+    border-radius:var(--radius-md);
+    font-weight:600;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition:var(--transition);
+    cursor:pointer;
+}
+
+.btn-outline:hover{
+    background:var(--river-blue);
+    color:#ffffff;
 }
