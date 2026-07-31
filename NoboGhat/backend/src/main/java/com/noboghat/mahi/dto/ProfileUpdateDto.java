@@ -12,9 +12,9 @@ public class ProfileUpdateDto {
     @Pattern(regexp = "^[0-9+() -]{7,20}$")
     private String phone;
 
-    @Size(min = 6, max = 100)
+    @Size(min = 4, max = 100)
     private String currentPassword;
 
-    @Size(min = 6, max = 100)
+    @Size(min = 4, max = 100)
     private String newPassword;
 }

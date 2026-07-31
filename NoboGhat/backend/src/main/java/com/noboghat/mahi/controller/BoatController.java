@@ -3,6 +3,8 @@ package com.noboghat.mahi.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,8 +31,16 @@ public class BoatController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Boat addBoat(@Valid @RequestBody BoatCreationDto creationDto) {
-        return boatService.createBoat(creationDto);
+    public Boat addBoat(@Valid @RequestBody BoatCreationDto creationDto, Authentication authentication) {
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        if (!"ADMIN".equals(role) && !"BOAT_OWNER".equals(role)) {
+            throw new AccessDeniedException("Only Boat Owners or Administrators can add boats.");
+        }
+        // For non-admin users, force ownership to the current user (prevents IDOR)
+        if (!"ADMIN".equals(role)) {
+            creationDto.setOwnerId(null);
+        }
+        return boatService.createBoat(creationDto, authentication.getName());
     }
 
     @GetMapping
@@ -39,13 +49,24 @@ public class BoatController {
     }
 
     @PutMapping("/{id}")
-    public Boat updateBoat(@PathVariable Long id, @Valid @RequestBody BoatCreationDto creationDto) {
-        return boatService.updateBoat(id, creationDto);
+    public Boat updateBoat(@PathVariable Long id, @Valid @RequestBody BoatCreationDto creationDto, Authentication authentication) {
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        if (!"ADMIN".equals(role) && !"BOAT_OWNER".equals(role)) {
+            throw new AccessDeniedException("Only Boat Owners or Administrators can update boats.");
+        }
+        if (!"ADMIN".equals(role)) {
+            creationDto.setOwnerId(null);
+        }
+        return boatService.updateBoat(id, creationDto, authentication.getName());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBoat(@PathVariable Long id) {
-        boatService.deleteBoat(id);
+    public void deleteBoat(@PathVariable Long id, Authentication authentication) {
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        if (!"ADMIN".equals(role) && !"BOAT_OWNER".equals(role)) {
+            throw new AccessDeniedException("Only Boat Owners or Administrators can delete boats.");
+        }
+        boatService.deleteBoat(id, authentication.getName());
     }
 }

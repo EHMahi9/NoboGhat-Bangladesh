@@ -16,4 +16,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Trip t join fetch t.boat where t.tripId = :tripId")
     Optional<Trip> findByIdForBooking(@Param("tripId") Long tripId);
+
+    long countByBoatBoatId(Long boatId);
 }

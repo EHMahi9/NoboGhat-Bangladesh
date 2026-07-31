@@ -12,6 +12,8 @@ import com.noboghat.mahi.repository.UserRepository;
 /** Creates an administrator only when ADMIN_PHONE and ADMIN_PASSWORD are configured. */
 @Component
 public class AdminInitializer implements ApplicationRunner {
+    private static final String DEFAULT_ADMIN_NAME = "Mahi";
+
     private final UserRepository users;
     private final PasswordEncoder passwordEncoder;
     private final String phone;
@@ -22,15 +24,16 @@ public class AdminInitializer implements ApplicationRunner {
             @Value("${ADMIN_PASSWORD:}") String password) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
-        this.phone = phone.trim();
-        this.password = password;
+        this.phone = phone == null ? "" : phone.trim();
+        this.password = password == null ? "" : password;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        if (phone.isBlank() || password.isBlank() || users.findByPhone(phone).isPresent()) return;
+        if (phone.isBlank() || password.isBlank()) return; // Silently skip if not configured
+        if (users.findByPhone(phone).isPresent()) return;
         Admin admin = new Admin();
-        admin.setName("NoboGhat Administrator");
+        admin.setName(DEFAULT_ADMIN_NAME);
         admin.setPhone(phone);
         admin.setPasswordHash(passwordEncoder.encode(password));
         users.save(admin);

@@ -10,8 +10,8 @@ import com.noboghat.mahi.dto.TripDto;
 import com.noboghat.mahi.model.Boat;
 import com.noboghat.mahi.model.Route;
 import com.noboghat.mahi.model.Trip;
-import com.noboghat.mahi.repository.BookingRepository;
 import com.noboghat.mahi.repository.BoatRepository;
+import com.noboghat.mahi.repository.BookingRepository;
 import com.noboghat.mahi.repository.RouteRepository;
 import com.noboghat.mahi.repository.TripRepository;
 
@@ -30,6 +30,7 @@ public class TripService {
         this.bookingRepository = bookingRepository;
     }
 
+    @Transactional
     public Trip createTrip(TripDto tripDto) {
         Route route = routeRepository.findById(tripDto.getRouteId())
                 .orElseThrow(() -> new IllegalArgumentException("Route not found."));
@@ -47,10 +48,12 @@ public class TripService {
         return tripRepository.save(trip);
     }
 
+    @Transactional(readOnly = true)
     public List<Trip> getAllTrips() {
         return tripRepository.findAll();
     }
 
+    @Transactional
     public void deleteTrip(Long tripId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found with id: " + tripId));

@@ -1,20 +1,25 @@
 package com.noboghat.mahi.controller;
 
-import com.noboghat.mahi.dto.LoginDto;
-import com.noboghat.mahi.dto.UserRegistrationDto;
-import com.noboghat.mahi.model.User;
-import com.noboghat.mahi.security.JwtUtil;
-import com.noboghat.mahi.service.UserService;
-import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.noboghat.mahi.dto.LoginDto;
+import com.noboghat.mahi.dto.UserRegistrationDto;
+import com.noboghat.mahi.model.User;
+import com.noboghat.mahi.security.JwtUtil;
+import com.noboghat.mahi.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,8 +39,13 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody UserRegistrationDto registrationDto) {
         User newUser = userService.registerNewUser(registrationDto);
         
+        // Generate JWT for immediate login so the user doesn't have to sign in again
+        UserDetails userDetails = userService.loadUserByUsername(newUser.getPhone() != null ? newUser.getPhone() : newUser.getEmail());
+        String jwt = jwtUtil.generateToken(userDetails);
+        
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Registration successful.");
+        response.put("token", jwt);
         response.put("userId", newUser.getUserId());
         response.put("name", newUser.getName());
         response.put("role", newUser.getRole());
