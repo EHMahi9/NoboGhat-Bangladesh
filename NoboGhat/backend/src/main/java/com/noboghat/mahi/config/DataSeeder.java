@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.model.Admin;
 import com.noboghat.mahi.repository.BoatRepository;
@@ -24,6 +23,9 @@ import com.noboghat.mahi.repository.UserRepository;
  * (to clear old phone-based/mismatched data) and creates the ADMIN user using
  * the injected {@code app.admin.email} / {@code app.admin.password} values.
  * If the admin already exists, nothing happens – data is preserved across restarts.
+ *
+ * Production-safety: the wipe is wrapped in a try-catch so a failure (e.g. a
+ * DataIntegrityViolationException) is logged and never crashes application startup.
  */
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -64,7 +66,6 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
         if (adminEmail.isBlank() || adminPassword.isBlank()) {
             log.warn("DataSeeder: app.admin.email / app.admin.password are not configured. Skipping admin seeding.");
@@ -77,27 +78,43 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         log.warn("DataSeeder: Admin {} not found. Wiping database and seeding fresh ADMIN.", adminEmail);
-        wipeDatabase();
 
-        Admin admin = new Admin();
-        admin.setName("Mahi");
-        admin.setEmail(adminEmail);
-        admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-        userRepository.save(admin);
-        log.info("DataSeeder: ADMIN user created with email {}", adminEmail);
+        // Production-safety: the wipe must never crash startup. Log and continue.
+        try {
+            wipeDatabase();
+        } catch (Exception ex) {
+            System.err.println("[DataSeeder] Database wipe failed (continuing with admin seeding): " + ex.getMessage());
+            ex.printStackTrace(System.err);
+        }
+
+        // Admin creation always runs, even if the wipe failed or was skipped.
+        try {
+            Admin admin = new Admin();
+            admin.setName("Mahi");
+            admin.setEmail(adminEmail);
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            userRepository.save(admin);
+            log.info("DataSeeder: ADMIN user created with email {}", adminEmail);
+        } catch (Exception ex) {
+            System.err.println("[DataSeeder] Failed to create ADMIN user: " + ex.getMessage());
+            ex.printStackTrace(System.err);
+        }
     }
 
     /**
-     * Deletes data in FK-safe order: bookings → trips → boats → routes → notifications → password tokens → users.
+     * Deletes data in FK-safe order so no foreign-key constraint is violated:
+     * PasswordResetToken → Booking → Trip → Boat → Notification → Route → User.
+     * (PasswordResetToken, Booking, Notification and Boat all reference User, so
+     * User is deleted last; Trip references Route and Boat, so they go before Trip.)
      */
     private void wipeDatabase() {
-        bookingRepository.deleteAllInBatch();
-        notificationRepository.deleteAllInBatch();
-        passwordResetTokenRepository.deleteAllInBatch();
-        tripRepository.deleteAllInBatch();
-        boatRepository.deleteAllInBatch();
-        routeRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
+        passwordResetTokenRepository.deleteAllInBatch(); // references User
+        bookingRepository.deleteAllInBatch();            // references User, Trip
+        tripRepository.deleteAllInBatch();               // references Route, Boat
+        boatRepository.deleteAllInBatch();               // references User
+        notificationRepository.deleteAllInBatch();       // references User
+        routeRepository.deleteAllInBatch();              // no FK, safe after Trip
+        userRepository.deleteAllInBatch();               // no remaining children
         log.info("DataSeeder: Database wiped successfully.");
     }
 }
