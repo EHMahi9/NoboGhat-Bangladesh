@@ -43,10 +43,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
             var items = [
                 { label: "Trip ID", value: "#TRP-" + trip.tripId },
-                { label: "Route", value: (trip.route.source || "N/A") + " → " + (trip.route.destination || "N/A") },
-                { label: "Boat", value: trip.boat.name || "N/A" },
+                { label: "Route", value: (trip.source || "N/A") + " → " + (trip.destination || "N/A") },
+                { label: "Boat", value: trip.boatName || "N/A" },
                 { label: "Departure", value: formatDeparture(trip) },
-                { label: "Available Capacity", value: (trip.boat.capacity || 0) + " kg" }
+                { label: "Available Capacity", value: (trip.remainingCapacity || 0) + " kg" }
             ];
 
             for (var i = 0; i < items.length; i++) {
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         var boatName = document.createElement("span");
         boatName.className = "boat-name";
-        boatName.innerHTML = '<i class="fa-solid fa-ship"></i> ' + (trip.boat.name || "Unknown");
+        boatName.innerHTML = '<i class="fa-solid fa-ship"></i> ' + (trip.boatName || "Unknown");
 
         var badge = document.createElement("span");
         badge.className = "status-badge available";
@@ -105,11 +105,11 @@ document.addEventListener("DOMContentLoaded", function() {
         routeInfo.className = "route-info";
 
         var src = document.createElement("h4");
-        src.textContent = trip.route.source || "N/A";
+        src.textContent = trip.source || "N/A";
         var arrow = document.createElement("i");
         arrow.className = "fa-solid fa-arrow-right";
         var dst = document.createElement("h4");
-        dst.textContent = trip.route.destination || "N/A";
+        dst.textContent = trip.destination || "N/A";
 
         routeInfo.appendChild(src);
         routeInfo.appendChild(arrow);
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function() {
         li1.innerHTML = '<i class="fa-regular fa-calendar"></i> ' + formatDeparture(trip);
 
         var li2 = document.createElement("li");
-        li2.innerHTML = '<i class="fa-solid fa-weight-scale"></i> <strong>Available Capacity:</strong> ' + (trip.boat.capacity || "0") + ' kg';
+        li2.innerHTML = '<i class="fa-solid fa-weight-scale"></i> <strong>Available Capacity:</strong> ' + (trip.remainingCapacity || "0") + ' kg';
 
         var li3 = document.createElement("li");
         li3.innerHTML = '<i class="fa-solid fa-user-check"></i> Verified Owner';
@@ -176,9 +176,8 @@ document.addEventListener("DOMContentLoaded", function() {
             var trips = await response.json();
 
             var matches = trips.filter(function(trip) {
-                var route = trip.route || {};
-                var srcMatch = (route.source || "").toLowerCase().includes(currentSearchSource.toLowerCase());
-                var dstMatch = (route.destination || "").toLowerCase().includes(currentSearchDestination.toLowerCase());
+                var srcMatch = (trip.source || "").toLowerCase().includes(currentSearchSource.toLowerCase());
+                var dstMatch = (trip.destination || "").toLowerCase().includes(currentSearchDestination.toLowerCase());
                 return srcMatch && dstMatch;
             });
 

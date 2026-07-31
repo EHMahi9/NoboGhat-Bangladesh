@@ -47,10 +47,10 @@
             <!-- Login Form -->
             <form id="loginForm" class="auth-form active">
                 <div class="input-group">
-                    <label for="loginPhone">Phone Number</label>
+                    <label for="loginEmail">Email Address</label>
                     <div class="input-with-icon">
-                        <i class="fa-solid fa-phone"></i>
-                        <input type="tel" id="loginPhone" placeholder="01XXXXXXXXX" required>
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="you@example.com" required>
                     </div>
                 </div>
 
@@ -64,7 +64,7 @@
 
                 <button type="submit" class="btn-primary auth-btn">Sign In</button>
                 <div class="auth-error"></div>
-                <p class="auth-footer-text">Forgot password? <a href="#">Recover account</a></p>
+                <p class="auth-footer-text">Forgot password? <a href="#" id="forgotPasswordLink">Recover account</a></p>
             </form>
 
             <!-- Registration Form -->
@@ -78,10 +78,10 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="regPhone">Phone Number (optional)</label>
+                    <label for="regEmail">Email Address</label>
                     <div class="input-with-icon">
-                        <i class="fa-solid fa-phone"></i>
-                        <input type="tel" id="regPhone" placeholder="017XXXXXXXX">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="regEmail" placeholder="you@example.com" required>
                     </div>
                 </div>
 
@@ -112,6 +112,49 @@
 
         </div>
     </main>
+
+    <!-- Password Recovery Modal (Task 3) -->
+    <div id="recoverModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h2>Recover Account</h2>
+            <p>Enter your email address and we'll send you a recovery token.</p>
+
+            <!-- Step 1: Request token -->
+            <form id="forgotPasswordForm" class="booking-form">
+                <div class="input-group">
+                    <label for="recoverEmail">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="recoverEmail" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">Send Recovery Token</button>
+                <p id="recoverMessage" class="booking-message" hidden></p>
+                <p class="auth-footer-text"><a href="#" id="closeRecoverModal">Close</a></p>
+            </form>
+
+            <!-- Step 2: Reset password with token -->
+            <form id="resetPasswordForm" class="booking-form" style="display:none;">
+                <div class="input-group">
+                    <label for="resetToken">Recovery Token</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="text" id="resetToken" placeholder="Enter the token shown in the console" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="resetNewPassword">New Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="resetNewPassword" placeholder="Create a new password" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">Reset Password</button>
+                <p id="resetMessage" class="booking-message" hidden></p>
+                <p class="auth-footer-text"><a href="#" id="backToForgot">Back</a> · <a href="#" id="closeRecoverModal2">Close</a></p>
+            </form>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="../assets/js/api.js"></script>

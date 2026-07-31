@@ -1,10 +1,7 @@
 package com.noboghat.mahi.security;
 
-import com.noboghat.mahi.service.UserService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +9,12 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.noboghat.mahi.service.UserService;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -49,20 +51,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // 3. If a username was extracted and the user is not yet authenticated in this session
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Load the user details from the database
-            UserDetails userDetails = this.userService.loadUserByUsername(username);
+            try {
+                // Load the user details from the database
+                UserDetails userDetails = this.userService.loadUserByUsername(username);
 
-            // 4. Validate the token
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                
-                // 5. Create an authentication object manually 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // 6. Tell Spring Security that this user is officially authenticated
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                // 4. Validate the token
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+
+                    // 5. Create an authentication object manually
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    // 6. Tell Spring Security that this user is officially authenticated
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // Deactivated/unknown users and invalid tokens are treated as anonymous.
+                // The authentication entry point returns a consistent JSON 401 response.
+                SecurityContextHolder.clearContext();
             }
         }
         

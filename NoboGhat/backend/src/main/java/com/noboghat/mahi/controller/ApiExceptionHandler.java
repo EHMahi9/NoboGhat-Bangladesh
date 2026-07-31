@@ -27,6 +27,11 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }
 
+    @ExceptionHandler(java.time.format.DateTimeParseException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidDateTime(java.time.format.DateTimeParseException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Invalid date/time format. Use ISO-8601, e.g. 2025-01-01T10:30:00."));
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Map<String, String>> handleAuthentication(AuthenticationException exception) {
         return ResponseEntity.status(401).body(Map.of("message", "Phone number or password is incorrect."));

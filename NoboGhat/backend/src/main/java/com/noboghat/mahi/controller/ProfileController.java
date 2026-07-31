@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,6 +54,12 @@ public class ProfileController {
             "email", user.getEmail() == null ? "" : user.getEmail(),
             "role", user.getRole()
         ));
+    }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Map<String, String>> deactivateProfile(Authentication authentication) {
+        userService.deactivateAccount(authentication.getName());
+        return ResponseEntity.ok(Map.of("message", "Your account has been deactivated. You can no longer sign in."));
     }
 
     @PutMapping("/update-role")
