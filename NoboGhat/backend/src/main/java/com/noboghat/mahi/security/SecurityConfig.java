@@ -28,10 +28,6 @@ import com.noboghat.mahi.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Inject allowed origins from properties / environment
-    @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
-
     // 1. Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,19 +48,22 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // 4. CORS configuration source – reads allowed origins from app.cors.allowed-origins
+    /**
+     * Spring Security handles requests before Spring MVC. Keeping the CORS policy
+     * here ensures browser preflight requests are accepted before authentication.
+     */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(origin -> origin != null ? origin.trim() : null)
-                .filter(origin -> origin != null && !origin.isBlank())
-                .toList();
-
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins}") String configuredOrigins) {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Requested-With"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(Arrays.stream(configuredOrigins == null ? "" : configuredOrigins.split(","))
+                .map(origin -> origin != null ? origin.trim() : "")
+                .filter(origin -> !origin.isBlank())
+                .toList());
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -72,22 +71,23 @@ public class SecurityConfig {
         return source;
     }
 
-    // 5. Security Filter Chain
+    // 4. Security Filter Chain
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
             DaoAuthenticationProvider authProvider,
             JwtRequestFilter jwtRequestFilter,
             GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler,
-            org.springframework.beans.factory.ObjectProvider<ClientRegistrationRepository> clientRegistrations)
+            org.springframework.beans.factory.ObjectProvider<ClientRegistrationRepository> clientRegistrations,
+            CorsConfigurationSource corsConfigurationSource)
             throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
-
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
