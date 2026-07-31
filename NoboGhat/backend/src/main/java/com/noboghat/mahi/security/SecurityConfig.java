@@ -52,13 +52,16 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // 4. CORS configuration source – reads allowed origins from app.cors.allowed-origins
+    // 4. CORS configuration source – safely handles null without compiler errors
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(origin -> origin != null ? origin.trim() : null)
-                .filter(origin -> origin != null && !origin.isBlank())
-                .toList();
+        
+        List<String> origins = (allowedOrigins == null || allowedOrigins.isBlank()) 
+                ? List.of() 
+                : Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(origin -> !origin.isEmpty())
+                        .toList();
 
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(origins);
