@@ -57,6 +57,34 @@
             </div>
         </div>
         <div class="booking-panel" style="margin-top: 32px;">
+            <h2>Manage Trips</h2>
+            <form id="tripForm" class="booking-form">
+                <label for="tripRoute">Route</label>
+                <select id="tripRoute" required></select>
+                <label for="tripBoat">Boat</label>
+                <select id="tripBoat" required></select>
+                <label for="tripDepartureTime">Departure Time</label>
+                <input type="datetime-local" id="tripDepartureTime" required>
+                <button type="submit" class="btn-book">Save Trip</button>
+            </form>
+            <p id="tripMessage" class="booking-message" hidden></p>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="history-table">
+                    <thead><tr><th>ID</th><th>Route</th><th>Boat</th><th>Departure</th><th>Action</th></tr></thead>
+                    <tbody id="tripsBody"><tr><td colspan="5">Loading trips...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="booking-panel" style="margin-top: 32px;">
+            <h2>Manage Users</h2>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="history-table">
+                    <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Role</th><th>Boats</th><th>Bookings</th><th>Action</th></tr></thead>
+                    <tbody id="usersBody"><tr><td colspan="7">Loading users...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="booking-panel" style="margin-top: 32px;">
             <h2>Manage Bookings</h2>
             <div class="table-responsive" style="margin-top: 20px;">
                 <table class="history-table">

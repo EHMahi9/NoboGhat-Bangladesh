@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
     var api = window.NoboGhatApi;
     var bookings = [];
+    var dashboardLinks = document.querySelectorAll("[data-dashboard-link]");
+    var dashboardSections = document.querySelectorAll("[data-dashboard-section]");
     var profileForm = document.getElementById("profileForm");
     var profileMessage = document.getElementById("profileMessage");
     var notificationsBody = document.getElementById("notificationsBody");
@@ -28,6 +30,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (normalized === "CONFIRMED" || normalized === "COMPLETED") return "completed";
         if (normalized === "CANCELLED") return "pending";
         return "pending";
+    }
+
+    function setActiveSection(sectionKey) {
+        dashboardLinks.forEach(function (link) {
+            var isActive = link.getAttribute("data-dashboard-link") === sectionKey;
+            link.classList.toggle("active", isActive);
+        });
+
+        dashboardSections.forEach(function (section) {
+            var matches = section.getAttribute("data-dashboard-section") === sectionKey;
+            section.classList.toggle("is-hidden", !matches);
+        });
     }
 
     function renderBookings(list) {
@@ -152,10 +166,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         profileMessage.hidden = !text;
     }
 
-    function formatNotificationDate(value) {
-        return formatDate(value);
-    }
-
     function renderNotifications(list) {
         if (!notificationsBody) return;
         var unread = 0;
@@ -172,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             var msg = document.createElement("td");
             msg.textContent = item.message;
             var date = document.createElement("td");
-            date.textContent = formatNotificationDate(item.createdAt);
+            date.textContent = formatDate(item.createdAt);
             var status = document.createElement("td");
             status.textContent = item.read ? "Read" : "Unread";
             var action = document.createElement("td");
@@ -203,6 +213,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     var viewButton = document.getElementById("viewBookingStatusBtn");
     if (viewButton) {
         viewButton.addEventListener("click", function () {
+            setActiveSection("active-bookings");
             var section = document.getElementById("active-bookings-section");
             if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
         });
@@ -223,6 +234,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         var profilePhone = document.getElementById("profilePhone");
         if (profileName) profileName.value = user.name || "";
         if (profilePhone) profilePhone.value = user.phone || "";
+
+        dashboardLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                var sectionKey = link.getAttribute("data-dashboard-link");
+                if (!sectionKey) return;
+                event.preventDefault();
+                setActiveSection(sectionKey);
+                var target = document.querySelector('[data-dashboard-section="' + sectionKey + '"]');
+                if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        });
+
+        setActiveSection("overview");
 
         var bookingsResponse = await fetch(api.url("/api/bookings"), {
             headers: api.authHeaders()

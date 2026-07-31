@@ -470,11 +470,13 @@ button {
     padding-top: 25px;
     color: #cbd5e1;
     font-size: 0.85rem;
+    letter-spacing: 0.2px;
+    line-height: 1.6;
 }
 
 #Mahi {
-    font-weight: bold;
-    color: #ffffff;
+    font-weight: 700;
+    color: #7dd3fc;
 }
 
 

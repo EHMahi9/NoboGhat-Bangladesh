@@ -201,6 +201,18 @@
 .status.completed { background: #e8f5e9; color: #2e7d32; }
 .status.pending { background: #fff8e1; color: #f57f17; }
 
+.dashboard-section {
+    display: none;
+}
+
+.dashboard-grid[data-dashboard-section="overview"] {
+    display: grid;
+}
+
+.dashboard-section.is-hidden {
+    display: none;
+}
+
 /* ==========================================
    Mobile Responsiveness
 ========================================== */

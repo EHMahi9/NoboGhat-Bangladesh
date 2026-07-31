@@ -56,8 +56,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(
             @Value("${app.cors.allowed-origins}") String configuredOrigins) {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(configuredOrigins.split(","))
-                .map(String::trim)
+        configuration.setAllowedOrigins(Arrays.stream(configuredOrigins == null ? "" : configuredOrigins.split(","))
+                .map(origin -> origin != null ? origin.trim() : "")
                 .filter(origin -> !origin.isBlank())
                 .toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
