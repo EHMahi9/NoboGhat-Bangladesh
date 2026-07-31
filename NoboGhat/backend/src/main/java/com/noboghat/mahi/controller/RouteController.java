@@ -3,6 +3,7 @@ package com.noboghat.mahi.controller;
 import java.util.List;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +28,10 @@ public class RouteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Route addRoute(@Valid @RequestBody RouteDto routeDto, Authentication authentication) {
         if (authentication == null || authentication.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ADMIN"))) {
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             throw new AccessDeniedException("Only administrators can add routes.");
         }
         Route route = new Route();

@@ -10,13 +10,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.dto.UserRegistrationDto;
 import com.noboghat.mahi.model.BoatOwner;
 import com.noboghat.mahi.model.Farmer;
+import com.noboghat.mahi.model.PendingUser;
 import com.noboghat.mahi.model.Trader;
 import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -29,11 +33,13 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
     // Inject PasswordEncoder to securely hash passwords
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.entityManager = entityManager;
     }
 
     /**
@@ -48,17 +54,18 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         // Map the NoboGhat User to a Spring Security UserDetails object
+        // Prefix with ROLE_ so that hasRole("ADMIN") works correctly in Spring Security
         return new org.springframework.security.core.userdetails.User(
                 loginIdentifier(user),
                 user.getPasswordHash(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }
 
     public User registerGoogleUser(String email, String name) {
         String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
         return userRepository.findByEmail(normalizedEmail).orElseGet(() -> {
-            Farmer user = new Farmer();
+            PendingUser user = new PendingUser();
             user.setName(name == null || name.isBlank() ? "Google user" : name.trim());
             user.setEmail(normalizedEmail);
             // Google users authenticate with Google; this value prevents a null
@@ -106,9 +113,36 @@ public class UserService implements UserDetailsService {
         return user.getPhone() != null ? user.getPhone() : user.getEmail();
     }
 
+    @Transactional
+    public User updateUserRole(Long userId, String newRole) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+        String role = PUBLIC_ROLES.get(newRole.trim().toLowerCase(Locale.ROOT));
+        if (role == null) {
+            throw new IllegalArgumentException("Invalid role. Must be farmer, trader, or boat_owner.");
+        }
+
+        // Update the discriminator column via native SQL since it's insertable=false, updatable=false
+        userRepository.updateUserRole(userId, role);
+        
+        // Clear the persistence context so the entity is reloaded with the correct type
+        entityManager.clear();
+        
+        // Reload the entity – JPA will now instantiate the correct subclass based on the new discriminator value
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found after role update."));
+    }
+
     public User registerNewUser(UserRegistrationDto registrationDto) {
-        String phone = registrationDto.getPhone().trim();
-        if (userRepository.findByPhone(phone).isPresent()) {
+        // Check for duplicate email
+        if (registrationDto.getEmail() != null && !registrationDto.getEmail().isBlank()
+                && userRepository.existsByEmail(registrationDto.getEmail().trim().toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
+
+        String phone = registrationDto.getPhone() != null ? registrationDto.getPhone().trim() : null;
+        if (phone != null && !phone.isBlank() && userRepository.findByPhone(phone).isPresent()) {
             throw new IllegalArgumentException("A user with this phone number already exists.");
         }
 
@@ -126,7 +160,12 @@ public class UserService implements UserDetailsService {
             default -> throw new IllegalStateException("Unsupported user role.");
         };
         user.setName(registrationDto.getName().trim());
-        user.setPhone(phone);
+        if (phone != null && !phone.isBlank()) {
+            user.setPhone(phone);
+        }
+        if (registrationDto.getEmail() != null && !registrationDto.getEmail().isBlank()) {
+            user.setEmail(registrationDto.getEmail().trim().toLowerCase(Locale.ROOT));
+        }
         
         // Phase 6 Implementation: Replaced the simple .hashCode() with BCrypt
         String password = registrationDto.getPassword();
