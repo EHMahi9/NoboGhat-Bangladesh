@@ -2,6 +2,7 @@ package com.noboghat.mahi.security;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,7 +63,12 @@ public class SecurityConfig {
                 .toList();
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(origins);
+        // Exact production origins come from configuration. The pattern permits
+        // only previews for this Vercel project, not arbitrary Vercel sites.
+        configuration.setAllowedOriginPatterns(Stream.concat(
+                origins.stream(),
+                Stream.of("https://noboghatbangladesh-*.vercel.app"))
+                .toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setExposedHeaders(List.of("Authorization"));

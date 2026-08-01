@@ -65,7 +65,8 @@ public class TripService {
                 .map(trip -> {
                     Route route = trip.getRoute();
                     Boat boat = trip.getBoat();
-                    double reserved = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+                    Double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+                    double reserved = reservedWeight != null ? reservedWeight : 0.0;
                     double capacity = boat != null && boat.getCapacity() != null ? boat.getCapacity() : 0.0;
                     double remaining = Math.max(0.0, capacity - reserved);
                     return new TripWithCapacityDto(

@@ -187,8 +187,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User updateUserRole(Long userId, String newRole) {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found.");
+        }
 
         String role = PUBLIC_ROLES.get(newRole.trim().toLowerCase(Locale.ROOT));
         if (role == null) {
