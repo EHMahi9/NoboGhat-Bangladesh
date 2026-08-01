@@ -8,6 +8,6 @@ import com.noboghat.mahi.model.PasswordResetToken;
 
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
     Optional<PasswordResetToken> findByToken(String token);
-    Optional<PasswordResetToken> findByUserId(Long userId);
+    Optional<PasswordResetToken> findByUser_UserId(Long userId);
 }
 

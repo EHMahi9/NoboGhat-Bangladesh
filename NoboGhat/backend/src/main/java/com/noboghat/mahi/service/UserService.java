@@ -118,7 +118,7 @@ public class UserService implements UserDetailsService {
         }
 
         // Invalidate any previously issued token for this user
-        passwordResetTokenRepository.findByUserId(user.getUserId()).ifPresent(passwordResetTokenRepository::delete);
+        passwordResetTokenRepository.findByUser_UserId(user.getUserId()).ifPresent(passwordResetTokenRepository::delete);
 
         String token = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         PasswordResetToken resetToken = new PasswordResetToken();

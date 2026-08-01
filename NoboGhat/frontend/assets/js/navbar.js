@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
         hamburger.addEventListener("click", function() {
             hamburger.classList.toggle("active");
             navLinks.classList.toggle("active");
+            hamburger.setAttribute("aria-expanded", navLinks.classList.contains("active"));
         });
 
         // Close menu when a nav link is clicked
@@ -14,8 +15,17 @@ document.addEventListener("DOMContentLoaded", function() {
             links[i].addEventListener("click", function() {
                 hamburger.classList.remove("active");
                 navLinks.classList.remove("active");
+                hamburger.setAttribute("aria-expanded", "false");
             });
         }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                hamburger.classList.remove("active");
+                navLinks.classList.remove("active");
+                hamburger.setAttribute("aria-expanded", "false");
+            }
+        });
     }
 
     // Auth-aware navbar: check if user is logged in

@@ -9,6 +9,107 @@
     gap: 10px;
 }
 
+/* Homepage navigation: keep all destinations discoverable without overflow. */
+.nav-mobile-cta {
+    display: none;
+}
+
+.navbar {
+    gap: clamp(0.75rem, 2vw, 2.5rem);
+}
+
+.nav-links {
+    gap: clamp(0.85rem, 1.5vw, 1.75rem);
+}
+
+.nav-links a:focus-visible,
+.hamburger:focus-visible,
+.nav-auth-btn:focus-visible {
+    outline: 3px solid #0b63ce;
+    outline-offset: 3px;
+}
+
+@media screen and (max-width: 1100px) {
+    .navbar {
+        position: relative;
+        padding: 1rem 5%;
+    }
+
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        z-index: 1001;
+        border: 0;
+        background: transparent;
+        padding: 0.5rem;
+    }
+
+    .auth-btn-nav {
+        display: none !important;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: calc(100vh - 76px);
+        overflow-y: auto;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.75rem 5% 1.25rem;
+        list-style: none;
+        transform: translateY(-12px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        z-index: 1000;
+        border-top: 1px solid #d9e2ec;
+        box-shadow: 0 12px 24px rgba(15, 35, 60, 0.16);
+    }
+
+    .nav-links.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 0.8rem 0.4rem;
+        color: #123b64;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+
+    .nav-mobile-cta {
+        display: block;
+        margin-top: 0.5rem;
+    }
+
+    .nav-mobile-cta .nav-auth-btn.btn-primary {
+        display: inline-flex !important;
+        width: 100%;
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .navbar {
+        padding: 0.8rem 4%;
+    }
+
+    .logo {
+        max-width: 145px;
+    }
+}
+
 /* Shared button styling for the navbar auth buttons */
 .nav-auth-btn {
     display: inline-flex;
@@ -132,6 +233,21 @@
 
     .hamburger.active .bar:nth-child(3) {
         transform: translateY(-8px) rotate(-45deg);
+    }
+}
+
+/* Final mobile overrides: retain the Join action inside the expanded menu. */
+@media screen and (max-width: 1100px) {
+    .nav-mobile-cta {
+        display: block;
+        margin-top: 0.5rem;
+    }
+
+    .navbar .nav-mobile-cta .nav-auth-btn.btn-primary {
+        display: inline-flex;
+        width: 100%;
+        gap: 0.5rem;
+        justify-content: center;
     }
 }
 

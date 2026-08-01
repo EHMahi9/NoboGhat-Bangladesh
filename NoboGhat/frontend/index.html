@@ -10,35 +10,40 @@
         <link rel="stylesheet" href="assets/css/problem.css">
         <link rel="stylesheet" href="assets/css/features.css">
         <link rel="stylesheet" href="assets/css/registration.css">
+        <link rel="stylesheet" href="./assets/css/navbar.css">
         <link rel="stylesheet" href="./assets/css/responsive.css">
     </head>
     <body>
-        <nav class="navbar">
-            <a href="#" class="logo-link">
+        <nav class="navbar" aria-label="Primary navigation">
+            <a href="#home" class="logo-link" aria-label="NoboGhat home">
                 <img src="./assets/images/illustrations/noboghat-svg.svg" alt="NoboGhat Logo" class="logo">
             </a>
             
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
+            <ul id="primary-navigation" class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#statistics">Impact</a></li>
+                <li><a href="#how-it-works">How it works</a></li>
+                <li><a href="#features">Features</a></li>
                 <li><a href="pages/routes.html">Shipments</a></li>
                 <li><a href="pages/about.html">About</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li class="nav-mobile-cta"><a href="pages/login.html#register" class="nav-auth-btn btn-primary"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Join NoboGhat</a></li>
             </ul>
 
             <div class="auth-btn-nav">
                 <a href="pages/login.html#register" class="nav-auth-btn btn-primary"><i class="fa-solid fa-user-plus" style="margin-right:8px;"></i>Join NoboGhat</a>
             </div>
 
-            <div class="hamburger">
+            <button class="hamburger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-navigation">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
-            </div>
+            </button>
         </nav>
 
         <main>
         <!-- Hero Section with Route Search -->
-        <header class="hero">
+        <header id="home" class="hero">
             <div class="hero-content">
                 <h1>Digitalizing Bangladesh's River Routes</h1>
                 <p>
@@ -69,7 +74,7 @@
         <!-- ===============================
             Statistics Section
         ================================ -->
-        <section class="statistics-section">
+        <section id="statistics" class="statistics-section">
 
             <div class="container">
 
@@ -101,7 +106,7 @@
             Problem & Solution Section
         ========================================== -->
 
-        <section class="problem-section">
+        <section id="how-it-works" class="problem-section">
 
             <div class="container">
 
@@ -211,7 +216,7 @@
             Features Section
         ========================================== -->
 
-        <section class="features-section">
+        <section id="features" class="features-section">
 
             <div class="container">
 
