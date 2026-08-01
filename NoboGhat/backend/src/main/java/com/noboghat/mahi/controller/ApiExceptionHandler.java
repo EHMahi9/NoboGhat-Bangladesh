@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -56,7 +58,12 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException exception) {
-        return ResponseEntity.status(403).body(Map.of("message", exception.getMessage()));
+    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException exception,
+            HttpServletRequest request) {
+        String message = exception.getMessage();
+        if ("POST".equalsIgnoreCase(request.getMethod()) && "/api/bookings".equals(request.getRequestURI())) {
+            message = "Only Farmer and Trader accounts can create cargo bookings.";
+        }
+        return ResponseEntity.status(403).body(Map.of("message", message));
     }
 }
