@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var closeBookingPanel = document.getElementById("closeBookingPanel");
     var currentSearchSource = "";
     var currentSearchDestination = "";
+    var currentSearchDate = "";
     var selectedTrip = null;
 
     function setBookingMessage(text, type) {
@@ -164,9 +165,10 @@ document.addEventListener("DOMContentLoaded", function() {
         return card;
     }
 
-    async function loadTrips(searchSource, searchDestination) {
+    async function loadTrips(searchSource, searchDestination, searchDate) {
         currentSearchSource = searchSource || "";
         currentSearchDestination = searchDestination || "";
+        currentSearchDate = searchDate || "";
         resultsContainer.innerHTML = '<p>Loading available trips...</p>';
         errorMessage.hidden = true;
 
@@ -178,7 +180,8 @@ document.addEventListener("DOMContentLoaded", function() {
             var matches = trips.filter(function(trip) {
                 var srcMatch = (trip.source || "").toLowerCase().includes(currentSearchSource.toLowerCase());
                 var dstMatch = (trip.destination || "").toLowerCase().includes(currentSearchDestination.toLowerCase());
-                return srcMatch && dstMatch;
+                var dateMatch = !currentSearchDate || (trip.departureTime || "").slice(0, 10) === currentSearchDate;
+                return srcMatch && dstMatch && dateMatch;
             });
 
             resultsCount.textContent = "Showing " + matches.length + " available trip" + (matches.length !== 1 ? "s" : "");
@@ -250,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 setBookingMessage("Booking created successfully.", "success");
-                await loadTrips(currentSearchSource, currentSearchDestination);
+                await loadTrips(currentSearchSource, currentSearchDestination, currentSearchDate);
                 bookingForm.reset();
                 selectedTrip = null;
             } catch (error) {
@@ -266,16 +269,19 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
             var sourceInput = document.getElementById("searchSource").value.trim();
             var destInput = document.getElementById("searchDestination").value.trim();
-            loadTrips(sourceInput, destInput);
+            var dateInput = document.getElementById("searchDate").value;
+            loadTrips(sourceInput, destInput, dateInput);
         });
     }
 
     var params = new URLSearchParams(window.location.search);
     var initialSource = params.get("source") || "";
     var initialDestination = params.get("destination") || "";
+    var initialDate = params.get("date") || "";
 
     if (initialSource) document.getElementById("searchSource").value = initialSource;
     if (initialDestination) document.getElementById("searchDestination").value = initialDestination;
+    if (initialDate) document.getElementById("searchDate").value = initialDate;
 
-    loadTrips(initialSource, initialDestination);
+    loadTrips(initialSource, initialDestination, initialDate);
 });
