@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", async function() {
   var tripBoatSelect = document.getElementById("tripBoat");
   var usersBody = document.getElementById("usersBody");
   var bookingsBody = document.getElementById("bookingsBody");
+  var routeForm = document.getElementById("routeForm");
+  var routeMessage = document.getElementById("routeMessage");
+  var routesBody = document.getElementById("routesBody");
+  var recurringTripForm = document.getElementById("recurringTripForm");
+  var recurringTripMessage = document.getElementById("recurringTripMessage");
+  var recurringTripsBody = document.getElementById("recurringTripsBody");
+  var recurringRoute = document.getElementById("recurringRoute");
+  var recurringBoat = document.getElementById("recurringBoat");
 
   function setBoatMessage(text, type) {
     if (!boatMessage) return;
@@ -24,6 +32,41 @@ document.addEventListener("DOMContentLoaded", async function() {
     tripMessage.textContent = text;
     tripMessage.className = "booking-message " + (type || "");
     tripMessage.hidden = !text;
+  }
+
+  function setMessage(element, text, type) {
+    if (!element) return;
+    element.textContent = text;
+    element.className = "booking-message " + (type || "");
+    element.hidden = !text;
+  }
+
+  async function loadRoutes() {
+    var response = await fetch(api.url("/api/admin/routes"), { headers: api.authHeaders() });
+    if (!response.ok) throw new Error("Routes could not be loaded.");
+    var routes = await response.json();
+    if (routesBody) {
+      routesBody.innerHTML = routes.length ? "" : "<tr><td>No routes found. Add your first route above.</td></tr>";
+      routes.forEach(function(route) {
+        var row = document.createElement("tr");
+        row.innerHTML = "<td>" + route.source + " → " + route.destination + "</td>";
+        routesBody.appendChild(row);
+      });
+    }
+    return routes;
+  }
+
+  async function loadRecurringTrips() {
+    var response = await fetch(api.url("/api/admin/recurring-trips"), { headers: api.authHeaders() });
+    if (!response.ok) throw new Error("Weekly departures could not be loaded.");
+    var schedules = await response.json();
+    if (!recurringTripsBody) return;
+    recurringTripsBody.innerHTML = schedules.length ? "" : "<tr><td colspan='4'>No weekly departures found.</td></tr>";
+    schedules.forEach(function(schedule) {
+      var row = document.createElement("tr");
+      row.innerHTML = "<td>" + schedule.route.source + " → " + schedule.route.destination + "</td><td>" + schedule.boat.name + "</td><td>" + schedule.dayOfWeek + " " + schedule.departureTime + "</td><td><button type='button' class='btn-outline' data-edit-schedule='" + schedule.scheduleId + "' data-route='" + schedule.route.routeId + "' data-boat='" + schedule.boat.boatId + "' data-day='" + schedule.dayOfWeek + "' data-time='" + schedule.departureTime + "'>Edit</button> <button type='button' class='btn-outline' data-delete-schedule='" + schedule.scheduleId + "'>Delete</button></td>";
+      recurringTripsBody.appendChild(row);
+    });
   }
 
   function formatTripDeparture(value) {
@@ -60,6 +103,8 @@ document.addEventListener("DOMContentLoaded", async function() {
         return "<option value='" + route.routeId + "'>" + route.source + " → " + route.destination + "</option>";
       }).join("");
     }
+    if (recurringRoute) recurringRoute.innerHTML = routes.map(function(route) { return "<option value='" + route.routeId + "'>" + route.source + " → " + route.destination + "</option>"; }).join("");
+    if (recurringBoat) recurringBoat.innerHTML = boats.map(function(boat) { return "<option value='" + boat.boatId + "'>" + boat.name + " (" + boat.capacity + " kg)</option>"; }).join("");
     if (tripBoatSelect) {
       tripBoatSelect.innerHTML = boats.map(function(boat) {
         return "<option value='" + boat.boatId + "'>" + boat.name + " (" + boat.capacity + " kg)</option>";
@@ -124,6 +169,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     document.getElementById("totalBookings").textContent = data.totalBookings;
     document.getElementById("totalCargoWeight").textContent = data.totalCargoWeight + " kg";
     await loadTripOptions();
+    await loadRoutes();
+    await loadRecurringTrips();
     await loadBoats();
     await loadTrips();
     await loadUsers();
@@ -159,6 +206,46 @@ document.addEventListener("DOMContentLoaded", async function() {
         body: JSON.stringify({ status: status })
       });
       await loadBookings();
+    });
+    if (recurringTripsBody) recurringTripsBody.addEventListener("click", async function(event) {
+      var editId = event.target.getAttribute("data-edit-schedule");
+      if (editId) {
+        recurringRoute.value = event.target.getAttribute("data-route");
+        recurringBoat.value = event.target.getAttribute("data-boat");
+        document.getElementById("recurringDay").value = event.target.getAttribute("data-day");
+        document.getElementById("recurringTime").value = event.target.getAttribute("data-time");
+        recurringTripForm.dataset.editingId = editId;
+        setMessage(recurringTripMessage, "Edit the values and save to update this weekly departure.", "");
+        recurringTripForm.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      var id = event.target.getAttribute("data-delete-schedule");
+      if (!id || !confirm("Delete this weekly departure?")) return;
+      var response = await fetch(api.url("/api/admin/recurring-trips/" + id), { method: "DELETE", headers: api.authHeaders() });
+      if (!response.ok) { setMessage(recurringTripMessage, "This schedule has future bookings and cannot be deleted.", "error"); return; }
+      await loadRecurringTrips();
+      await loadTrips();
+    });
+
+    if (routeForm) routeForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      try {
+        var response = await fetch(api.url("/api/admin/routes"), { method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ source: document.getElementById("routeSource").value.trim(), destination: document.getElementById("routeDestination").value.trim() }) });
+        var body = await response.json();
+        if (!response.ok) throw new Error(body.message || "Route could not be saved.");
+        routeForm.reset(); setMessage(routeMessage, "Route saved.", "success"); await loadRoutes(); await loadTripOptions();
+      } catch (error) { setMessage(routeMessage, error.message, "error"); }
+    });
+
+    if (recurringTripForm) recurringTripForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      try {
+        var editingId = recurringTripForm.dataset.editingId;
+        var response = await fetch(api.url("/api/admin/recurring-trips" + (editingId ? "/" + editingId : ""), { method: editingId ? "PUT" : "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ routeId: Number(recurringRoute.value), boatId: Number(recurringBoat.value), dayOfWeek: document.getElementById("recurringDay").value, departureTime: document.getElementById("recurringTime").value }) });
+        var body = await response.json();
+        if (!response.ok) throw new Error(body.message || "Weekly departure could not be saved.");
+        recurringTripForm.reset(); delete recurringTripForm.dataset.editingId; setMessage(recurringTripMessage, "Weekly departure saved and upcoming trips generated.", "success"); await loadRecurringTrips(); await loadTrips();
+      } catch (error) { setMessage(recurringTripMessage, error.message, "error"); }
     });
 
     if (tripForm) {

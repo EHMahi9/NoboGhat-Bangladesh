@@ -1,9 +1,11 @@
 package com.noboghat.mahi.model;
 
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,11 +16,11 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "trips")
-public class Trip {
+@Table(name = "recurring_trip_schedules")
+public class RecurringTripSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tripId;
+    private Long scheduleId;
 
     @ManyToOne
     @JoinColumn(name = "route_id", nullable = false)
@@ -28,12 +30,10 @@ public class Trip {
     @JoinColumn(name = "boat_id", nullable = false)
     private Boat boat;
 
-    // Added to align with Database Schema and FR-09 (Search Filter)
-    @Column(nullable = false)
-    private LocalDateTime departureTime;
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
-    @ManyToOne
-    @JoinColumn(name = "recurring_schedule_id")
-    @com.fasterxml.jackson.annotation.JsonIgnore
-    private RecurringTripSchedule recurringSchedule;
+    private LocalTime departureTime;
+
+    private boolean active = true;
 }

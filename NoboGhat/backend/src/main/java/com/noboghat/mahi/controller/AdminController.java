@@ -16,12 +16,15 @@ import com.noboghat.mahi.dto.AdminDashboardDto;
 import com.noboghat.mahi.dto.BookingStatusUpdateDto;
 import com.noboghat.mahi.dto.BookingSummaryDto;
 import com.noboghat.mahi.dto.TripDto;
+import com.noboghat.mahi.dto.RouteDto;
 import com.noboghat.mahi.dto.UserAdminDto;
+import com.noboghat.mahi.model.Route;
 import com.noboghat.mahi.model.Trip;
 import com.noboghat.mahi.service.AdminService;
 import com.noboghat.mahi.service.AdminUserService;
 import com.noboghat.mahi.service.BookingService;
 import com.noboghat.mahi.service.TripService;
+import com.noboghat.mahi.service.RouteService;
 
 import jakarta.validation.Valid;
 
@@ -33,12 +36,15 @@ public class AdminController {
     private final TripService tripService;
     private final AdminUserService adminUserService;
     private final BookingService bookingService;
+    private final RouteService routeService;
 
-    public AdminController(AdminService adminService, TripService tripService, AdminUserService adminUserService, BookingService bookingService) {
+    public AdminController(AdminService adminService, TripService tripService, AdminUserService adminUserService,
+            BookingService bookingService, RouteService routeService) {
         this.adminService = adminService;
         this.tripService = tripService;
         this.adminUserService = adminUserService;
         this.bookingService = bookingService;
+        this.routeService = routeService;
     }
 
     @GetMapping("/dashboard")
@@ -59,6 +65,15 @@ public class AdminController {
     @GetMapping("/users")
     public java.util.List<UserAdminDto> getUsers() {
         return adminUserService.getAllUsers();
+    }
+
+    @GetMapping("/routes")
+    public java.util.List<Route> getRoutes() { return routeService.getAllRoutes(); }
+
+    @PostMapping("/routes")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Route createRoute(@Valid @RequestBody RouteDto routeDto) {
+        return routeService.createRoute(routeDto.getSource(), routeDto.getDestination());
     }
 
     @PostMapping("/trips")

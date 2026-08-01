@@ -40,6 +40,20 @@
             <div class="card"><h3>Total Cargo Weight</h3><p id="totalCargoWeight">0 kg</p></div>
         </div>
         <div class="booking-panel" style="margin-top: 32px;">
+            <h2>Manage Routes</h2>
+            <form id="routeForm" class="booking-form">
+                <label for="routeSource">From</label>
+                <input type="text" id="routeSource" placeholder="e.g., Sadarghat" required>
+                <label for="routeDestination">To</label>
+                <input type="text" id="routeDestination" placeholder="e.g., Khulna" required>
+                <button type="submit" class="btn-book">Save Route</button>
+            </form>
+            <p id="routeMessage" class="booking-message" hidden></p>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="history-table"><thead><tr><th>Route</th></tr></thead><tbody id="routesBody"><tr><td>Loading routes...</td></tr></tbody></table>
+            </div>
+        </div>
+        <div class="booking-panel" style="margin-top: 32px;">
             <h2>Manage Boats</h2>
             <form id="boatForm" class="booking-form">
                 <label for="boatName">Boat Name</label>
@@ -73,6 +87,22 @@
                     <thead><tr><th>ID</th><th>Route</th><th>Boat</th><th>Departure</th><th>Action</th></tr></thead>
                     <tbody id="tripsBody"><tr><td colspan="5">Loading trips...</td></tr></tbody>
                 </table>
+            </div>
+        </div>
+        <div class="booking-panel" style="margin-top: 32px;">
+            <h2>Weekly Recurring Departures</h2>
+            <p>Create a weekly departure. NoboGhat keeps the next seven days of bookable trips available automatically.</p>
+            <form id="recurringTripForm" class="booking-form">
+                <label for="recurringRoute">Route</label><select id="recurringRoute" required></select>
+                <label for="recurringBoat">Boat</label><select id="recurringBoat" required></select>
+                <label for="recurringDay">Departure day</label>
+                <select id="recurringDay" required><option value="MONDAY">Monday</option><option value="TUESDAY">Tuesday</option><option value="WEDNESDAY">Wednesday</option><option value="THURSDAY">Thursday</option><option value="FRIDAY">Friday</option><option value="SATURDAY">Saturday</option><option value="SUNDAY">Sunday</option></select>
+                <label for="recurringTime">Departure time</label><input type="time" id="recurringTime" required>
+                <button type="submit" class="btn-book">Save Weekly Departure</button>
+            </form>
+            <p id="recurringTripMessage" class="booking-message" hidden></p>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table class="history-table"><thead><tr><th>Route</th><th>Boat</th><th>Weekly time</th><th>Action</th></tr></thead><tbody id="recurringTripsBody"><tr><td colspan="4">Loading weekly departures...</td></tr></tbody></table>
             </div>
         </div>
         <div class="booking-panel" style="margin-top: 32px;">

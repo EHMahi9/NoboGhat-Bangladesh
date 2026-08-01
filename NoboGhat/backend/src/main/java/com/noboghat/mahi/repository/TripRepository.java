@@ -1,6 +1,8 @@
 package com.noboghat.mahi.repository;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -18,4 +20,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     Optional<Trip> findByIdForBooking(@Param("tripId") Long tripId);
 
     long countByBoatBoatId(Long boatId);
+
+    boolean existsByRecurringScheduleScheduleIdAndDepartureTime(Long scheduleId, LocalDateTime departureTime);
+
+    List<Trip> findByRecurringScheduleScheduleIdAndDepartureTimeAfter(Long scheduleId, LocalDateTime departureTime);
 }

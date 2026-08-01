@@ -21,6 +21,13 @@ public class RouteService {
         return routeRepository.save(route);
     }
 
+    public Route createRoute(String source, String destination) {
+        Route route = new Route();
+        route.setSource(source.trim());
+        route.setDestination(destination.trim());
+        return routeRepository.save(route);
+    }
+
     public List<Route> getAllRoutes() {
         return routeRepository.findAll();
     }

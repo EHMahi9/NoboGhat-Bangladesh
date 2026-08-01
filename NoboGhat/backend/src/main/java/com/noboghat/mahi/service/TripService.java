@@ -24,12 +24,15 @@ public class TripService {
     private final RouteRepository routeRepository;
     private final BoatRepository boatRepository;
     private final BookingRepository bookingRepository;
+    private final RecurringTripScheduleService recurringTripScheduleService;
 
-    public TripService(TripRepository tripRepository, RouteRepository routeRepository, BoatRepository boatRepository, BookingRepository bookingRepository) {
+    public TripService(TripRepository tripRepository, RouteRepository routeRepository, BoatRepository boatRepository,
+            BookingRepository bookingRepository, RecurringTripScheduleService recurringTripScheduleService) {
         this.tripRepository = tripRepository;
         this.routeRepository = routeRepository;
         this.boatRepository = boatRepository;
         this.bookingRepository = bookingRepository;
+        this.recurringTripScheduleService = recurringTripScheduleService;
     }
 
     @Transactional
@@ -59,8 +62,9 @@ public class TripService {
      * Returns all trips as flat DTOs with a precomputed remainingCapacity field.
      * remainingCapacity = boatCapacity - sum of cargo weight on PENDING/CONFIRMED bookings.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public List<TripWithCapacityDto> getAllTripsWithCapacity() {
+        recurringTripScheduleService.generateUpcomingTrips();
         return tripRepository.findAll().stream()
                 .map(trip -> {
                     Route route = trip.getRoute();
