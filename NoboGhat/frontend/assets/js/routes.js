@@ -81,6 +81,28 @@ document.addEventListener("DOMContentLoaded", function() {
         setBookingMessage("", "");
     }
 
+    function canCreateBooking() {
+        var token = localStorage.getItem("noboghatToken");
+        var role = (localStorage.getItem("noboghatRole") || "").toUpperCase();
+
+        if (!token) {
+            window.location.href = "login.html?message=" + encodeURIComponent("Please sign in to book cargo.");
+            return false;
+        }
+
+        if (role === "PENDING") {
+            window.location.href = "dashboard.html?message=" + encodeURIComponent("Choose Farmer or Trader to finish setting up your account before booking cargo.");
+            return false;
+        }
+
+        if (role !== "FARMER" && role !== "TRADER") {
+            setBookingMessage("Only Farmer and Trader accounts can create cargo bookings.", "error");
+            return false;
+        }
+
+        return true;
+    }
+
     function createTripCard(trip) {
         var card = document.createElement("div");
         card.className = "trip-card";
@@ -147,11 +169,7 @@ document.addEventListener("DOMContentLoaded", function() {
         bookLink.className = "btn-book";
         bookLink.textContent = "Book Space";
         bookLink.addEventListener("click", function () {
-            var token = localStorage.getItem("noboghatToken");
-            if (!token) {
-                window.location.href = "login.html?message=" + encodeURIComponent("Please sign in to book cargo.");
-                return;
-            }
+            if (!canCreateBooking()) return;
             openBookingPanel(trip);
         });
 
@@ -219,6 +237,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 setBookingMessage("Please select a trip first.", "error");
                 return;
             }
+
+            if (!canCreateBooking()) return;
 
             var cargoWeight = Number(bookingCargoWeightInput ? bookingCargoWeightInput.value : "");
             if (!cargoWeight || cargoWeight <= 0) {

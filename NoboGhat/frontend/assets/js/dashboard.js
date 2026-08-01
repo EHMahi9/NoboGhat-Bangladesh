@@ -275,6 +275,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Check if user role is PENDING – show role selection modal
         if (user.role === "PENDING") {
+            var setupMessage = new URLSearchParams(window.location.search).get("message");
+            if (setupMessage && roleError) {
+                roleError.textContent = setupMessage;
+                roleError.style.display = "block";
+            }
             showRoleModal();
             // Hide the dashboard content behind the modal
             document.querySelector(".dashboard-container").style.opacity = "0.3";

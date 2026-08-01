@@ -124,8 +124,13 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) -> {
                             response.setStatus(403);
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            String message = "You do not have permission to access this resource.";
+                            if ("POST".equalsIgnoreCase(request.getMethod())
+                                    && "/api/bookings".equals(request.getRequestURI())) {
+                                message = "Only Farmer and Trader accounts can create cargo bookings.";
+                            }
                             response.getWriter()
-                                    .write("{\"message\":\"You do not have permission to access this resource.\"}");
+                                    .write("{\"message\":\"" + message + "\"}");
                         }))
 
                 .addFilterBefore(
