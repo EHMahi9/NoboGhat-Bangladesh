@@ -13,8 +13,8 @@ import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.UserRepository;
 
 /**
- * Creates the configured administrator when it does not already exist.
- * This runner never removes or changes existing production data.
+ * Repairs or creates the configured administrator account.
+ * This runner never removes existing production data.
  */
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -44,29 +44,37 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        java.util.Optional<User> existingUser = userRepository.findByEmail(adminEmail);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-            boolean repaired = false;
-            if (!"ADMIN".equalsIgnoreCase(user.getRole())) {
-                userRepository.updateUserRole(user.getUserId(), "ADMIN");
-                repaired = true;
-            }
-            if (!user.isActive()) {
-                user.setActive(true);
-                userRepository.save(user);
-                repaired = true;
-            }
-            log.info("DataSeeder: configured admin {} already exists{}.", adminEmail,
-                    repaired ? "; authorization repaired" : "; no changes required");
+        User existing = userRepository.findByEmail(adminEmail).orElse(null);
+        if (existing == null) {
+            Admin admin = new Admin();
+            admin.setName("Administrator");
+            admin.setEmail(adminEmail);
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            admin.setActive(true);
+            userRepository.save(admin);
+            log.info("DataSeeder: configured admin {} created.", adminEmail);
             return;
         }
 
-        Admin admin = new Admin();
-        admin.setName("Administrator");
-        admin.setEmail(adminEmail);
-        admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-        userRepository.save(admin);
-        log.info("DataSeeder: configured admin {} created.", adminEmail);
+        boolean changed = false;
+        if (!"ADMIN".equalsIgnoreCase(existing.getRole())) {
+            userRepository.updateUserRole(existing.getUserId(), "ADMIN");
+            changed = true;
+        }
+        if (!existing.isActive()) {
+            existing.setActive(true);
+            changed = true;
+        }
+        if (existing.getPasswordHash() == null || existing.getPasswordHash().isBlank() || !passwordEncoder.matches(adminPassword, existing.getPasswordHash())) {
+            existing.setPasswordHash(passwordEncoder.encode(adminPassword));
+            changed = true;
+        }
+
+        if (changed) {
+            userRepository.save(existing);
+            log.info("DataSeeder: configured admin {} verified and repaired.", adminEmail);
+        } else {
+            log.info("DataSeeder: configured admin {} already exists; no changes required.", adminEmail);
+        }
     }
 }
