@@ -1,0 +1,12 @@
+# Local credentials and deployment metadata
+.env
+.env.*
+!.env.example
+frontend/.vercel/
+
+# Generated output and IDE state
+backend/target/
+.dist/
+.vscode/
+.idea/
+*.iml

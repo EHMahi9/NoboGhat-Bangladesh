@@ -13,11 +13,11 @@ The code is complete, but Google requires credentials owned by the project. This
 ```properties
 SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=...
 SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=...
-FRONTEND_URL=http://localhost:5500
+FRONTEND_URL=https://noboghatbangladesh.vercel.app
 ```
 
-For Render, set `FRONTEND_URL` to your frontend static site URL. The `render.yaml` blueprint handles all environment variables automatically for both backend and frontend services.
+For Render, set `FRONTEND_URL` to `https://noboghatbangladesh.vercel.app`. The `render.yaml` blueprint defines the backend service; add secret values in the Render dashboard.
 
-The login button starts the standard Spring Security path. Google verifies the identity, the API creates or reuses a local Google user by email, creates a NoboGhat JWT, and returns the user to the dashboard. Google users are initially `FARMER`; an administrator can later add a role-selection/approval process.
+The login button starts the standard Spring Security path. Google verifies the identity, the API creates or reuses a local Google user by email, creates a NoboGhat JWT, and returns the user to the dashboard. Google users are initially `PENDING` and must select Farmer or Trader in the dashboard before booking cargo.
 
 Spring Boot recognizes Google as a common OAuth provider when the registration credentials are supplied, and Spring Security's default authorization path is `/oauth2/authorization/google`. See [Spring Boot OAuth2 documentation](https://docs.spring.io/spring-boot/reference/security/oauth2.html) and [Spring Security OAuth2 login documentation](https://docs.spring.io/spring-security/reference/7.0/servlet/oauth2/login/core.html).

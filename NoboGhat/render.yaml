@@ -3,8 +3,8 @@ services:
     name: noboghat-backend
     runtime: docker
 
-    dockerfilePath: ./NoboGhat/backend/Dockerfile
-    dockerContext: ./NoboGhat/backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
 
     plan: free
     region: oregon
@@ -24,6 +24,9 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: https://noboghatbangladesh.vercel.app
 
+      - key: JWT_EXPIRATION_MS
+        value: "86400000"
+
       - key: JWT_SECRET
         sync: false
 
@@ -41,9 +44,3 @@ services:
 
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
-
-databases:
-  - name: noboghat-db
-    databaseName: noboghat
-    plan: free
-    region: oregon

@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       event.preventDefault();
       try {
         var editingId = recurringTripForm.dataset.editingId;
-        var response = await fetch(api.url("/api/admin/recurring-trips" + (editingId ? "/" + editingId : ""), { method: editingId ? "PUT" : "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ routeId: Number(recurringRoute.value), boatId: Number(recurringBoat.value), dayOfWeek: document.getElementById("recurringDay").value, departureTime: document.getElementById("recurringTime").value }) });
+        var response = await fetch(api.url("/api/admin/recurring-trips" + (editingId ? "/" + editingId : "")), { method: editingId ? "PUT" : "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ routeId: Number(recurringRoute.value), boatId: Number(recurringBoat.value), dayOfWeek: document.getElementById("recurringDay").value, departureTime: document.getElementById("recurringTime").value }) });
         var body = await response.json();
         if (!response.ok) throw new Error(body.message || "Weekly departure could not be saved.");
         recurringTripForm.reset(); delete recurringTripForm.dataset.editingId; setMessage(recurringTripMessage, "Weekly departure saved and upcoming trips generated.", "success"); await loadRecurringTrips(); await loadTrips();
