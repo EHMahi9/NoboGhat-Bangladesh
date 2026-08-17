@@ -36,11 +36,17 @@ public class TripService {
     }
 
     @Transactional
-    public Trip createTrip(TripDto tripDto) {
+    public Trip createTrip(TripDto tripDto, String username, boolean isAdmin) {
         Route route = routeRepository.findById(tripDto.getRouteId())
                 .orElseThrow(() -> new IllegalArgumentException("Route not found."));
         Boat boat = boatRepository.findById(tripDto.getBoatId())
                 .orElseThrow(() -> new IllegalArgumentException("Boat not found."));
+
+        if (!isAdmin) {
+            if (boat.getOwner() == null || !boat.getOwner().getEmail().equals(username) && !boat.getOwner().getPhone().equals(username)) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only create trips for boats you own.");
+            }
+        }
 
         Trip trip = new Trip();
         trip.setRoute(route);
@@ -89,9 +95,17 @@ public class TripService {
     }
 
     @Transactional
-    public void deleteTrip(Long tripId) {
+    public void deleteTrip(Long tripId, String username, boolean isAdmin) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found with id: " + tripId));
+                
+        if (!isAdmin) {
+            Boat boat = trip.getBoat();
+            if (boat == null || boat.getOwner() == null || (!boat.getOwner().getEmail().equals(username) && !boat.getOwner().getPhone().equals(username))) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only delete trips for boats you own.");
+            }
+        }
+        
         if (bookingRepository.countByTripTripId(tripId) > 0) {
             throw new IllegalStateException("Trip cannot be deleted because bookings already exist.");
         }

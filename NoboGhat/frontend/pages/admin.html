@@ -33,13 +33,13 @@
         <h1>Admin Analytics Summary</h1>
         
         <!-- Analytics Summary Cards -->
-        <div class="dashboard-cards">
+        <div class="dashboard-cards" id="adminAnalyticsPanel">
             <div class="card"><h3>Total Users</h3><p id="totalUsers">0</p></div>
             <div class="card"><h3>Total Boats</h3><p id="totalBoats">0</p></div>
             <div class="card"><h3>Total Bookings</h3><p id="totalBookings">0</p></div>
             <div class="card"><h3>Total Cargo Weight</h3><p id="totalCargoWeight">0 kg</p></div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageRoutesPanel">
             <h2>Manage Routes</h2>
             <form id="routeForm" class="booking-form">
                 <label for="routeSource">From</label>
@@ -53,7 +53,7 @@
                 <table class="history-table"><thead><tr><th>Route</th></tr></thead><tbody id="routesBody"><tr><td>Loading routes...</td></tr></tbody></table>
             </div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageBoatsPanel">
             <h2>Manage Boats</h2>
             <form id="boatForm" class="booking-form">
                 <label for="boatName">Boat Name</label>
@@ -70,7 +70,7 @@
                 </table>
             </div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageTripsPanel">
             <h2>Manage Trips</h2>
             <form id="tripForm" class="booking-form">
                 <label for="tripRoute">Route</label>
@@ -89,7 +89,7 @@
                 </table>
             </div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageRecurringTripsPanel">
             <h2>Weekly Recurring Departures</h2>
             <p>Create a weekly departure. NoboGhat keeps the next seven days of bookable trips available automatically.</p>
             <form id="recurringTripForm" class="booking-form">
@@ -105,7 +105,7 @@
                 <table class="history-table"><thead><tr><th>Route</th><th>Boat</th><th>Weekly time</th><th>Action</th></tr></thead><tbody id="recurringTripsBody"><tr><td colspan="4">Loading weekly departures...</td></tr></tbody></table>
             </div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageUsersPanel">
             <h2>Manage Users</h2>
             <div class="table-responsive" style="margin-top: 20px;">
                 <table class="history-table">
@@ -114,7 +114,7 @@
                 </table>
             </div>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;">
+        <div class="booking-panel" style="margin-top: 32px;" id="manageBookingsPanel">
             <h2>Manage Bookings</h2>
             <div class="table-responsive" style="margin-top: 20px;">
                 <table class="history-table">

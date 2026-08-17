@@ -26,7 +26,7 @@
             window.location.replace("login.html");
             return;
         }
-        if (page.dataset.requiresAdmin === "true" && role !== "ADMIN") {
+        if (page.dataset.requiresAdmin === "true" && role !== "ADMIN" && role !== "BOAT_OWNER") {
             window.location.replace("dashboard.html");
             return;
         }

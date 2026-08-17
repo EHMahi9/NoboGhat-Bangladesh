@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,6 +56,16 @@ public class BookingController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_FARMER', 'ROLE_TRADER')")
     public void cancelBooking(@PathVariable Long id, Authentication authentication) {
         bookingService.cancelBooking(id, authentication.getName(), isAdmin(authentication));
+    }
+
+    @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_BOAT_OWNER')")
+    public BookingSummaryDto updateBookingStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody com.noboghat.mahi.dto.BookingStatusUpdateDto statusUpdateDto,
+            Authentication authentication) {
+        return bookingService.updateBookingStatus(id, statusUpdateDto, authentication.getName(), isAdmin(authentication));
     }
 
     private boolean isAdmin(Authentication authentication) {

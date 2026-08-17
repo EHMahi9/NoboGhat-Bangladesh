@@ -92,12 +92,19 @@ public class BookingService {
 
     @Transactional
     public BookingSummaryDto updateBookingStatus(Long id, BookingStatusUpdateDto statusUpdateDto, String requester, boolean isAdmin) {
-        if (!isAdmin) {
-            throw new org.springframework.security.access.AccessDeniedException("Only administrators can update booking status.");
-        }
-
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
+
+        if (!isAdmin) {
+            User requestUser = userService.getUserByIdentifier(requester);
+            boolean isBoatOwner = "ROLE_BOAT_OWNER".equals(requestUser.getRole());
+            boolean ownsBoat = booking.getTrip().getBoat().getOwner() != null 
+                && booking.getTrip().getBoat().getOwner().getUserId().equals(requestUser.getUserId());
+            
+            if (!isBoatOwner || !ownsBoat) {
+                throw new org.springframework.security.access.AccessDeniedException("Only administrators or the owner of the boat can update booking status.");
+            }
+        }
 
         String desiredStatus = statusUpdateDto.getStatus() == null ? "" : statusUpdateDto.getStatus().trim().toUpperCase();
         if (!ALLOWED_STATUSES.contains(desiredStatus)) {
