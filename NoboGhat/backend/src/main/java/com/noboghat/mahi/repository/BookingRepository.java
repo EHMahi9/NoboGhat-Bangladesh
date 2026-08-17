@@ -23,6 +23,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     long countByTripTripId(Long tripId);
 
     long countByUserUserId(Long userId);
-
-    boolean existsByUserUserIdAndTripTripId(Long userId, Long tripId);
 }
