@@ -78,14 +78,14 @@ public class AdminController {
 
     @PostMapping("/trips")
     @ResponseStatus(HttpStatus.CREATED)
-    public Trip createTrip(@Valid @RequestBody TripDto tripDto) {
-        return tripService.createTrip(tripDto);
+    public Trip createTrip(@Valid @RequestBody TripDto tripDto, Authentication authentication) {
+        return tripService.createTrip(tripDto, authentication.getName(), true);
     }
 
     @DeleteMapping("/trips/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTrip(@PathVariable Long id) {
-        tripService.deleteTrip(id);
+    public void deleteTrip(@PathVariable Long id, Authentication authentication) {
+        tripService.deleteTrip(id, authentication.getName(), true);
     }
 
     @DeleteMapping("/users/{id}")

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.noboghat.mahi.dto.TripDto;
 import com.noboghat.mahi.dto.TripWithCapacityDto;
@@ -34,13 +36,13 @@ public class TripController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_BOAT_OWNER')")
     public Trip addTrip(@Valid @RequestBody TripDto tripDto, Authentication authentication) {
         String role = authentication.getAuthorities().iterator().next().getAuthority();
-        if (!"ROLE_ADMIN".equals(role)) {
-            throw new AccessDeniedException("Only administrators can create trips.");
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_BOAT_OWNER".equals(role)) {
+            throw new AccessDeniedException("Only Boat Owners or Administrators can create trips.");
         }
-        return tripService.createTrip(tripDto);
+        return tripService.createTrip(tripDto, authentication.getName(), "ROLE_ADMIN".equals(role));
     }
 
     @GetMapping
@@ -50,12 +52,12 @@ public class TripController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_BOAT_OWNER')")
     public void deleteTrip(@PathVariable Long id, Authentication authentication) {
         String role = authentication.getAuthorities().iterator().next().getAuthority();
-        if (!"ROLE_ADMIN".equals(role)) {
-            throw new AccessDeniedException("Only administrators can delete trips.");
+        if (!"ROLE_ADMIN".equals(role) && !"ROLE_BOAT_OWNER".equals(role)) {
+            throw new AccessDeniedException("Only Boat Owners or Administrators can delete trips.");
         }
-        tripService.deleteTrip(id);
+        tripService.deleteTrip(id, authentication.getName(), "ROLE_ADMIN".equals(role));
     }
 }

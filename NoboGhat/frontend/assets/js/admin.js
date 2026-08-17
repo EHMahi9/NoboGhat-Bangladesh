@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   async function loadTrips() {
-    var response = await fetch(api.url("/api/admin/trips"), { headers: api.authHeaders() });
+    var response = await fetch(api.url("/api/trips"), { headers: api.authHeaders() });
     if (!response.ok) throw new Error("Trips could not be loaded.");
     var trips = await response.json();
     tripsBody.innerHTML = "";
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   async function loadBookings() {
-    var response = await fetch(api.url("/api/admin/bookings"), { headers: api.authHeaders() });
+    var response = await fetch(api.url("/api/bookings"), { headers: api.authHeaders() });
     if (!response.ok) throw new Error("Bookings could not be loaded.");
     var bookings = await response.json();
     bookingsBody.innerHTML = "";
@@ -160,20 +160,35 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
+  var role = localStorage.getItem("noboghatRole");
+  var isBoatOwner = role === "BOAT_OWNER";
+  
+  if (isBoatOwner) {
+      if (document.getElementById("adminAnalyticsPanel")) document.getElementById("adminAnalyticsPanel").style.display = "none";
+      if (document.getElementById("manageRoutesPanel")) document.getElementById("manageRoutesPanel").style.display = "none";
+      if (document.getElementById("manageRecurringTripsPanel")) document.getElementById("manageRecurringTripsPanel").style.display = "none";
+      if (document.getElementById("manageUsersPanel")) document.getElementById("manageUsersPanel").style.display = "none";
+  }
+
   try {
-    var response = await fetch(api.url("/api/admin/dashboard"), { headers: api.authHeaders() });
-    if (!response.ok) throw new Error("Dashboard data could not be loaded.");
-    var data = await response.json();
-    document.getElementById("totalUsers").textContent = data.totalUsers;
-    document.getElementById("totalBoats").textContent = data.totalBoats;
-    document.getElementById("totalBookings").textContent = data.totalBookings;
-    document.getElementById("totalCargoWeight").textContent = data.totalCargoWeight + " kg";
+    if (!isBoatOwner) {
+        var response = await fetch(api.url("/api/admin/dashboard"), { headers: api.authHeaders() });
+        if (response.ok) {
+            var data = await response.json();
+            document.getElementById("totalUsers").textContent = data.totalUsers;
+            document.getElementById("totalBoats").textContent = data.totalBoats;
+            document.getElementById("totalBookings").textContent = data.totalBookings;
+            document.getElementById("totalCargoWeight").textContent = data.totalCargoWeight + " kg";
+        }
+    }
     await loadTripOptions();
-    await loadRoutes();
-    await loadRecurringTrips();
+    if (!isBoatOwner) {
+        await loadRoutes();
+        await loadRecurringTrips();
+        await loadUsers();
+    }
     await loadBoats();
     await loadTrips();
-    await loadUsers();
     await loadBookings();
 
     boatsBody.addEventListener("click", async function (event) {
@@ -185,7 +200,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     tripsBody.addEventListener("click", async function (event) {
       var id = event.target.getAttribute("data-delete-trip");
       if (!id) return;
-      await fetch(api.url("/api/admin/trips/" + id), { method: "DELETE", headers: api.authHeaders() });
+      await fetch(api.url("/api/trips/" + id), { method: "DELETE", headers: api.authHeaders() });
       await loadTrips();
     });
     if (usersBody) {
@@ -200,7 +215,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       var id = event.target.getAttribute("data-booking");
       var status = event.target.getAttribute("data-status");
       if (!id) return;
-      await fetch(api.url("/api/admin/bookings/" + id + "/status"), {
+      await fetch(api.url("/api/bookings/" + id + "/status"), {
         method: "PATCH",
         headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
         body: JSON.stringify({ status: status })
@@ -258,7 +273,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             boatId: Number(tripBoatSelect ? tripBoatSelect.value : 0),
             departureTime: document.getElementById("tripDepartureTime").value
           };
-          var save = await fetch(api.url("/api/admin/trips"), {
+          var save = await fetch(api.url("/api/trips"), {
             method: "POST",
             headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()),
             body: JSON.stringify(payload)
