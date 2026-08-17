@@ -1,10 +1,19 @@
-# Render + Oracle MySQL deployment
+# Render + external MySQL deployment
 
 NoboGhat keeps its static frontend on Vercel, its Spring Boot backend on Render,
-and its MySQL database on Oracle Cloud MySQL HeatWave Always Free. No Railway
+and its MySQL database on an external provider. Oracle Cloud MySQL HeatWave
+Always Free is the primary option and Aiven MySQL Free is a fallback. No Railway
 service or database is required by the application configuration.
 
-## Oracle Cloud MySQL
+## Database provider options
+
+The same build supports either provider. Render only needs the complete JDBC
+connection details supplied by the selected provider:
+
+`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
+`SPRING_DATASOURCE_PASSWORD`.
+
+### Option A — Oracle Cloud MySQL
 
 1. In your Oracle Cloud home region, create an **Always Free MySQL DB System**
    using the `MySQL.Free` shape and create the NoboGhat database and a dedicated
@@ -19,6 +28,14 @@ service or database is required by the application configuration.
    `SPRING_DATASOURCE_URL`; do not add `trustServerCertificate=true`.
 4. Record the actual JDBC URL, database username, and password. These values are
    intentionally not present in this repository.
+
+### Option B — Aiven MySQL
+
+1. Create an Aiven MySQL service and database according to Aiven's current free
+   plan availability and networking instructions.
+2. Use the provider's JDBC URL, username, password, and TLS/CA requirements in
+   the same three datasource variables. Keep certificate verification enabled;
+   do not add provider-specific Java code or disable TLS globally.
 
 ## Render
 
@@ -66,7 +83,7 @@ Keep the local URI only if you still develop locally:
 ## Database initialization
 
 Hibernate with `SPRING_JPA_HIBERNATE_DDL_AUTO=update` is the one schema creation
-strategy for a new Oracle database. `database/schema.sql` and
+strategy for a new external MySQL database. `database/schema.sql` and
 `database/migration-v2-auth.sql` are retained for reference/existing-database
 migration and are not run automatically. Back up any Railway data before
-manually importing it into Oracle.
+manually importing it into the selected provider.
