@@ -40,7 +40,8 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Google did not provide an email address.");
             return;
         }
-        User user = userService.registerGoogleUser(email, googleUser.getAttribute("name"));
+        String name = googleUser.getAttribute("name");
+        User user = userService.registerGoogleUser(email, name);
         UserDetails details = userService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(details);
         String location = frontendUrl + "/pages/dashboard.html?token="

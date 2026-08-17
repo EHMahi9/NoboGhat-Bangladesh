@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.noboghat.mahi.model.Admin;
+import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.UserRepository;
 
 /**
@@ -35,14 +37,28 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
         if (adminEmail.isBlank() || adminPassword.isBlank()) {
             log.info("DataSeeder: admin credentials are not configured; skipping admin seeding.");
             return;
         }
 
-        if (userRepository.findByEmail(adminEmail).isPresent()) {
-            log.info("DataSeeder: admin {} already exists; skipping seeding.", adminEmail);
+        java.util.Optional<User> existingUser = userRepository.findByEmail(adminEmail);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            boolean repaired = false;
+            if (!"ADMIN".equalsIgnoreCase(user.getRole())) {
+                userRepository.updateUserRole(user.getUserId(), "ADMIN");
+                repaired = true;
+            }
+            if (!user.isActive()) {
+                user.setActive(true);
+                userRepository.save(user);
+                repaired = true;
+            }
+            log.info("DataSeeder: configured admin {} already exists{}.", adminEmail,
+                    repaired ? "; authorization repaired" : "; no changes required");
             return;
         }
 
