@@ -1,10 +1,10 @@
 /*
  * Production frontend configuration.
  *
- * After Render creates the backend service, replace the empty string with its
- * HTTPS URL, for example: https://noboghat-api.onrender.com
+ * The production frontend uses the Render backend. Keep this as the single
+ * production API location and do not add a trailing slash.
  * Do not add a trailing slash and never place secrets in this file.
  */
 window.NoboGhatConfig = window.NoboGhatConfig || {
-    apiBaseUrl: ""
+    apiBaseUrl: "https://noboghat-bangladesh.onrender.com"
 };

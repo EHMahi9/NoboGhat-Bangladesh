@@ -95,8 +95,16 @@ async function submitAuthForm(form, endpoint, button) {
 // Handle Form Submissions
 document.addEventListener('DOMContentLoaded', function() {
     var googleLogin = document.getElementById('googleLogin');
-    if (googleLogin && window.NoboGhatApi) {
-        googleLogin.href = window.NoboGhatApi.googleLoginUrl();
+    if (googleLogin) {
+        // Google OAuth is not configured for the production backend yet.
+        googleLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            var errorEl = document.querySelector('.auth-error');
+            if (errorEl) {
+                errorEl.textContent = 'Google sign-in is not available yet. Please use email and password.';
+                errorEl.classList.add('visible');
+            }
+        });
     }
     
     var loginForm = document.getElementById('loginForm');
