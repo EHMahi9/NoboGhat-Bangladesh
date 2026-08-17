@@ -111,6 +111,15 @@ A modern, full-stack web application for managing river cargo transport coordina
 
 ### Setup (5 minutes)
 
+### Optional weekly demo data
+
+Set `DEMO_DATA_ENABLED=true` on the demo deployment to seed a small, deterministic
+Bangladesh river-route dataset at startup. It is disabled by default. To include a
+demo transporter, trader, bookings, and notifications, also set the four
+`DEMO_TRANSPORTER_*` and `DEMO_TRADER_*` environment variables shown in
+`backend/.env.example`; do not commit those credentials. Set
+`DEMO_DATA_ENABLED=false` to disable all seeding.
+
 ```bash
 # 1. Clone project
 git clone <url>

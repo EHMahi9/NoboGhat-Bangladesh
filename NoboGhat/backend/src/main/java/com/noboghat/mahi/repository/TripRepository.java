@@ -23,5 +23,11 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     boolean existsByRecurringScheduleScheduleIdAndDepartureTime(Long scheduleId, LocalDateTime departureTime);
 
+    boolean existsByRouteRouteIdAndBoatBoatIdAndDepartureTime(Long routeId, Long boatId, LocalDateTime departureTime);
+
+    Optional<Trip> findByRouteRouteIdAndBoatBoatIdAndDepartureTime(Long routeId, Long boatId, LocalDateTime departureTime);
+
+    List<Trip> findByBoatNameStartingWithAndDepartureTimeBefore(String namePrefix, LocalDateTime departureTime);
+
     List<Trip> findByRecurringScheduleScheduleIdAndDepartureTimeAfter(Long scheduleId, LocalDateTime departureTime);
 }
