@@ -45,7 +45,6 @@ public class AuthController {
         response.put("message", "Registration successful.");
         response.put("userId", newUser.getUserId());
         response.put("name", newUser.getName());
-        response.put("role", newUser.getRole());
         
         // Generate JWT for immediate login if an identifier (phone or email) is available
         String identifier = newUser.getPhone() != null ? newUser.getPhone() : newUser.getEmail();
@@ -53,6 +52,7 @@ public class AuthController {
             UserDetails userDetails = userService.loadUserByUsername(identifier);
             String jwt = jwtUtil.generateToken(userDetails);
             response.put("token", jwt);
+            response.put("role", roleFrom(userDetails));
         }
         
         return ResponseEntity.ok(response);
@@ -79,11 +79,7 @@ public class AuthController {
         
         // Extract the user's role to send back to the frontend
         // Strip the ROLE_ prefix for frontend compatibility
-        String role = userDetails.getAuthorities().iterator().next().getAuthority();
-        if (role != null && role.startsWith("ROLE_")) {
-            role = role.substring(5);
-        }
-        response.put("role", role);
+        response.put("role", roleFrom(userDetails));
 
         return ResponseEntity.ok(response);
     }
@@ -105,5 +101,10 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Password reset successful. You can now sign in with your new password.");
         return ResponseEntity.ok(response);
+    }
+
+    private String roleFrom(UserDetails userDetails) {
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        return role != null && role.startsWith("ROLE_") ? role.substring(5) : role;
     }
 }
