@@ -162,15 +162,15 @@
     color: #9a5910;
 }
 
-.dash-card h3 { 
-    margin: 0 0 0.5rem; 
-    color: #123b59; 
-    font-size: 1.15rem; 
+.dash-card h3 {
+    margin: 0 0 0.5rem;
+    color: #123b59;
+    font-size: 1.15rem;
 }
-.dash-card p { 
-    color: #667f91; 
-    font-size: 0.95rem; 
-    margin: 0 0 1.2rem; 
+.dash-card p {
+    color: #667f91;
+    font-size: 0.95rem;
+    margin: 0 0 1.2rem;
     line-height: 1.5;
 }
 
