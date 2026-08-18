@@ -30,6 +30,10 @@
             window.location.replace("dashboard.html");
             return;
         }
+        if (window.location.pathname.endsWith("dashboard.html") && (role === "ADMIN" || role === "BOAT_OWNER")) {
+            window.location.replace("admin.html");
+            return;
+        }
 
         document.querySelectorAll("[data-action='logout']").forEach(function (button) {
             button.addEventListener("click", function (event) {

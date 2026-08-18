@@ -45,9 +45,12 @@ document.addEventListener("DOMContentLoaded", function() {
     var homePath = isInPagesFolder ? "../index.html" : "index.html";
 
     if (token) {
+        var role = localStorage.getItem("noboghatRole");
+        var dashboardTarget = (role === "ADMIN" || role === "BOAT_OWNER") ? "admin.html" : "dashboard.html";
+
         // Logged in: Dashboard + Logout as plain text links
         authBtn.innerHTML =
-            '<a href="' + basePath + 'dashboard.html" class="nav-auth-link">Dashboard</a>' +
+            '<a href="' + basePath + dashboardTarget + '" class="nav-auth-link">Dashboard</a>' +
             '<a href="#" id="logoutNavLink" class="nav-auth-link">Logout</a>';
 
         var logoutLink = document.getElementById("logoutNavLink");
