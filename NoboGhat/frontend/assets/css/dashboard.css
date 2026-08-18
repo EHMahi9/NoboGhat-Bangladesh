@@ -270,15 +270,15 @@
 .status.cancelled { background: #fcebeb; color: #a63838; }
 
 .dashboard-section {
-    display: none;
+    display: block;
 }
 
-.dashboard-grid[data-dashboard-section="overview"] {
+.dashboard-grid.dashboard-section {
     display: grid;
 }
 
 .dashboard-section.is-hidden {
-    display: none;
+    display: none !important;
 }
 
 /* ==========================================
