@@ -125,9 +125,12 @@
    Routes Header & Search
 ========================================== */
 .routes-header {
-    background: linear-gradient(135deg, #004494, #0056b3);
+    background: linear-gradient(rgba(4, 28, 48, 0.65), rgba(4, 28, 48, 0.65)), url('../images/hero/hero.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: white;
-    padding: 4rem 0;
+    padding: 6rem 0;
     text-align: center;
 }
 
