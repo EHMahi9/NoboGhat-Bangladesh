@@ -1,6 +1,7 @@
 package com.noboghat.mahi.repository;
 
 import java.util.Optional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,4 +25,14 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     boolean existsByRecurringScheduleScheduleIdAndDepartureTime(Long scheduleId, LocalDateTime departureTime);
 
     List<Trip> findByRecurringScheduleScheduleIdAndDepartureTimeAfter(Long scheduleId, LocalDateTime departureTime);
+
+    @Query("SELECT t FROM Trip t JOIN t.route r " +
+           "WHERE (:source IS NULL OR LOWER(r.source) LIKE LOWER(CONCAT('%', :source, '%'))) " +
+           "AND (:destination IS NULL OR LOWER(r.destination) LIKE LOWER(CONCAT('%', :destination, '%'))) " +
+           "AND (:date IS NULL OR CAST(t.departureTime AS date) = :date) " +
+           "ORDER BY t.departureTime ASC")
+    List<Trip> searchTrips(@Param("source") String source,
+                           @Param("destination") String destination,
+                           @Param("date") LocalDate date);
 }
+

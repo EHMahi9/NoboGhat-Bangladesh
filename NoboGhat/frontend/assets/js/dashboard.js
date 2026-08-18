@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (list.length === 0) {
             summary.textContent = "You do not have any bookings yet.";
-            tableBody.innerHTML = "<tr><td colspan=\"5\">No bookings found for your account.</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan=\"8\">No bookings found for your account.</td></tr>";
             return;
         }
 
@@ -77,23 +77,68 @@ document.addEventListener("DOMContentLoaded", async function () {
             var route = document.createElement("td");
             route.textContent = formatRoute(booking);
 
+            var cargoType = document.createElement("td");
+            cargoType.textContent = booking.cargoType || "General";
+
             var cargoWeight = document.createElement("td");
             cargoWeight.textContent = (booking.cargoWeight || 0) + " kg";
 
-            var date = document.createElement("td");
-            date.textContent = formatDate(booking.departureTime);
+            var totalFare = document.createElement("td");
+            totalFare.textContent = booking.totalFare ? "৳ " + booking.totalFare.toFixed(2) : "N/A";
 
-            var status = document.createElement("td");
+            var bookedOn = document.createElement("td");
+            bookedOn.textContent = booking.bookedAt ? formatDate(booking.bookedAt) : "N/A";
+
+            var statusTd = document.createElement("td");
             var badge = document.createElement("span");
             badge.className = "status " + statusClass(booking.status);
             badge.textContent = booking.status || "PENDING";
-            status.appendChild(badge);
+            statusTd.appendChild(badge);
+
+            var actionTd = document.createElement("td");
+            var bStatus = (booking.status || "").toUpperCase();
+            if (bStatus === "PENDING" || bStatus === "CONFIRMED") {
+                var cancelBtn = document.createElement("button");
+                cancelBtn.type = "button";
+                cancelBtn.className = "btn-outline";
+                cancelBtn.style.cssText = "color:#e74c3c;border-color:#e74c3c;font-size:0.78rem;padding:4px 10px;";
+                cancelBtn.textContent = "Cancel";
+                cancelBtn.addEventListener("click", (function (id, btn) {
+                    return async function () {
+                        if (!confirm("Cancel booking #NBG-" + id + "?")) return;
+                        btn.disabled = true;
+                        btn.textContent = "Cancelling...";
+                        try {
+                            var resp = await fetch(window.NoboGhatApi.url("/api/bookings/" + id), {
+                                method: "DELETE",
+                                headers: window.NoboGhatApi.authHeaders()
+                            });
+                            if (!resp.ok) {
+                                var errData = {};
+                                try { errData = await resp.json(); } catch (e) {}
+                                throw new Error(errData.message || "Could not cancel booking.");
+                            }
+                            location.reload();
+                        } catch (err) {
+                            alert(err.message);
+                            btn.disabled = false;
+                            btn.textContent = "Cancel";
+                        }
+                    };
+                })(booking.bookingId, cancelBtn));
+                actionTd.appendChild(cancelBtn);
+            } else {
+                actionTd.textContent = "-";
+            }
 
             row.appendChild(bookingId);
             row.appendChild(route);
+            row.appendChild(cargoType);
             row.appendChild(cargoWeight);
-            row.appendChild(date);
-            row.appendChild(status);
+            row.appendChild(totalFare);
+            row.appendChild(bookedOn);
+            row.appendChild(statusTd);
+            row.appendChild(actionTd);
             tableBody.appendChild(row);
         }
     }
@@ -398,7 +443,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             tableBodyElement.innerHTML = "";
             var errorRow = document.createElement("tr");
             var errorCell = document.createElement("td");
-            errorCell.colSpan = 5;
+            errorCell.colSpan = 8;
             errorCell.textContent = error.message;
             errorRow.appendChild(errorCell);
             tableBodyElement.appendChild(errorRow);

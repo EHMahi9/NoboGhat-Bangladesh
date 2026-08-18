@@ -1,5 +1,6 @@
 package com.noboghat.mahi.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -11,4 +12,6 @@ public class BookingDto {
     @NotNull(message = "Cargo weight is required")
     @Positive(message = "Cargo weight must be greater than zero")
     private Double cargoWeight;
+    @NotBlank(message = "Cargo type is required")
+    private String cargoType;
 }

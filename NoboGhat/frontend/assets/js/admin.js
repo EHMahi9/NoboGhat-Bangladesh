@@ -150,12 +150,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     var bookings = await response.json();
     bookingsBody.innerHTML = "";
     if (!bookings.length) {
-      bookingsBody.innerHTML = "<tr><td colspan=\"5\">No bookings found.</td></tr>";
+      bookingsBody.innerHTML = "<tr><td colspan=\"7\">No bookings found.</td></tr>";
       return;
     }
     bookings.forEach(function (booking) {
       var row = document.createElement("tr");
-      row.innerHTML = "<td>#NBG-" + booking.bookingId + "</td><td>" + booking.source + " → " + booking.destination + "</td><td>" + booking.cargoWeight + " kg</td><td>" + booking.status + "</td><td><button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CONFIRMED'>Confirm</button> <button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CANCELLED'>Cancel</button></td>";
+      var fareDisplay = booking.totalFare ? "৳ " + booking.totalFare.toFixed(2) : "N/A";
+      row.innerHTML = "<td>#NBG-" + booking.bookingId + "</td><td>" + booking.source + " → " + booking.destination + "</td><td>" + (booking.cargoType || "General") + "</td><td>" + booking.cargoWeight + " kg</td><td>" + fareDisplay + "</td><td>" + booking.status + "</td><td><button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CONFIRMED'>Confirm</button> <button type='button' class='btn-outline' data-booking='" + booking.bookingId + "' data-status='CANCELLED'>Cancel</button></td>";
       bookingsBody.appendChild(row);
     });
   }
@@ -245,7 +246,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (routeForm) routeForm.addEventListener("submit", async function(event) {
       event.preventDefault();
       try {
-        var response = await fetch(api.url("/api/admin/routes"), { method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ source: document.getElementById("routeSource").value.trim(), destination: document.getElementById("routeDestination").value.trim() }) });
+        var priceInput = document.getElementById("routePricePerKg");
+        var pricePerKg = priceInput && priceInput.value ? Number(priceInput.value) : null;
+        var response = await fetch(api.url("/api/admin/routes"), { method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, api.authHeaders()), body: JSON.stringify({ source: document.getElementById("routeSource").value.trim(), destination: document.getElementById("routeDestination").value.trim(), pricePerKg: pricePerKg }) });
         var body = await response.json();
         if (!response.ok) throw new Error(body.message || "Route could not be saved.");
         routeForm.reset(); setMessage(routeMessage, "Route saved.", "success"); await loadRoutes(); await loadTripOptions();

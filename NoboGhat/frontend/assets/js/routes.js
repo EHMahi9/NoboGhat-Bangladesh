@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function() {
     var bookingMessage = document.getElementById("bookingMessage");
     var bookingTripIdInput = document.getElementById("bookingTripId");
     var bookingCargoWeightInput = document.getElementById("bookingCargoWeight");
+    var bookingCargoTypeSelect = document.getElementById("bookingCargoType");
+    var estimatedFareDisplay = document.getElementById("estimatedFareDisplay");
     var bookingTripDetails = document.getElementById("bookingTripDetails");
     var closeBookingPanel = document.getElementById("closeBookingPanel");
     var currentSearchSource = "";
@@ -39,6 +41,11 @@ document.addEventListener("DOMContentLoaded", function() {
         selectedTrip = trip;
         if (bookingTripIdInput) bookingTripIdInput.value = trip.tripId;
         if (bookingCargoWeightInput) bookingCargoWeightInput.value = "";
+        if (bookingCargoTypeSelect) bookingCargoTypeSelect.value = "";
+        if (estimatedFareDisplay) {
+            estimatedFareDisplay.hidden = true;
+            estimatedFareDisplay.textContent = "Estimated Fare: ৳ 0";
+        }
         if (bookingTripDetails) {
             bookingTripDetails.innerHTML = "";
 
@@ -47,7 +54,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 { label: "Route", value: (trip.source || "N/A") + " → " + (trip.destination || "N/A") },
                 { label: "Boat", value: trip.boatName || "N/A" },
                 { label: "Departure", value: formatDeparture(trip) },
-                { label: "Available Capacity", value: (trip.remainingCapacity || 0) + " kg" }
+                { label: "Available Capacity", value: (trip.remainingCapacity || 0) + " kg" },
+                { label: "Fare Rate", value: trip.pricePerKg ? "৳ " + trip.pricePerKg.toFixed(2) + " / kg" : "On request" }
             ];
 
             for (var i = 0; i < items.length; i++) {
@@ -78,6 +86,8 @@ document.addEventListener("DOMContentLoaded", function() {
     function closeBookingPanelView() {
         selectedTrip = null;
         if (bookingSection) bookingSection.hidden = true;
+        if (bookingCargoTypeSelect) bookingCargoTypeSelect.value = "";
+        if (estimatedFareDisplay) estimatedFareDisplay.hidden = true;
         setBookingMessage("", "");
     }
 
@@ -162,7 +172,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         var price = document.createElement("span");
         price.className = "price-estimate";
-        price.textContent = "Live booking";
+        price.textContent = trip.pricePerKg
+            ? "৳ " + trip.pricePerKg.toFixed(2) + " / kg"
+            : "Price on request";
 
         var bookLink = document.createElement("button");
         bookLink.type = "button";
@@ -191,28 +203,28 @@ document.addEventListener("DOMContentLoaded", function() {
         errorMessage.hidden = true;
 
         try {
-            var response = await fetch(window.NoboGhatApi.url("/api/trips"));
+            // Build query string — server does the filtering, not the browser
+            var params = new URLSearchParams();
+            if (currentSearchSource) params.set("source", currentSearchSource);
+            if (currentSearchDestination) params.set("destination", currentSearchDestination);
+            if (currentSearchDate) params.set("date", currentSearchDate);
+            var query = params.toString() ? "?" + params.toString() : "";
+
+            var response = await fetch(window.NoboGhatApi.url("/api/trips" + query));
             if (!response.ok) throw new Error("Trips could not be loaded from the server.");
             var trips = await response.json();
 
-            var matches = trips.filter(function(trip) {
-                var srcMatch = (trip.source || "").toLowerCase().includes(currentSearchSource.toLowerCase());
-                var dstMatch = (trip.destination || "").toLowerCase().includes(currentSearchDestination.toLowerCase());
-                var dateMatch = !currentSearchDate || (trip.departureTime || "").slice(0, 10) === currentSearchDate;
-                return srcMatch && dstMatch && dateMatch;
-            });
-
-            resultsCount.textContent = "Showing " + matches.length + " available trip" + (matches.length !== 1 ? "s" : "");
+            resultsCount.textContent = "Showing " + trips.length + " available trip" + (trips.length !== 1 ? "s" : "");
             resultsContainer.innerHTML = "";
 
-            if (matches.length === 0) {
+            if (trips.length === 0) {
                 var noResults = document.createElement("p");
                 noResults.style.cssText = "grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 2rem;";
                 noResults.textContent = "No trips match this route yet. Please try different districts.";
                 resultsContainer.appendChild(noResults);
             } else {
-                for (var i = 0; i < matches.length; i++) {
-                    resultsContainer.appendChild(createTripCard(matches[i]));
+                for (var i = 0; i < trips.length; i++) {
+                    resultsContainer.appendChild(createTripCard(trips[i]));
                 }
             }
         } catch (error) {
@@ -223,9 +235,24 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+
     if (closeBookingPanel) {
         closeBookingPanel.addEventListener("click", function () {
             closeBookingPanelView();
+        });
+    }
+
+    if (bookingCargoWeightInput) {
+        bookingCargoWeightInput.addEventListener("input", function() {
+            if (estimatedFareDisplay && selectedTrip) {
+                var weight = Number(bookingCargoWeightInput.value);
+                if (weight > 0 && selectedTrip.pricePerKg) {
+                    estimatedFareDisplay.textContent = "Estimated Fare: ৳ " + (weight * selectedTrip.pricePerKg).toFixed(2);
+                    estimatedFareDisplay.hidden = false;
+                } else {
+                    estimatedFareDisplay.hidden = true;
+                }
+            }
         });
     }
 
@@ -258,7 +285,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     }, window.NoboGhatApi.authHeaders()),
                     body: JSON.stringify({
                         tripId: selectedTrip.tripId,
-                        cargoWeight: cargoWeight
+                        cargoWeight: cargoWeight,
+                        cargoType: bookingCargoTypeSelect ? bookingCargoTypeSelect.value || "General" : "General"
                     })
                 });
 

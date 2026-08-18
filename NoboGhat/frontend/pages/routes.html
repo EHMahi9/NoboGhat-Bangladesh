@@ -71,6 +71,18 @@
                         <input type="hidden" id="bookingTripId">
                         <label for="bookingCargoWeight">Cargo weight (kg)</label>
                         <input type="number" id="bookingCargoWeight" min="1" step="0.1" placeholder="Enter cargo weight" required>
+                        <label for="bookingCargoType">Cargo type</label>
+                        <select id="bookingCargoType" required>
+                            <option value="" disabled selected>Select cargo type</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Fish">Fish</option>
+                            <option value="Vegetables">Vegetables</option>
+                            <option value="Fruits">Fruits</option>
+                            <option value="Manufactured Goods">Manufactured Goods</option>
+                            <option value="Construction Materials">Construction Materials</option>
+                            <option value="General">General / Other</option>
+                        </select>
+                        <p id="estimatedFareDisplay" style="margin-top: 10px; font-weight: 600; color: #2c3e50; font-size: 1.1rem;" hidden>Estimated Fare: ৳ 0</p>
                         <button type="submit" class="btn-book">Confirm Booking</button>
                     </form>
 

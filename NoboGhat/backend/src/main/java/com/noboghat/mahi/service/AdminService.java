@@ -26,11 +26,7 @@ public class AdminService {
         long users = userRepository.count();
         long boats = boatRepository.count();
         long bookings = bookingRepository.count();
-        
-        // সব বুকিংয়ের মোট ওজন হিসেব করা
-        double totalWeight = bookingRepository.findAll().stream()
-                             .mapToDouble(b -> b.getCargoWeight())
-                             .sum();
+        double totalWeight = bookingRepository.sumAllCargoWeight();
 
         return new AdminDashboardDto(users, boats, bookings, totalWeight);
     }
@@ -40,12 +36,15 @@ public class AdminService {
         return bookingRepository.findAll().stream().map(booking -> new BookingSummaryDto(
                 booking.getBookingId(),
                 booking.getCargoWeight(),
+                booking.getCargoType(),
                 booking.getStatus(),
                 booking.getTrip().getTripId(),
                 booking.getTrip().getBoat() != null ? booking.getTrip().getBoat().getName() : "",
                 booking.getTrip().getRoute() != null ? booking.getTrip().getRoute().getSource() : "",
                 booking.getTrip().getRoute() != null ? booking.getTrip().getRoute().getDestination() : "",
-                booking.getTrip().getDepartureTime()
+                booking.getTrip().getDepartureTime(),
+                booking.getBookedAt(),
+                booking.getTotalFare()
         )).toList();
     }
 }

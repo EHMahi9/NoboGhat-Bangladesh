@@ -22,9 +22,14 @@ public class RouteService {
     }
 
     public Route createRoute(String source, String destination) {
+        return createRoute(source, destination, null);
+    }
+
+    public Route createRoute(String source, String destination, Double pricePerKg) {
         Route route = new Route();
         route.setSource(source.trim());
         route.setDestination(destination.trim());
+        route.setPricePerKg(pricePerKg);
         return routeRepository.save(route);
     }
 

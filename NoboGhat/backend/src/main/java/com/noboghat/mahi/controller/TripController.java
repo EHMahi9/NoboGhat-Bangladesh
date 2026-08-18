@@ -46,8 +46,20 @@ public class TripController {
     }
 
     @GetMapping
-    public List<TripWithCapacityDto> getAllTrips() {
-        return tripService.getAllTripsWithCapacity();
+    public List<TripWithCapacityDto> getAllTrips(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String source,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String destination,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String date) {
+        java.time.LocalDate parsedDate = null;
+        if (date != null && !date.isBlank()) {
+            try { parsedDate = java.time.LocalDate.parse(date); } catch (Exception ignored) {}
+        }
+        boolean hasFilter = (source != null && !source.isBlank())
+                || (destination != null && !destination.isBlank())
+                || parsedDate != null;
+        return hasFilter
+                ? tripService.searchTripsWithCapacity(source, destination, parsedDate)
+                : tripService.getAllTripsWithCapacity();
     }
 
     @DeleteMapping("/{id}")

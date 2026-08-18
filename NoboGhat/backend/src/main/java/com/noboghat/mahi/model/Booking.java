@@ -1,5 +1,10 @@
 package com.noboghat.mahi.model;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +24,17 @@ public class Booking {
 
     private Double cargoWeight;
     private String status;
+
+    /** Type of cargo — e.g. Rice, Fish, Vegetables, Manufactured Goods */
+    private String cargoType;
+
+    /** Total fare in BDT = cargoWeight × route.pricePerKg. Null if route has no price set. */
+    private Double totalFare;
+
+    /** Immutable audit timestamp set on first persist */
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime bookedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

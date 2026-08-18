@@ -12,10 +12,13 @@ import lombok.NoArgsConstructor;
 public class BookingSummaryDto {
     private Long bookingId;
     private Double cargoWeight;
+    private String cargoType;
     private String status;
     private Long tripId;
     private String boatName;
     private String source;
     private String destination;
     private LocalDateTime departureTime;
+    private LocalDateTime bookedAt;
+    private Double totalFare;
 }

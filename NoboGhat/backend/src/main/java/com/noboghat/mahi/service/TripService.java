@@ -1,5 +1,6 @@
 package com.noboghat.mahi.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -72,27 +73,46 @@ public class TripService {
     public List<TripWithCapacityDto> getAllTripsWithCapacity() {
         recurringTripScheduleService.generateUpcomingTrips();
         return tripRepository.findAll().stream()
-                .map(trip -> {
-                    Route route = trip.getRoute();
-                    Boat boat = trip.getBoat();
-                    Double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
-                    double reserved = reservedWeight != null ? reservedWeight : 0.0;
-                    double capacity = boat != null && boat.getCapacity() != null ? boat.getCapacity() : 0.0;
-                    double remaining = Math.max(0.0, capacity - reserved);
-                    return new TripWithCapacityDto(
-                            trip.getTripId(),
-                            route != null ? route.getRouteId() : null,
-                            route != null ? route.getSource() : "",
-                            route != null ? route.getDestination() : "",
-                            boat != null ? boat.getBoatId() : null,
-                            boat != null ? boat.getName() : "",
-                            capacity,
-                            trip.getDepartureTime(),
-                            remaining
-                    );
-                })
+                .map(this::toCapacityDto)
                 .toList();
     }
+
+    /**
+     * Server-side filtered search. Delegates source/destination/date filtering to the DB.
+     * Only matching trips are fetched — no full table scan in Java.
+     */
+    @Transactional
+    public List<TripWithCapacityDto> searchTripsWithCapacity(String source, String destination, LocalDate date) {
+        recurringTripScheduleService.generateUpcomingTrips();
+        return tripRepository.searchTrips(
+                (source != null && !source.isBlank()) ? source.trim() : null,
+                (destination != null && !destination.isBlank()) ? destination.trim() : null,
+                date
+        ).stream().map(this::toCapacityDto).toList();
+    }
+
+    private TripWithCapacityDto toCapacityDto(Trip trip) {
+        Route route = trip.getRoute();
+        Boat boat = trip.getBoat();
+        Double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+        double reserved = reservedWeight != null ? reservedWeight : 0.0;
+        double capacity = boat != null && boat.getCapacity() != null ? boat.getCapacity() : 0.0;
+        double remaining = Math.max(0.0, capacity - reserved);
+        return new TripWithCapacityDto(
+                trip.getTripId(),
+                route != null ? route.getRouteId() : null,
+                route != null ? route.getSource() : "",
+                route != null ? route.getDestination() : "",
+                boat != null ? boat.getBoatId() : null,
+                boat != null ? boat.getName() : "",
+                capacity,
+                trip.getDepartureTime(),
+                remaining,
+                route != null ? route.getPricePerKg() : null
+        );
+    }
+
+
 
     @Transactional
     public void deleteTrip(Long tripId, String username, boolean isAdmin) {

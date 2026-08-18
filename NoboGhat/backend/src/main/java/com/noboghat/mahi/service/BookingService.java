@@ -47,9 +47,14 @@ public class BookingService {
 
         Booking booking = new Booking();
         booking.setCargoWeight(requestedWeight);
+        booking.setCargoType(bookingDto.getCargoType() != null ? bookingDto.getCargoType().trim() : "General");
         booking.setStatus("PENDING");
         booking.setUser(user);
         booking.setTrip(trip);
+        // Compute fare if route has a price set
+        if (trip.getRoute() != null && trip.getRoute().getPricePerKg() != null) {
+            booking.setTotalFare(requestedWeight * trip.getRoute().getPricePerKg());
+        }
         Booking saved = bookingRepository.save(booking);
         notificationService.createForUser(requester, "Your booking for trip #" + trip.getTripId() + " has been created.");
         return saved;
@@ -86,6 +91,14 @@ public class BookingService {
             throw new IllegalStateException("Booking is already cancelled.");
         }
 
+        // Enforce 2-hour cancellation window (admins bypass this)
+        if (!isAdmin) {
+            java.time.LocalDateTime departure = booking.getTrip().getDepartureTime();
+            if (departure != null && departure.isBefore(java.time.LocalDateTime.now().plusHours(2))) {
+                throw new IllegalStateException("Bookings cannot be cancelled within 2 hours of departure.");
+            }
+        }
+
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
     }
@@ -112,7 +125,17 @@ public class BookingService {
         }
 
         booking.setStatus(desiredStatus);
-        return toSummaryDto(bookingRepository.save(booking));
+        BookingSummaryDto result = toSummaryDto(bookingRepository.save(booking));
+        // Notify the booking owner about the status change
+        String ownerIdentifier = booking.getUser().getEmail() != null
+                ? booking.getUser().getEmail()
+                : booking.getUser().getPhone();
+        if (ownerIdentifier != null) {
+            notificationService.createForUser(ownerIdentifier,
+                    "Your booking #" + id + " has been updated to: " + desiredStatus + ".");
+        }
+        return result;
+
     }
 
     private void requireOwnerOrAdmin(Booking booking, String requester, boolean isAdmin) {
@@ -126,12 +149,15 @@ public class BookingService {
         return new BookingSummaryDto(
                 booking.getBookingId(),
                 booking.getCargoWeight(),
+                booking.getCargoType(),
                 booking.getStatus(),
                 trip.getTripId(),
                 trip.getBoat() != null ? trip.getBoat().getName() : "",
                 trip.getRoute() != null ? trip.getRoute().getSource() : "",
                 trip.getRoute() != null ? trip.getRoute().getDestination() : "",
-                trip.getDepartureTime()
+                trip.getDepartureTime(),
+                booking.getBookedAt(),
+                booking.getTotalFare()
         );
     }
 }

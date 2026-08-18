@@ -23,4 +23,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     long countByTripTripId(Long tripId);
 
     long countByUserUserId(Long userId);
+
+    @Query("SELECT COALESCE(SUM(b.cargoWeight), 0.0) FROM Booking b")
+    double sumAllCargoWeight();
 }
+

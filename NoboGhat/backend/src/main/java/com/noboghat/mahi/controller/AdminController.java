@@ -73,7 +73,7 @@ public class AdminController {
     @PostMapping("/routes")
     @ResponseStatus(HttpStatus.CREATED)
     public Route createRoute(@Valid @RequestBody RouteDto routeDto) {
-        return routeService.createRoute(routeDto.getSource(), routeDto.getDestination());
+        return routeService.createRoute(routeDto.getSource(), routeDto.getDestination(), routeDto.getPricePerKg());
     }
 
     @PostMapping("/trips")

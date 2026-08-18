@@ -24,4 +24,8 @@ public class Route {
     @NotBlank(message = "Route destination is required")
     @Column(nullable = false)
     private String destination;
+
+    /** Cargo fare in BDT per kg for this corridor. Nullable for legacy routes. */
+    @Column(name = "price_per_kg")
+    private Double pricePerKg;
 }

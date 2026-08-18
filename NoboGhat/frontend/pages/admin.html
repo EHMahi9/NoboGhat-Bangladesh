@@ -52,6 +52,7 @@
             <form id="routeForm" class="admin-form route-form">
                 <label for="routeSource">Departure <input type="text" id="routeSource" placeholder="e.g., Sadarghat" required></label>
                 <label for="routeDestination">Destination <input type="text" id="routeDestination" placeholder="e.g., Khulna" required></label>
+                <label for="routePricePerKg">Price per kg (BDT) <input type="number" id="routePricePerKg" min="0" step="0.01" placeholder="e.g., 5.50"></label>
                 <button type="submit" class="btn-book"><i class="fa-solid fa-plus"></i> Add route</button>
             </form>
             <p id="routeMessage" class="booking-message" hidden></p>
@@ -117,8 +118,8 @@
             <div class="section-heading"><div><p class="section-kicker">Cargo</p><h2>Manage bookings</h2><p>Confirm or cancel cargo requests as they are reviewed.</p></div><span class="section-icon"><i class="fa-solid fa-clipboard-check"></i></span></div>
             <div class="table-responsive">
                 <table class="history-table admin-table">
-                    <thead><tr><th>ID</th><th>Route</th><th>Weight</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody id="bookingsBody"><tr><td colspan="5">Loading bookings...</td></tr></tbody>
+                    <thead><tr><th>ID</th><th>Route</th><th>Cargo Type</th><th>Weight</th><th>Total Fare</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="bookingsBody"><tr><td colspan="7">Loading bookings...</td></tr></tbody>
                 </table>
             </div>
         </section>

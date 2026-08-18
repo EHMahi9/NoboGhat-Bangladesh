@@ -10,5 +10,8 @@ public class RouteDto {
 
     @NotBlank(message = "Route destination is required")
     private String destination;
+
+    /** Optional BDT per kg for this corridor. Can be set or updated by admin. */
+    private Double pricePerKg;
 }
 

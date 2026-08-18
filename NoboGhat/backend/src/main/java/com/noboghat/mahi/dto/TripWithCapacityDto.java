@@ -24,5 +24,6 @@ public class TripWithCapacityDto {
     private Double boatCapacity;
     private LocalDateTime departureTime;
     private Double remainingCapacity;
+    private Double pricePerKg;
 }
 
