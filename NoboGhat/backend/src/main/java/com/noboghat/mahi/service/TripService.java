@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.noboghat.mahi.dto.TripDto;
 import com.noboghat.mahi.dto.TripWithCapacityDto;
@@ -37,6 +39,7 @@ public class TripService {
     }
 
     @Transactional
+    @CacheEvict(value = "trips", allEntries = true)
     public Trip createTrip(TripDto tripDto, String username, boolean isAdmin) {
         Route route = routeRepository.findById(tripDto.getRouteId())
                 .orElseThrow(() -> new IllegalArgumentException("Route not found."));
@@ -70,6 +73,7 @@ public class TripService {
      * remainingCapacity = boatCapacity - sum of cargo weight on PENDING/CONFIRMED bookings.
      */
     @Transactional
+    @Cacheable("trips")
     public List<TripWithCapacityDto> getAllTripsWithCapacity() {
         recurringTripScheduleService.generateUpcomingTrips();
         return tripRepository.findAll().stream()
@@ -82,6 +86,7 @@ public class TripService {
      * Only matching trips are fetched — no full table scan in Java.
      */
     @Transactional
+    @Cacheable(value = "trips", key = "{#source, #destination, #date}")
     public List<TripWithCapacityDto> searchTripsWithCapacity(String source, String destination, LocalDate date) {
         recurringTripScheduleService.generateUpcomingTrips();
         return tripRepository.searchTrips(
@@ -115,6 +120,7 @@ public class TripService {
 
 
     @Transactional
+    @CacheEvict(value = "trips", allEntries = true)
     public void deleteTrip(Long tripId, String username, boolean isAdmin) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found with id: " + tripId));

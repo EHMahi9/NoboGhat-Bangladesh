@@ -17,4 +17,6 @@ public class ProfileUpdateDto {
 
     @Size(min = 4, max = 100)
     private String newPassword;
+
+    private String profilePictureUrl;
 }

@@ -3,6 +3,8 @@ package com.noboghat.mahi.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.noboghat.mahi.model.Route;
 import com.noboghat.mahi.repository.RouteRepository;
@@ -16,6 +18,7 @@ public class RouteService {
         this.routeRepository = routeRepository;
     }
 
+    @CacheEvict(value = "routes", allEntries = true)
     public Route createRoute(Route route) {
         // এখানে খুব সিম্পল লজিক: শুধু ডাটাবেসে সেভ করা
         return routeRepository.save(route);
@@ -25,6 +28,7 @@ public class RouteService {
         return createRoute(source, destination, null);
     }
 
+    @CacheEvict(value = "routes", allEntries = true)
     public Route createRoute(String source, String destination, Double pricePerKg) {
         Route route = new Route();
         route.setSource(source.trim());
@@ -33,6 +37,7 @@ public class RouteService {
         return routeRepository.save(route);
     }
 
+    @Cacheable("routes")
     public List<Route> getAllRoutes() {
         return routeRepository.findAll();
     }

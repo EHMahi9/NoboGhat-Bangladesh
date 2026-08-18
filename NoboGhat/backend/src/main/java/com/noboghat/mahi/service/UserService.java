@@ -35,16 +35,20 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EntityManager entityManager;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EntityManager entityManager;
+    private final EmailService emailService;
 
-    // Inject PasswordEncoder to securely hash passwords
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager,
-            PasswordResetTokenRepository passwordResetTokenRepository) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       PasswordResetTokenRepository passwordResetTokenRepository,
+                       EntityManager entityManager,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.entityManager = entityManager;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.entityManager = entityManager;
+        this.emailService = emailService;
     }
 
     /**
@@ -135,11 +139,7 @@ public class UserService implements UserDetailsService {
         resetToken.setExpiryDate(java.time.LocalDateTime.now().plusMinutes(15));
         passwordResetTokenRepository.save(resetToken);
 
-        // Mock delivery – print the token to the server console
-        System.out.println("==========================================");
-        System.out.println("NoboGhat password recovery token for " + email + ": " + token);
-        System.out.println("Token expires in 15 minutes.");
-        System.out.println("==========================================");
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
         return token;
     }
 
@@ -162,7 +162,7 @@ public class UserService implements UserDetailsService {
         passwordResetTokenRepository.save(resetToken);
     }
 
-    public User updateProfile(String identifier, String name, String phone, String currentPassword, String newPassword) {
+    public User updateProfile(String identifier, String name, String phone, String currentPassword, String newPassword, String profilePictureUrl) {
         User user = getUserByIdentifier(identifier);
 
         if (name != null && !name.isBlank()) user.setName(name.trim());
@@ -184,6 +184,10 @@ public class UserService implements UserDetailsService {
                 throw new IllegalArgumentException("Current password is incorrect.");
             }
             user.setPasswordHash(passwordEncoder.encode(newPassword));
+        }
+
+        if (profilePictureUrl != null && !profilePictureUrl.isBlank()) {
+            user.setProfilePictureUrl(profilePictureUrl.trim());
         }
 
         return userRepository.save(user);

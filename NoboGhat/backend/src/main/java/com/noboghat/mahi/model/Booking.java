@@ -14,9 +14,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import jakarta.persistence.Index;
+
 @Entity
 @Data
-@Table(name = "bookings")
+@Table(name = "bookings", indexes = {
+    @Index(name = "idx_booking_status", columnList = "status")
+})
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

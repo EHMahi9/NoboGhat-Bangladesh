@@ -49,6 +49,9 @@ public class User {
     @Column(nullable = false)
     private boolean isActive = true;
 
+    @Column(length = 1000)
+    private String profilePictureUrl;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Boat> boats;

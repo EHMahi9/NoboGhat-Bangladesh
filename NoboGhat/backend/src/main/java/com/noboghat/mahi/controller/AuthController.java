@@ -3,11 +3,14 @@ package com.noboghat.mahi.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,13 +54,26 @@ public class AuthController {
         if (identifier != null) {
             UserDetails userDetails = userService.loadUserByUsername(identifier);
             String jwt = jwtUtil.generateToken(userDetails);
+            String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true) // Should be true in prod for HTTPS
+                    .path("/api/auth/refresh")
+                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .sameSite("Strict")
+                    .build();
+
             response.put("token", jwt);
             response.put("role", roleFrom(userDetails));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(response);
         }
         
         return ResponseEntity.ok(response);
     }
-
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginDto loginDto) {
         // 1. Verify the email and password against the database via AuthenticationManager
@@ -68,8 +84,17 @@ public class AuthController {
         // 2. If successful, fetch the verified details
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        // 3. Generate the actual JWT
+        // 3. Generate the actual JWT and refresh token
         String jwt = jwtUtil.generateToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true) // Should be true in prod for HTTPS
+                .path("/api/auth/refresh")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .sameSite("Strict")
+                .build();
 
         // 4. Return the token to the frontend
         Map<String, Object> response = new HashMap<>();
@@ -81,7 +106,30 @@ public class AuthController {
         // Strip the ROLE_ prefix for frontend compatibility
         response.put("role", roleFrom(userDetails));
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refreshAccessToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        if (refreshToken == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Refresh token is missing"));
+        }
+
+        try {
+            String username = jwtUtil.extractUsername(refreshToken);
+            UserDetails userDetails = userService.loadUserByUsername(username);
+
+            if (jwtUtil.validateToken(refreshToken, userDetails)) {
+                String newJwt = jwtUtil.generateToken(userDetails);
+                return ResponseEntity.ok(Map.of("token", newJwt, "role", roleFrom(userDetails)));
+            } else {
+                return ResponseEntity.status(401).body(Map.of("message", "Invalid refresh token"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired refresh token"));
+        }
     }
 
     @PostMapping("/forgot-password")

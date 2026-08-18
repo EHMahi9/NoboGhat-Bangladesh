@@ -40,19 +40,21 @@ public class ProfileController {
             "name", user.getName(),
             "phone", user.getPhone() == null ? "" : user.getPhone(),
             "email", user.getEmail() == null ? "" : user.getEmail(),
-            "role", user.getRole()
+            "role", user.getRole(),
+            "profilePictureUrl", user.getProfilePictureUrl() == null ? "" : user.getProfilePictureUrl()
         ));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(Authentication authentication, @Valid @RequestBody ProfileUpdateDto dto) {
-        User user = userService.updateProfile(authentication.getName(), dto.getName(), dto.getPhone(), dto.getCurrentPassword(), dto.getNewPassword());
+        User user = userService.updateProfile(authentication.getName(), dto.getName(), dto.getPhone(), dto.getCurrentPassword(), dto.getNewPassword(), dto.getProfilePictureUrl());
         return ResponseEntity.ok(Map.of(
             "message", "Profile updated successfully.",
             "name", user.getName(),
             "phone", user.getPhone() == null ? "" : user.getPhone(),
             "email", user.getEmail() == null ? "" : user.getEmail(),
-            "role", user.getRole()
+            "role", user.getRole(),
+            "profilePictureUrl", user.getProfilePictureUrl() == null ? "" : user.getProfilePictureUrl()
         ));
     }
 

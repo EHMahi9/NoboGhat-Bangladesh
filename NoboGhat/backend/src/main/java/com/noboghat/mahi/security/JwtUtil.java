@@ -20,14 +20,17 @@ public class JwtUtil {
 
     private final Key secretKey;
     private final long tokenValidity;
+    private final long refreshTokenValidity;
 
     public JwtUtil(@Value("${app.jwt.secret}") String secret,
-                   @Value("${app.jwt.expiration-ms}") long tokenValidity) {
+                   @Value("${app.jwt.expiration-ms}") long tokenValidity,
+                   @Value("${app.jwt.refresh-expiration-ms}") long refreshTokenValidity) {
         if (secret.length() < 32) {
             throw new IllegalStateException("JWT_SECRET must contain at least 32 characters.");
         }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.tokenValidity = tokenValidity;
+        this.refreshTokenValidity = refreshTokenValidity;
     }
 
     // 1. Extract the username (email in our case) from the token
@@ -60,16 +63,21 @@ public class JwtUtil {
     // 3. Generate a token for a user
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), tokenValidity);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername(), refreshTokenValidity);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long validity) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject) // The subject is the user's phone
                 .issuedAt(new Date(now))
-                .expiration(new Date(now + tokenValidity))
+                .expiration(new Date(now + validity))
                 .signWith(secretKey)
                 .compact();
     }

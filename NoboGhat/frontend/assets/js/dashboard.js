@@ -98,6 +98,44 @@ document.addEventListener("DOMContentLoaded", async function () {
             var actionTd = document.createElement("td");
             var bStatus = (booking.status || "").toUpperCase();
             if (bStatus === "PENDING" || bStatus === "CONFIRMED") {
+                if (bStatus === "PENDING") {
+                    var payBtn = document.createElement("button");
+                    payBtn.type = "button";
+                    payBtn.className = "btn-primary";
+                    payBtn.style.cssText = "font-size:0.78rem;padding:4px 10px;margin-right:8px;";
+                    payBtn.textContent = "Pay Now";
+                    payBtn.addEventListener("click", (function (id, btn) {
+                        return async function () {
+                            btn.disabled = true;
+                            btn.textContent = "Processing...";
+                            try {
+                                var resp = await fetch(window.NoboGhatApi.url("/api/payments/initiate"), {
+                                    method: "POST",
+                                    headers: Object.assign({ "Content-Type": "application/json" }, window.NoboGhatApi.authHeaders()),
+                                    body: JSON.stringify({ bookingId: id, gateway: "SSLCommerz" })
+                                });
+                                if (!resp.ok) throw new Error("Payment initiation failed.");
+                                var data = await resp.json();
+                                
+                                // Mock gateway redirection by immediately calling the webhook for testing
+                                alert("Redirecting to SSLCommerz... (MOCK)");
+                                await fetch(window.NoboGhatApi.url("/api/payments/webhook"), {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ transactionRef: data.transactionRef, status: "SUCCESS" })
+                                });
+                                alert("Payment successful!");
+                                location.reload();
+                            } catch (err) {
+                                alert(err.message);
+                                btn.disabled = false;
+                                btn.textContent = "Pay Now";
+                            }
+                        };
+                    })(booking.bookingId, payBtn));
+                    actionTd.appendChild(payBtn);
+                }
+
                 var cancelBtn = document.createElement("button");
                 cancelBtn.type = "button";
                 cancelBtn.className = "btn-outline";
@@ -325,10 +363,21 @@ document.addEventListener("DOMContentLoaded", async function () {
                 roleError.textContent = setupMessage;
                 roleError.style.display = "block";
             }
-            showRoleModal();
-            // Hide the dashboard content behind the modal
-            document.querySelector(".dashboard-container").style.opacity = "0.3";
-            document.querySelector(".dashboard-container").style.pointerEvents = "none";
+            
+            var container = document.querySelector(".dashboard-container");
+            if (roleModal) {
+                showRoleModal();
+                if (container) {
+                    container.style.opacity = "0.3";
+                    container.style.pointerEvents = "none";
+                }
+            } else {
+                if (container) {
+                    container.innerHTML = "<div class='error-state'><h2>Account Setup Incomplete</h2><p>Please contact support to assign a role to your account.</p></div>";
+                } else {
+                    alert("Account Setup Incomplete. Please contact support.");
+                }
+            }
             return; // Stop further dashboard loading
         }
 
@@ -340,8 +389,39 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (role) role.textContent = (user.role || "").replace("_", " ");
         var profileName = document.getElementById("profileName");
         var profilePhone = document.getElementById("profilePhone");
+        var profilePicPreview = document.getElementById("profilePicturePreview");
+        var profilePicUrl = document.getElementById("profilePictureUrl");
         if (profileName) profileName.value = user.name || "";
         if (profilePhone) profilePhone.value = user.phone || "";
+        if (user.profilePictureUrl && profilePicPreview) {
+            profilePicPreview.src = window.NoboGhatApi.url(user.profilePictureUrl);
+            profilePicUrl.value = user.profilePictureUrl;
+        }
+
+        var profilePicInput = document.getElementById("profilePictureInput");
+        if (profilePicInput) {
+            profilePicInput.addEventListener("change", async function(e) {
+                if (!e.target.files || e.target.files.length === 0) return;
+                var file = e.target.files[0];
+                var formData = new FormData();
+                formData.append("file", file);
+                try {
+                    setProfileMessage("Uploading image...", "");
+                    var resp = await fetch(window.NoboGhatApi.url("/api/files/upload"), {
+                        method: "POST",
+                        headers: window.NoboGhatApi.authHeaders(),
+                        body: formData
+                    });
+                    if (!resp.ok) throw new Error("Upload failed");
+                    var data = await resp.json();
+                    profilePicPreview.src = window.NoboGhatApi.url(data.fileDownloadUri);
+                    profilePicUrl.value = data.fileDownloadUri;
+                    setProfileMessage("Image uploaded, click Save Changes.", "success");
+                } catch (err) {
+                    setProfileMessage(err.message, "error");
+                }
+            });
+        }
 
         dashboardLinks.forEach(function (link) {
             link.addEventListener("click", function (event) {
@@ -384,7 +464,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                         name: document.getElementById("profileName").value.trim(),
                         phone: document.getElementById("profilePhone").value.trim() || null,
                         currentPassword: currentPasswordValue || null,
-                        newPassword: newPasswordValue || null
+                        newPassword: newPasswordValue || null,
+                        profilePictureUrl: document.getElementById("profilePictureUrl") ? document.getElementById("profilePictureUrl").value : null
                     };
                     var response = await fetch(api.url("/api/users/profile"), {
                         method: "PUT",

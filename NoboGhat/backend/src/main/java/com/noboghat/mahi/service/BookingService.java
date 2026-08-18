@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.noboghat.mahi.dto.BookingSummaryDto;
 import com.noboghat.mahi.dto.BookingDto;
@@ -33,6 +34,7 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = "trips", allEntries = true)
     public Booking createBooking(BookingDto bookingDto, String requester) {
         User user = userService.getUserByIdentifier(requester);
         Trip trip = tripRepository.findByIdForBooking(bookingDto.getTripId())
@@ -82,6 +84,7 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = "trips", allEntries = true)
     public void cancelBooking(Long id, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
@@ -104,6 +107,7 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = "trips", allEntries = true)
     public BookingSummaryDto updateBookingStatus(Long id, BookingStatusUpdateDto statusUpdateDto, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
