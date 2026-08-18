@@ -105,18 +105,42 @@
 }
 
 .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: end;
+    padding: 2.2rem;
+    border-radius: 24px;
+    color: #fff;
+    background: linear-gradient(120deg, #063d6b, #0d6aa8 58%, #16876b);
+    box-shadow: 0 18px 40px rgba(9, 72, 115, .18);
     margin-bottom: 2rem;
 }
 
+.dashboard-header-content {
+    flex: 1;
+}
+
+.dashboard-eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-weight: 800;
+    color: #bde9ff;
+}
+
 .dashboard-header h1 {
-    font-size: clamp(2rem, 3vw, 2.5rem);
-    color: #123b59;
-    margin: 0 0 0.5rem;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    margin: 0;
+    line-height: 1.1;
 }
 
 .dashboard-header p {
-    color: #667f91;
-    margin: 0;
+    color: #d9efff;
+    margin: .8rem 0 0;
+    max-width: 620px;
     font-size: 1.05rem;
 }
 
@@ -131,8 +155,8 @@
 .dash-card {
     background: #ffffff;
     padding: 1.5rem;
-    border-radius: 16px;
-    box-shadow: 0 7px 20px rgba(13, 66, 104, 0.06);
+    border-radius: 18px;
+    box-shadow: 0 7px 20px rgba(13, 66, 104, 0.05);
     border: 1px solid #dce9f1;
     display: flex;
     flex-direction: column;
@@ -140,7 +164,7 @@
 }
 
 .dash-card.alert-card {
-    border: 1px solid #a8daca;
+    border-color: #a8daca;
     background: linear-gradient(135deg, #fff, #f4fcf9);
 }
 
@@ -150,10 +174,9 @@
     background: #e8f5fd;
     color: #0e5e94;
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.1rem;
     margin-bottom: 1.2rem;
 }
 
@@ -166,7 +189,9 @@
     margin: 0 0 0.5rem;
     color: #123b59;
     font-size: 1.15rem;
+    font-weight: 750;
 }
+
 .dash-card p {
     color: #667f91;
     font-size: 0.95rem;
@@ -216,10 +241,44 @@
     margin-bottom: 2rem;
 }
 
-.recent-history h2 {
-    margin: 0 0 1.25rem;
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.section-heading h2 {
+    margin: 0;
     color: #123b59;
     font-size: 1.35rem;
+}
+
+.section-heading p:not(.section-kicker) {
+    margin: 0.38rem 0 0;
+    color: #667f91;
+}
+
+.section-kicker {
+    margin: 0 0 .5rem;
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-weight: 800;
+    color: #16876b;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    color: #0e5e94;
+    background: #e8f5fd;
+    border-radius: 12px;
 }
 
 .table-responsive {

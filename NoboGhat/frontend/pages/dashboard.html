@@ -60,8 +60,11 @@
         <!-- Main Content Area -->
         <main class="dashboard-main">
             <header class="dashboard-header">
-                <h1>Welcome back, <span data-user-name>Loading...</span>!</h1>
-                <p>Manage your inland waterway logistics from here.</p>
+                <div class="dashboard-header-content">
+                    <p class="dashboard-eyebrow"><i class="fa-solid fa-gauge" aria-hidden="true"></i> Personal Workspace</p>
+                    <h1>Welcome back, <span data-user-name>Loading...</span>!</h1>
+                    <p>Manage your inland waterway logistics from here.</p>
+                </div>
             </header>
 
             <!-- Dashboard Action Cards -->
@@ -92,7 +95,14 @@
 
             <!-- Recent Booking History Table (Addresses FR-07) -->
             <section class="recent-history dashboard-section is-hidden" id="active-bookings-section" data-dashboard-section="active-bookings">
-                <h2>Recent Booking History</h2>
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Cargo</p>
+                        <h2>Recent Booking History</h2>
+                        <p>View your active and past cargo shipments.</p>
+                    </div>
+                    <span class="section-icon"><i class="fa-solid fa-box-open"></i></span>
+                </div>
                 <div class="table-responsive">
                     <table class="history-table">
                         <thead>
@@ -117,7 +127,14 @@
             </section>
 
             <section class="recent-history dashboard-section is-hidden" id="my-trips-section" data-dashboard-section="my-trips">
-                <h2>My Trips</h2>
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Travel</p>
+                        <h2>My Trips</h2>
+                        <p>Check the details of your upcoming passenger trips.</p>
+                    </div>
+                    <span class="section-icon"><i class="fa-solid fa-ship"></i></span>
+                </div>
                 <div class="table-responsive">
                     <table class="history-table">
                         <thead>
@@ -139,7 +156,14 @@
             </section>
 
             <section class="recent-history dashboard-section is-hidden" id="profile-settings-section" data-dashboard-section="profile-settings">
-                <h2>Profile Settings</h2>
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Account</p>
+                        <h2>Profile Settings</h2>
+                        <p>Manage your personal information and preferences.</p>
+                    </div>
+                    <span class="section-icon"><i class="fa-solid fa-gear"></i></span>
+                </div>
                 <div class="booking-panel">
                     <form id="profileForm" class="booking-form">
                         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
@@ -172,7 +196,14 @@
             </section>
 
             <section class="recent-history dashboard-section is-hidden" id="notifications-section" data-dashboard-section="notifications">
-                <h2>Notifications</h2>
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Updates</p>
+                        <h2>Notifications</h2>
+                        <p>Important alerts and messages about your account.</p>
+                    </div>
+                    <span class="section-icon"><i class="fa-solid fa-bell"></i></span>
+                </div>
                 <div class="table-responsive">
                     <table class="history-table">
                         <thead>
