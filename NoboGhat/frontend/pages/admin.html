@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body class="admin-page" data-requires-auth="true" data-requires-admin="true">
 
@@ -29,100 +30,98 @@
         </div>
     </nav>
 
-    <main style="padding: 40px 5%;">
-        <h1>Admin Analytics Summary</h1>
+    <main class="admin-shell">
+        <header class="admin-hero">
+            <div>
+                <p class="admin-eyebrow"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Operations centre</p>
+                <h1>Admin dashboard</h1>
+                <p>Manage routes, vessels, departures, users, and bookings from one place.</p>
+            </div>
+            <a class="admin-hero-link" href="routes.html"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> View shipments</a>
+        </header>
         
         <!-- Analytics Summary Cards -->
         <div class="dashboard-cards" id="adminAnalyticsPanel">
-            <div class="card"><h3>Total Users</h3><p id="totalUsers">0</p></div>
-            <div class="card"><h3>Total Boats</h3><p id="totalBoats">0</p></div>
-            <div class="card"><h3>Total Bookings</h3><p id="totalBookings">0</p></div>
-            <div class="card"><h3>Total Cargo Weight</h3><p id="totalCargoWeight">0 kg</p></div>
+            <article class="card"><span class="metric-icon users"><i class="fa-solid fa-users"></i></span><div><h3>Total users</h3><p id="totalUsers">0</p></div></article>
+            <article class="card"><span class="metric-icon boats"><i class="fa-solid fa-ship"></i></span><div><h3>Active boats</h3><p id="totalBoats">0</p></div></article>
+            <article class="card"><span class="metric-icon bookings"><i class="fa-solid fa-box"></i></span><div><h3>Total bookings</h3><p id="totalBookings">0</p></div></article>
+            <article class="card"><span class="metric-icon cargo"><i class="fa-solid fa-weight-hanging"></i></span><div><h3>Cargo weight</h3><p id="totalCargoWeight">0 kg</p></div></article>
         </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageRoutesPanel">
-            <h2>Manage Routes</h2>
-            <form id="routeForm" class="booking-form">
-                <label for="routeSource">From</label>
-                <input type="text" id="routeSource" placeholder="e.g., Sadarghat" required>
-                <label for="routeDestination">To</label>
-                <input type="text" id="routeDestination" placeholder="e.g., Khulna" required>
-                <button type="submit" class="btn-book">Save Route</button>
+        <section class="admin-section" id="manageRoutesPanel">
+            <div class="section-heading"><div><p class="section-kicker">Network</p><h2>Manage routes</h2><p>Add the river corridors your operation serves.</p></div><span class="section-icon"><i class="fa-solid fa-route"></i></span></div>
+            <form id="routeForm" class="admin-form route-form">
+                <label for="routeSource">Departure <input type="text" id="routeSource" placeholder="e.g., Sadarghat" required></label>
+                <label for="routeDestination">Destination <input type="text" id="routeDestination" placeholder="e.g., Khulna" required></label>
+                <button type="submit" class="btn-book"><i class="fa-solid fa-plus"></i> Add route</button>
             </form>
             <p id="routeMessage" class="booking-message" hidden></p>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table"><thead><tr><th>Route</th></tr></thead><tbody id="routesBody"><tr><td>Loading routes...</td></tr></tbody></table>
+            <div class="table-responsive">
+                <table class="history-table admin-table"><thead><tr><th>Route</th></tr></thead><tbody id="routesBody"><tr><td>Loading routes...</td></tr></tbody></table>
             </div>
-        </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageBoatsPanel">
-            <h2>Manage Boats</h2>
-            <form id="boatForm" class="booking-form">
-                <label for="boatName">Boat Name</label>
-                <input type="text" id="boatName" required>
-                <label for="boatCapacity">Capacity</label>
-                <input type="number" id="boatCapacity" min="1" step="0.1" required>
-                <button type="submit" class="btn-book">Save Boat</button>
+        </section>
+        <section class="admin-section" id="manageBoatsPanel">
+            <div class="section-heading"><div><p class="section-kicker">Fleet</p><h2>Manage boats</h2><p>Keep available vessel capacity accurate.</p></div><span class="section-icon"><i class="fa-solid fa-ship"></i></span></div>
+            <form id="boatForm" class="admin-form boat-form">
+                <label for="boatName">Boat name <input type="text" id="boatName" placeholder="e.g., MV Padma Express" required></label>
+                <label for="boatCapacity">Capacity (kg) <input type="number" id="boatCapacity" min="1" step="0.1" placeholder="e.g., 5000" required></label>
+                <button type="submit" class="btn-book"><i class="fa-solid fa-plus"></i> Add boat</button>
             </form>
             <p id="boatMessage" class="booking-message" hidden></p>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table">
+            <div class="table-responsive">
+                <table class="history-table admin-table">
                     <thead><tr><th>Name</th><th>Capacity</th><th>Action</th></tr></thead>
                     <tbody id="boatsBody"><tr><td colspan="3">Loading boats...</td></tr></tbody>
                 </table>
             </div>
-        </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageTripsPanel">
-            <h2>Manage Trips</h2>
-            <form id="tripForm" class="booking-form">
-                <label for="tripRoute">Route</label>
-                <select id="tripRoute" required></select>
-                <label for="tripBoat">Boat</label>
-                <select id="tripBoat" required></select>
-                <label for="tripDepartureTime">Departure Time</label>
-                <input type="datetime-local" id="tripDepartureTime" required>
-                <button type="submit" class="btn-book">Save Trip</button>
+        </section>
+        <section class="admin-section" id="manageTripsPanel">
+            <div class="section-heading"><div><p class="section-kicker">Schedule</p><h2>Manage one-time trips</h2><p>Add an individual departure for a specific date and time.</p></div><span class="section-icon"><i class="fa-solid fa-calendar-plus"></i></span></div>
+            <form id="tripForm" class="admin-form trip-form">
+                <label for="tripRoute">Route <select id="tripRoute" required></select></label>
+                <label for="tripBoat">Boat <select id="tripBoat" required></select></label>
+                <label for="tripDepartureTime">Departure time <input type="datetime-local" id="tripDepartureTime" required></label>
+                <button type="submit" class="btn-book"><i class="fa-solid fa-plus"></i> Add trip</button>
             </form>
             <p id="tripMessage" class="booking-message" hidden></p>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table">
+            <div class="table-responsive">
+                <table class="history-table admin-table">
                     <thead><tr><th>ID</th><th>Route</th><th>Boat</th><th>Departure</th><th>Action</th></tr></thead>
                     <tbody id="tripsBody"><tr><td colspan="5">Loading trips...</td></tr></tbody>
                 </table>
             </div>
-        </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageRecurringTripsPanel">
-            <h2>Weekly Recurring Departures</h2>
-            <p>Create a weekly departure. NoboGhat keeps the next seven days of bookable trips available automatically.</p>
-            <form id="recurringTripForm" class="booking-form">
-                <label for="recurringRoute">Route</label><select id="recurringRoute" required></select>
-                <label for="recurringBoat">Boat</label><select id="recurringBoat" required></select>
-                <label for="recurringDay">Departure day</label>
-                <select id="recurringDay" required><option value="MONDAY">Monday</option><option value="TUESDAY">Tuesday</option><option value="WEDNESDAY">Wednesday</option><option value="THURSDAY">Thursday</option><option value="FRIDAY">Friday</option><option value="SATURDAY">Saturday</option><option value="SUNDAY">Sunday</option></select>
-                <label for="recurringTime">Departure time</label><input type="time" id="recurringTime" required>
-                <button type="submit" class="btn-book">Save Weekly Departure</button>
+        </section>
+        <section class="admin-section recurring-section" id="manageRecurringTripsPanel">
+            <div class="section-heading"><div><p class="section-kicker">Automation</p><h2>Weekly recurring departures</h2><p>Create a weekly schedule. NoboGhat keeps the next seven days of bookable trips available automatically.</p></div><span class="section-icon"><i class="fa-solid fa-repeat"></i></span></div>
+            <form id="recurringTripForm" class="admin-form recurring-form">
+                <label for="recurringRoute">Route <select id="recurringRoute" required></select></label>
+                <label for="recurringBoat">Boat <select id="recurringBoat" required></select></label>
+                <label for="recurringDay">Departure day <select id="recurringDay" required><option value="MONDAY">Monday</option><option value="TUESDAY">Tuesday</option><option value="WEDNESDAY">Wednesday</option><option value="THURSDAY">Thursday</option><option value="FRIDAY">Friday</option><option value="SATURDAY">Saturday</option><option value="SUNDAY">Sunday</option></select></label>
+                <label for="recurringTime">Departure time <input type="time" id="recurringTime" required></label>
+                <button type="submit" class="btn-book"><i class="fa-solid fa-repeat"></i> Save weekly departure</button>
             </form>
             <p id="recurringTripMessage" class="booking-message" hidden></p>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table"><thead><tr><th>Route</th><th>Boat</th><th>Weekly time</th><th>Action</th></tr></thead><tbody id="recurringTripsBody"><tr><td colspan="4">Loading weekly departures...</td></tr></tbody></table>
+            <div class="table-responsive">
+                <table class="history-table admin-table"><thead><tr><th>Route</th><th>Boat</th><th>Weekly time</th><th>Action</th></tr></thead><tbody id="recurringTripsBody"><tr><td colspan="4">Loading weekly departures...</td></tr></tbody></table>
             </div>
-        </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageUsersPanel">
-            <h2>Manage Users</h2>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table">
+        </section>
+        <section class="admin-section" id="manageUsersPanel">
+            <div class="section-heading"><div><p class="section-kicker">Accounts</p><h2>Manage users</h2><p>Review registered users and their platform activity.</p></div><span class="section-icon"><i class="fa-solid fa-user-gear"></i></span></div>
+            <div class="table-responsive">
+                <table class="history-table admin-table">
                     <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Role</th><th>Boats</th><th>Bookings</th><th>Action</th></tr></thead>
                     <tbody id="usersBody"><tr><td colspan="7">Loading users...</td></tr></tbody>
                 </table>
             </div>
-        </div>
-        <div class="booking-panel" style="margin-top: 32px;" id="manageBookingsPanel">
-            <h2>Manage Bookings</h2>
-            <div class="table-responsive" style="margin-top: 20px;">
-                <table class="history-table">
+        </section>
+        <section class="admin-section" id="manageBookingsPanel">
+            <div class="section-heading"><div><p class="section-kicker">Cargo</p><h2>Manage bookings</h2><p>Confirm or cancel cargo requests as they are reviewed.</p></div><span class="section-icon"><i class="fa-solid fa-clipboard-check"></i></span></div>
+            <div class="table-responsive">
+                <table class="history-table admin-table">
                     <thead><tr><th>ID</th><th>Route</th><th>Weight</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody id="bookingsBody"><tr><td colspan="5">Loading bookings...</td></tr></tbody>
                 </table>
             </div>
-        </div>
+        </section>
         <p id="dashboardError" hidden></p>
     </main>
 
