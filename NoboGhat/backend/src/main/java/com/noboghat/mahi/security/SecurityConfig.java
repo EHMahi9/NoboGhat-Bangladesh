@@ -103,7 +103,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/trips", "/api/trips/**",
                                 "/api/routes", "/api/routes/**",
-                                "/api/boats", "/api/boats/**")
+                                "/api/boats", "/api/boats/**",
+                                "/error")
                         .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
