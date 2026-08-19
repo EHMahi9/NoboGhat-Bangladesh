@@ -108,7 +108,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/payments/webhook").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/code/**").permitAll()
                         .requestMatchers(
                                 "/api/trips", "/api/trips/**",
                                 "/api/routes", "/api/routes/**",

@@ -1,6 +1,7 @@
 # ---- Build stage ----
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
+ENV MAVEN_OPTS="-Xmx300m"
 COPY mvnw pom.xml ./
 COPY .mvn ./.mvn
 RUN chmod +x mvnw && ./mvnw dependency:resolve -DskipTests

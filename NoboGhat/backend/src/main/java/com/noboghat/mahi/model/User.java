@@ -22,7 +22,7 @@ import lombok.Data;
 @Data
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "\"role\"", discriminatorType = DiscriminatorType.STRING)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class User {
     private String passwordHash;
 
     // Adjusted to allow the DiscriminatorColumn to manage the role automatically
-    @Column(name = "role", insertable = false, updatable = false, length = 30)
+    @Column(name = "\"role\"", insertable = false, updatable = false, length = 30)
     private String role;
 
     @Column(nullable = false)
