@@ -81,6 +81,16 @@ public class TripService {
                 .toList();
     }
 
+    @Transactional
+    public List<TripWithCapacityDto> getTripsWithCapacityByOwner(String identifier) {
+        recurringTripScheduleService.generateUpcomingTrips();
+        return tripRepository.findAll().stream()
+                .filter(trip -> trip.getBoat() != null && trip.getBoat().getOwner() != null && 
+                    (trip.getBoat().getOwner().getEmail().equals(identifier) || trip.getBoat().getOwner().getPhone().equals(identifier)))
+                .map(this::toCapacityDto)
+                .toList();
+    }
+
     /**
      * Server-side filtered search. Delegates source/destination/date filtering to the DB.
      * Only matching trips are fetched — no full table scan in Java.

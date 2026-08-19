@@ -51,6 +51,14 @@ public class BoatService {
         return boatRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Boat> getBoatsByOwner(String identifier) {
+        User currentUser = userRepository.findByPhone(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+        return boatRepository.findByOwnerUserId(currentUser.getUserId());
+    }
+
     @Transactional
     public Boat updateBoat(Long boatId, BoatCreationDto creationDto, String currentUserIdentifier) {
         Boat boat = boatRepository.findById(boatId)

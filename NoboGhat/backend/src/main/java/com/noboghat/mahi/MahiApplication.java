@@ -3,12 +3,9 @@ package com.noboghat.mahi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
-
-@SpringBootApplication(exclude = {
-    RedisAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class
+@SpringBootApplication(excludeName = {
+    "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration",
+    "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration"
 })
 public class MahiApplication {
 

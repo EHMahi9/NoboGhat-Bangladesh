@@ -83,6 +83,15 @@ public class BookingService {
         return bookingRepository.findAll().stream().map(this::toSummaryDto).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<BookingSummaryDto> getBookingsForBoatOwner(String requester) {
+        User user = userService.getUserByIdentifier(requester);
+        return bookingRepository.findByTrip_Boat_Owner_UserId(user.getUserId())
+                .stream()
+                .map(this::toSummaryDto)
+                .toList();
+    }
+
     @Transactional
     @CacheEvict(value = "trips", allEntries = true)
     public void cancelBooking(Long id, String requester, boolean isAdmin) {

@@ -42,6 +42,12 @@ public class BookingController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_BOAT_OWNER', 'ROLE_FARMER', 'ROLE_TRADER')")
     public List<BookingSummaryDto> getMyBookings(Authentication authentication) {
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        if ("ROLE_ADMIN".equals(role)) {
+            return bookingService.getAllBookingsForAdmin();
+        } else if ("ROLE_BOAT_OWNER".equals(role)) {
+            return bookingService.getBookingsForBoatOwner(authentication.getName());
+        }
         return bookingService.getBookingsForUser(authentication.getName());
     }
     

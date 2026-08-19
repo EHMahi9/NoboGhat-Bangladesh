@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+
 
 import com.noboghat.mahi.dto.TripDto;
 import com.noboghat.mahi.dto.TripWithCapacityDto;
@@ -49,7 +48,8 @@ public class TripController {
     public List<TripWithCapacityDto> getAllTrips(
             @org.springframework.web.bind.annotation.RequestParam(required = false) String source,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String destination,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String date) {
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String date,
+            Authentication authentication) {
         java.time.LocalDate parsedDate = null;
         if (date != null && !date.isBlank()) {
             try { parsedDate = java.time.LocalDate.parse(date); } catch (Exception ignored) {}
@@ -57,9 +57,16 @@ public class TripController {
         boolean hasFilter = (source != null && !source.isBlank())
                 || (destination != null && !destination.isBlank())
                 || parsedDate != null;
-        return hasFilter
-                ? tripService.searchTripsWithCapacity(source, destination, parsedDate)
-                : tripService.getAllTripsWithCapacity();
+        if (hasFilter) {
+            return tripService.searchTripsWithCapacity(source, destination, parsedDate);
+        }
+        
+        String role = authentication != null && authentication.getAuthorities().iterator().hasNext() ? 
+            authentication.getAuthorities().iterator().next().getAuthority() : null;
+        if ("ROLE_BOAT_OWNER".equals(role)) {
+            return tripService.getTripsWithCapacityByOwner(authentication.getName());
+        }
+        return tripService.getAllTripsWithCapacity();
     }
 
     @DeleteMapping("/{id}")

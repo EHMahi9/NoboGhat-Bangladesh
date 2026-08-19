@@ -47,7 +47,12 @@ public class BoatController {
     }
 
     @GetMapping
-    public List<Boat> getAllBoats() {
+    public List<Boat> getAllBoats(Authentication authentication) {
+        String role = authentication != null && authentication.getAuthorities().iterator().hasNext() ? 
+            authentication.getAuthorities().iterator().next().getAuthority() : null;
+        if ("ROLE_BOAT_OWNER".equals(role)) {
+            return boatService.getBoatsByOwner(authentication.getName());
+        }
         return boatService.getAllBoats();
     }
 

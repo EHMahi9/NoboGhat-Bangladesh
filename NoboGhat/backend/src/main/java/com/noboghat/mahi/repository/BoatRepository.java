@@ -6,4 +6,5 @@ import com.noboghat.mahi.model.Boat;
 
 public interface BoatRepository extends JpaRepository<Boat, Long> {
     long countByOwnerUserId(Long userId);
+    java.util.List<Boat> findByOwnerUserId(Long userId);
 }
