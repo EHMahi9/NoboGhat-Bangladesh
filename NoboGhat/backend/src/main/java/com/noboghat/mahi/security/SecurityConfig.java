@@ -102,9 +102,9 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
-                                "/api/trips/**",
-                                "/api/routes/**",
-                                "/api/boats/**")
+                                "/api/trips", "/api/trips/**",
+                                "/api/routes", "/api/routes/**",
+                                "/api/boats", "/api/boats/**")
                         .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
