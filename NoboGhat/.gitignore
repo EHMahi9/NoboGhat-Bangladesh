@@ -10,3 +10,6 @@ backend/target/
 .vscode/
 .idea/
 *.iml
+
+# Scratch scripts
+scratch/
