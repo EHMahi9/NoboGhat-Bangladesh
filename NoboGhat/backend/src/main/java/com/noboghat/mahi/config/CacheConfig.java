@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 @Configuration
-@EnableCaching
+// @EnableCaching // Disabled temporarily: causes 500 error on Render due to missing Redis instance
 public class CacheConfig {
 
     @Bean
