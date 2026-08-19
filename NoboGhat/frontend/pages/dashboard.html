@@ -165,7 +165,13 @@
                     <span class="section-icon"><i class="fa-solid fa-gear"></i></span>
                 </div>
                 <div class="booking-panel">
-                    <form id="profileForm" class="booking-form">
+                    <style>
+                        .profile-form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; }
+                        .profile-form label { font-size: 0.85rem; font-weight: 700; color: #36546b; margin-bottom: -10px; }
+                        .profile-form input { width: 100%; min-height: 44px; padding: 0.65rem 0.72rem; border: 1px solid #bfd1dd; border-radius: 9px; font-size: 0.95rem; background-color: #f7f9fa; transition: all 0.2s; }
+                        .profile-form input:focus { border-color: #1a73e8; background-color: #fff; outline: none; }
+                    </style>
+                    <form id="profileForm" class="profile-form">
                         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
                             <img id="profilePicturePreview" src="../assets/images/default-avatar.png" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid var(--border-color);">
                             <label for="profilePictureInput" class="btn-outline" style="cursor: pointer; font-size: 0.9rem; padding: 6px 12px;">Change Picture</label>

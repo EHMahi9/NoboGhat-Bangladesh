@@ -38,49 +38,75 @@
         }
     };
 
-    // Override global fetch to automatically handle credentials and 401 refreshes
+    // Override global fetch to automatically handle credentials and 401 refreshes.
+    // A semaphore prevents concurrent refresh attempts from creating a loop.
+    var isRefreshing = false;
     var originalFetch = window.fetch;
     window.fetch = async function () {
         var args = Array.prototype.slice.call(arguments);
         var url = args[0];
         var options = args[1] || {};
-        
+
         // Ensure credentials are sent for our API calls so cookies are included
         if (typeof url === 'string' && url.startsWith(apiBaseUrl)) {
             options.credentials = "include";
         }
         args[1] = options;
 
-        var response = await originalFetch.apply(window, args);
+        var response;
+        try {
+            response = await originalFetch.apply(window, args);
+        } catch (networkErr) {
+            // Network-level error (backend unreachable, CORS crash, etc.).
+            // Don't attempt a refresh; just let the caller handle it.
+            throw networkErr;
+        }
 
-        // If unauthorized and we're not already trying to refresh or login
-        if (response.status === 401 && typeof url === 'string' && url.startsWith(apiBaseUrl) && !url.includes("/api/auth/")) {
-            // Attempt to refresh the token using the HttpOnly cookie
-            var refreshResponse = await originalFetch(apiBaseUrl + "/api/auth/refresh", {
-                method: "POST",
-                credentials: "include"
-            });
+        // If unauthorized and we're not already trying to refresh or on an auth endpoint
+        if (
+            response.status === 401 &&
+            typeof url === 'string' &&
+            url.startsWith(apiBaseUrl) &&
+            !url.includes("/api/auth/") &&
+            !isRefreshing
+        ) {
+            isRefreshing = true;
+            try {
+                // Attempt to refresh the token using the HttpOnly cookie
+                var refreshResponse = await originalFetch(apiBaseUrl + "/api/auth/refresh", {
+                    method: "POST",
+                    credentials: "include"
+                });
 
-            if (refreshResponse.ok) {
-                var data = await refreshResponse.json();
-                if (data.token) {
-                    localStorage.setItem("noboghatToken", data.token);
-                    // Update Authorization header and retry original request
-                    if (options.headers && options.headers["Authorization"]) {
-                        options.headers["Authorization"] = "Bearer " + data.token;
-                    } else if (options.headers instanceof Headers && options.headers.has("Authorization")) {
-                        options.headers.set("Authorization", "Bearer " + data.token);
+                if (refreshResponse.ok) {
+                    var data = await refreshResponse.json();
+                    if (data.token) {
+                        localStorage.setItem("noboghatToken", data.token);
+                        if (data.role) localStorage.setItem("noboghatRole", data.role);
+                        // Update Authorization header and retry original request
+                        if (options.headers && options.headers["Authorization"]) {
+                            options.headers["Authorization"] = "Bearer " + data.token;
+                        } else if (options.headers instanceof Headers && options.headers.has("Authorization")) {
+                            options.headers.set("Authorization", "Bearer " + data.token);
+                        }
+                        args[1] = options;
+                        return originalFetch.apply(window, args);
                     }
-                    args[1] = options;
-                    return originalFetch.apply(window, args);
+                } else {
+                    // Refresh failed — clear ALL session state and redirect to login
+                    localStorage.removeItem("noboghatToken");
+                    localStorage.removeItem("noboghatRole");
+                    localStorage.removeItem("noboghatUser");
+                    var currentPath = window.location.pathname;
+                    var isLoginPage = currentPath.endsWith("login.html") ||
+                        currentPath.endsWith("index.html") ||
+                        currentPath === "/";
+                    if (!isLoginPage) {
+                        window.location.replace("login.html?expired=true");
+                    }
                 }
-            } else {
-                // Refresh failed, clear session and redirect to login
-                localStorage.removeItem("noboghatToken");
-                localStorage.removeItem("noboghatUser");
-                if (!window.location.pathname.endsWith("login.html") && !window.location.pathname.endsWith("index.html") && window.location.pathname !== "/") {
-                    window.location.href = "login.html?expired=true";
-                }
+            } finally {
+                isRefreshing = false;
             }
         }
         return response;

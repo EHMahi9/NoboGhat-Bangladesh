@@ -34,6 +34,15 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:}")
     private String allowedOrigins;
 
+    @Value("${spring.security.oauth2.client.registration.google.client-id:}")
+    private String googleClientId;
+
+    private boolean isGoogleConfigured() {
+        return googleClientId != null &&
+               !googleClientId.isBlank() &&
+               !googleClientId.equals("google-oauth-not-configured");
+    }
+
     // 1. Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -137,8 +146,8 @@ public class SecurityConfig {
                         jwtRequestFilter,
                         UsernamePasswordAuthenticationFilter.class);
 
-        // Enable Google OAuth only if credentials are configured
-        if (clientRegistrations.getIfAvailable() != null) {
+        // Enable Google OAuth only if real credentials are configured
+        if (isGoogleConfigured()) {
             http.oauth2Login(oauth ->
                     oauth.successHandler(googleOAuth2SuccessHandler));
         }

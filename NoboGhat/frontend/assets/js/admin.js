@@ -165,9 +165,9 @@ document.addEventListener("DOMContentLoaded", async function() {
   var isBoatOwner = role === "BOAT_OWNER";
   
   if (isBoatOwner) {
-      document.title = "Partner Dashboard - NoboGhat";
-      var h1 = document.querySelector('h1');
-      if (h1 && h1.textContent.includes('Admin Dashboard')) h1.textContent = "Partner Dashboard";
+        document.title = "Partner Workspace - NoboGhat";
+        var h1 = document.querySelector('h1');
+        if (h1 && h1.textContent.includes('Management Workspace')) h1.textContent = "Partner Workspace";
       
       document.querySelectorAll('.active-link').forEach(function(link) {
           if (link.textContent === 'Admin') link.textContent = 'Manage';
