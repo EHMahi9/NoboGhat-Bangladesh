@@ -512,33 +512,18 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
         }
     } catch (error) {
-        localStorage.removeItem("noboghatToken");
-        localStorage.removeItem("noboghatRole");
+        console.error("Dashboard initialization error:", error);
 
         var summaryElement = document.getElementById("activeBookingsSummary");
         var tableBodyElement = document.getElementById("bookingHistoryBody");
         var tripsBodyElement = document.getElementById("myTripsBody");
 
-        if (summaryElement) summaryElement.textContent = "Unable to load your bookings.";
+        if (summaryElement) summaryElement.textContent = "Unable to load your data.";
         if (tableBodyElement) {
-            tableBodyElement.innerHTML = "";
-            var errorRow = document.createElement("tr");
-            var errorCell = document.createElement("td");
-            errorCell.colSpan = 8;
-            errorCell.textContent = error.message;
-            errorRow.appendChild(errorCell);
-            tableBodyElement.appendChild(errorRow);
+            tableBodyElement.innerHTML = "<tr><td colspan='8' style='color:red;'>" + error.message + "</td></tr>";
         }
         if (tripsBodyElement) {
-            tripsBodyElement.innerHTML = "";
-            var tripsErrorRow = document.createElement("tr");
-            var tripsErrorCell = document.createElement("td");
-            tripsErrorCell.colSpan = 5;
-            tripsErrorCell.textContent = error.message;
-            tripsErrorRow.appendChild(tripsErrorCell);
-            tripsBodyElement.appendChild(tripsErrorRow);
+            tripsBodyElement.innerHTML = "<tr><td colspan='5' style='color:red;'>" + error.message + "</td></tr>";
         }
-
-        window.location.replace("login.html?message=" + encodeURIComponent(error.message));
     }
 });
