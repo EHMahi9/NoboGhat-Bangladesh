@@ -165,6 +165,14 @@ document.addEventListener("DOMContentLoaded", async function() {
   var isBoatOwner = role === "BOAT_OWNER";
   
   if (isBoatOwner) {
+      document.title = "Partner Dashboard - NoboGhat";
+      var h1 = document.querySelector('h1');
+      if (h1 && h1.textContent.includes('Admin Dashboard')) h1.textContent = "Partner Dashboard";
+      
+      document.querySelectorAll('.active-link').forEach(function(link) {
+          if (link.textContent === 'Admin') link.textContent = 'Manage';
+      });
+
       if (document.getElementById("adminAnalyticsPanel")) document.getElementById("adminAnalyticsPanel").style.display = "none";
       if (document.getElementById("manageRoutesPanel")) document.getElementById("manageRoutesPanel").style.display = "none";
       if (document.getElementById("manageRecurringTripsPanel")) document.getElementById("manageRecurringTripsPanel").style.display = "none";

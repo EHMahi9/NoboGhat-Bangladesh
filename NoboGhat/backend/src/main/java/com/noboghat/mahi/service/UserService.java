@@ -257,6 +257,9 @@ public class UserService implements UserDetailsService {
         if (password != null && !password.isBlank()) {
             user.setPasswordHash(passwordEncoder.encode(password));
         }
-        return userRepository.save(user);
+        userRepository.saveAndFlush(user);
+        entityManager.clear();
+        return userRepository.findById(user.getUserId())
+                .orElseThrow(() -> new IllegalStateException("User not found after registration."));
     }
 }
