@@ -73,10 +73,10 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
         // Exact production origins come from configuration. The pattern permits
-        // only previews for this Vercel project, not arbitrary Vercel sites.
+        // previews for this Vercel project and the main domain.
         configuration.setAllowedOriginPatterns(Stream.concat(
                 origins.stream(),
-                Stream.of("https://noboghatbangladesh-*.vercel.app"))
+                Stream.of("https://noboghatbangladesh-*.vercel.app", "https://noboghat-bangladesh.vercel.app", "https://noboghat-bangladesh-*.vercel.app"))
                 .toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));

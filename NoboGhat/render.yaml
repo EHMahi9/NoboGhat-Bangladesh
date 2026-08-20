@@ -19,10 +19,10 @@ services:
         value: update
 
       - key: FRONTEND_URL
-        value: https://noboghatbangladesh.vercel.app
+        value: https://noboghat-bangladesh.vercel.app
 
       - key: CORS_ALLOWED_ORIGINS
-        value: https://noboghatbangladesh.vercel.app
+        value: https://noboghatbangladesh.vercel.app,https://noboghat-bangladesh.vercel.app
 
       - key: JWT_EXPIRATION_MS
         value: "86400000"

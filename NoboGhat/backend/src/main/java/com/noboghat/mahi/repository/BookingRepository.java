@@ -14,7 +14,7 @@ import jakarta.persistence.LockModeType;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select coalesce(sum(b.cargoWeight), 0) from Booking b "
+    @Query("select coalesce(sum(b.cargoWeight), 0.0) from Booking b "
             + "where b.trip.tripId = :tripId and b.status in ('PENDING', 'CONFIRMED')")
     double totalReservedCargoWeight(@Param("tripId") Long tripId);
 
