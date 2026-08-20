@@ -76,7 +76,9 @@ public class TripService {
     @Cacheable("trips")
     public List<TripWithCapacityDto> getAllTripsWithCapacity() {
         recurringTripScheduleService.generateUpcomingTrips();
+        LocalDateTime now = LocalDateTime.now();
         return tripRepository.findAll().stream()
+                .filter(trip -> trip.getDepartureTime() != null && trip.getDepartureTime().isAfter(now))
                 .map(this::toCapacityDto)
                 .toList();
     }
@@ -99,11 +101,14 @@ public class TripService {
     @Cacheable(value = "trips", key = "{#source, #destination, #date}")
     public List<TripWithCapacityDto> searchTripsWithCapacity(String source, String destination, LocalDate date) {
         recurringTripScheduleService.generateUpcomingTrips();
+        LocalDateTime now = LocalDateTime.now();
         return tripRepository.searchTrips(
                 (source != null && !source.isBlank()) ? source.trim() : null,
                 (destination != null && !destination.isBlank()) ? destination.trim() : null,
                 date
-        ).stream().map(this::toCapacityDto).toList();
+        ).stream()
+         .filter(trip -> trip.getDepartureTime() != null && trip.getDepartureTime().isAfter(now))
+         .map(this::toCapacityDto).toList();
     }
 
     private TripWithCapacityDto toCapacityDto(Trip trip) {
