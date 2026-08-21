@@ -1,508 +1,511 @@
-# NoboGhat: River Cargo Booking Platform
+# 🚢 NoboGhat (নোবো ঘাট) - River Cargo Booking Platform
 
-A modern, full-stack web application for managing river cargo transport coordination in Bangladesh. NoboGhat digitizes the informal process of connecting farmers and traders (cargo providers) with boat owners (transport providers) for inland waterway logistics.
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-STOMP%20%2F%20SockJS-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://spring.io/guides/gs/messaging-stomp-websocket/)
+[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20HTML5%20%2F%20CSS3%20%2F%20ES6+-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Deployment](https://img.shields.io/badge/Deployment-Render%20%2B%20Vercel-000000?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
+
+> **NoboGhat** (নোবো ঘাট - *"The New River Port"*) is a full-stack, enterprise-grade river logistics and cargo booking platform engineered to digitize and optimize inland waterway freight transportation across Bangladesh. It seamlessly connects cargo providers (farmers, agricultural producers, and commercial traders) with vessel operators (boat owners) through real-time capacity-aware scheduling, secure transactions, and administrative governance.
+
+---
+
+## 🌐 Live Deployments
+
+- **Frontend Application (Vercel):** [https://noboghat-bangladesh.vercel.app](https://noboghat-bangladesh.vercel.app)
+- **Backend REST & WebSocket API (Render):** [https://noboghat-bangladesh.onrender.com](https://noboghat-bangladesh.onrender.com)
+- **API Health Check:** [https://noboghat-bangladesh.onrender.com/actuator/health](https://noboghat-bangladesh.onrender.com/actuator/health)
 
 ---
 
 ## 📋 Table of Contents
 
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [API Endpoints](#api-endpoints)
-- [How It Works](#how-it-works)
-- [For Lecturers](#for-lecturers)
-- [Troubleshooting](#troubleshooting)
+- [Core Problem & Solution](#-core-problem--solution)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [Technology Stack](#-technology-stack)
+- [Database Schema & Data Model](#-database-schema--data-model)
+- [Project Directory Structure](#-project-directory-structure)
+- [REST API Reference](#-rest-api-reference)
+- [Real-Time WebSocket System](#-real-time-websocket-system)
+- [Security & Authentication](#-security--authentication)
+- [Getting Started & Local Development](#-getting-started--local-development)
+- [Production Deployment](#-production-deployment)
+- [Troubleshooting & FAQs](#-troubleshooting--faqs)
 
 ---
 
-## 🎯 Project Overview
+## 🎯 Core Problem & Solution
 
-**NoboGhat** (নোবো ঘাট - "New Riverbank/Port") is a Desktop & Web Programming Lab project solving river transport coordination challenges in Bangladesh.
+### The Challenge
+Inland water transport carries millions of tons of agricultural produce and industrial goods daily across Bangladesh's extensive river network. Traditionally, this sector has operated via informal, fragmented communication channels:
+- **Cargo Providers** (farmers and traders) suffer from erratic vessel availability, unfair broker markups, and lack of schedule transparency.
+- **Boat Owners** frequently experience underutilized hold capacity, empty return legs, and unpredictable booking flows.
+- **Logistics Managers** lack unified analytics on river corridor demand, freight volume, and safety compliance.
 
-### Problem
-- Farmers/traders struggle to find boat capacity
-- Boat owners lack visibility into cargo demand
-- Manual coordination is inefficient and error-prone
-- No central platform for booking and tracking
-
-### Solution
-- **Unified marketplace** connecting cargo providers with boat owners
-- **Capacity-aware booking** preventing overbooking
-- **Role-based access** for different user types
-- **Administrative oversight** with analytics dashboard
+### The NoboGhat Solution
+NoboGhat establishes a centralized, digital river logistics network:
+1. **Dynamic Capacity Management:** Real-time pessimistic database locking prevents boat overbooking down to the exact kilogram.
+2. **Dynamic Fare Computation:** Corridor-based pricing calculating trip cost automatically (`Cargo Weight (kg) × Route Price per kg`).
+3. **Role-Based Workflows:** Tailored interfaces and capabilities for Farmers, Traders, Boat Owners, and Administrators.
+4. **Real-Time Notification Pipeline:** STOMP-over-WebSocket broadcasts status updates, schedule revisions, and booking confirmations instantly.
+5. **Resilient Dual-Authentication:** JWT bearer tokens with sliding-session HttpOnly cookie refresh, plus Google OAuth2 integration.
 
 ---
 
 ## ✨ Key Features
 
-- 🔐 Secure authentication (BCrypt + JWT + Google OAuth2)
-- 👤 Role-based accounts (Farmer, Trader, Boat Owner, Admin)
-- 🔍 Trip discovery and browsing
-- 📦 Capacity-aware booking with real-time validation
-- 📊 Admin analytics dashboard
-- 📱 Responsive design for all devices
-- 🎨 Modern UI with vanilla JavaScript
+### 👤 Role-Based Portals & Capabilities
+- **🌾 Farmers & Traders:**
+  - Search scheduled river voyages by source port, destination port, and departure date.
+  - Inspect vessel remaining payload capacity before booking.
+  - Reserve cargo space with instant automated fare estimation.
+  - Track booking lifecycle (`PENDING` ➔ `CONFIRMED` ➔ `COMPLETED` / `CANCELLED`).
+  - Initiate payments and download booking receipts.
+  - Switch operational roles on-demand from profile settings.
+- **⛵ Boat Owners:**
+  - Register and manage vessel fleets (name, dimensions, maximum tonnage/capacity).
+  - Schedule one-off journeys or define automated recurring weekly sailing timetables.
+  - View manifest of booked cargo and manage incoming reservation requests.
+  - Track fleet utilization and cargo tonnage.
+- **🛡️ Administrators:**
+  - Comprehensive operational dashboard with live system metrics and freight totals.
+  - Complete control over navigational waterways/routes and price-per-kg tariffs.
+  - User lifecycle management (moderation, account deactivation, role elevation).
+  - System-wide trip scheduling, cancellation, and booking status overrides.
+
+### ⚡ Architectural & Technical Highlights
+- **Pessimistic Concurrency Control:** Uses `LockModeType.PESSIMISTIC_WRITE` on trip entities during reservation transactions to guarantee zero overbooking under high concurrent load.
+- **Sliding Refresh Token Lifecycle:** Seamless UX where client interceptor silently renews expired 15-minute JWT access tokens using secure HttpOnly refresh cookies without interrupting user tasks.
+- **Interactive Waterway Route Explorer:** Live visual route map and timetable browser with dynamic price calculations.
+- **Avatar & Document Storage:** Built-in multipart file storage engine for profile pictures and cargo paperwork.
+- **Production Telemetry:** Integrated Spring Boot Actuator health probes, Prometheus metrics exporter, and Sentry error tracking.
+
+---
+
+## 🏗 System Architecture
+
+NoboGhat is structured as a decoupled, multi-tiered enterprise web application:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             CLIENT LAYER (BROWSER)                          │
+│                                                                             │
+│   Semantic HTML5  •  Vanilla CSS Design System  •  Modular ES6+ JavaScript  │
+│   [api.js (Interceptor)] ── [session.js] ── [websocket.js (STOMP Client)]   │
+└───────────────────────┬─────────────────────────────────┬───────────────────┘
+                        │ HTTPS (REST JSON)               │ WSS (STOMP/SockJS)
+                        ▼                                 ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER (SPRING BOOT 4.1.0)                    │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                        Security Filter Chain                        │   │
+│   │   CorsFilter ➔ JwtRequestFilter ➔ DaoAuthProvider ➔ OAuth2Login     │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      ▼                                      │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                          Controller Layer                           │   │
+│   │   AuthController • TripController • BookingController • BoatCtrl    │   │
+│   │   AdminController • RouteController • NotificationCtrl • FileCtrl   │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      ▼                                      │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                      Service Layer (Business Logic)                 │   │
+│   │   BookingService (Pessimistic Locks) • TripService • UserService    │   │
+│   │   NotificationService (WebSocket Push) • PaymentService • FileStore │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      ▼                                      │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                 Data Access Layer (Spring Data JPA)                 │   │
+│   │   UserRepository • TripRepository • BookingRepository • BoatRepo    │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+└──────────────────────────────────────┼──────────────────────────────────────┘
+                                       │ JDBC / Hibernate ORM
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              PERSISTENCE LAYER                              │
+│                                                                             │
+│   Production: MySQL 8.0+ (InnoDB, UTF-8mb4)                                 │
+│   Local Dev:  Auto-detected MySQL 8.0+ or In-Memory H2 Engine               │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🛠 Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Spring Boot 4.1.0, Java 25, JPA/Hibernate |
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript (ES6+) |
-| **Database** | MySQL 8.0+ |
-| **Security** | Spring Security, JWT, BCrypt |
-| **Auth** | Local + Google OAuth2 |
-| **DevOps** | Render (backend & frontend) |
+| Domain | Technology / Library | Description |
+|---|---|---|
+| **Backend Framework** | Spring Boot `4.1.0` | Core enterprise application platform |
+| **Runtime Environment**| Java `21 LTS` / `25` | Modern JVM runtime with virtual threads support |
+| **Security & Auth** | Spring Security, JJWT `0.12.6`, BCrypt | Stateless JWT auth, OAuth2, and role RBAC |
+| **Database & ORM** | Spring Data JPA, Hibernate 6, MySQL 8 | Relational persistence with connection pooling |
+| **Connection Pool** | HikariCP | High-performance JDBC connection management |
+| **Real-Time Push** | Spring WebSocket, STOMP, SockJS | Bi-directional pub-sub messaging broker |
+| **Frontend Core** | HTML5, Vanilla CSS3, JavaScript ES6+ | Lightweight, fast, zero-bloat user experience |
+| **Monitoring & Ops** | Spring Boot Actuator, Micrometer Prometheus | Production health checks and performance metrics |
+| **Containerization** | Docker Multi-Stage Build (`eclipse-temurin:21`)| Optimized, secure production container image |
+| **Cloud Hosting** | Render (Backend) & Vercel (Frontend) | Scalable production cloud infrastructure |
 
 ---
 
-## 🏗 Architecture
+## 🗄 Database Schema & Data Model
 
-### Three-Layer Architecture
+The data model uses a normalized relational architecture with JPA single-table inheritance for user types.
 
-```
-┌─────────────────────────────────┐
-│   Presentation (Frontend)       │
-│ HTML/CSS/JS → Static Website    │
-└──────────────┬──────────────────┘
-               │ API + JWT
-┌──────────────▼──────────────────┐
-│  Business Logic (Spring Boot)   │
-│ Controllers → Services →        │
-│ Repositories → Entities         │
-└──────────────┬──────────────────┘
-               │ JDBC
-┌──────────────▼──────────────────┐
-│   Data (MySQL)                  │
-│ Users, Boats, Routes, Trips,    │
-│ Bookings, Payments              │
-└─────────────────────────────────┘
-```
+```mermaid
+erDiagram
+    USERS ||--o{ BOATS : "owns"
+    USERS ||--o{ BOOKINGS : "places"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ PASSWORD_RESET_TOKENS : "requests"
+    BOATS ||--o{ TRIPS : "assigned to"
+    ROUTES ||--o{ TRIPS : "serves"
+    ROUTES ||--o{ RECURRING_TRIP_SCHEDULES : "defines"
+    BOATS ||--o{ RECURRING_TRIP_SCHEDULES : "operates"
+    TRIPS ||--o{ BOOKINGS : "reserves capacity on"
+    BOOKINGS ||--o{ PAYMENT_TRANSACTIONS : "settled via"
 
-### Data Flow
+    USERS {
+        bigint user_id PK
+        varchar name
+        varchar phone UK
+        varchar email UK
+        varchar password_hash
+        varchar role "FARMER | TRADER | BOAT_OWNER | ADMIN"
+        boolean is_active
+        varchar profile_picture_url
+    }
 
-```
-1. User on frontend.html enters credentials
-2. JavaScript sends: POST /api/auth/login
-3. Spring Boot AuthController receives request
-4. UserService validates phone & password (BCrypt)
-5. JwtUtil generates JWT token
-6. Token returned to frontend
-7. Stored in localStorage
-8. Included in all future API requests (Authorization header)
-9. Each request validated by Spring Security filter
-10. Response processed and displayed in browser
+    BOATS {
+        bigint boat_id PK
+        varchar name
+        double capacity
+        bigint owner_id FK
+    }
+
+    ROUTES {
+        bigint route_id PK
+        varchar source
+        varchar destination
+        double price_per_kg
+    }
+
+    TRIPS {
+        bigint trip_id PK
+        bigint route_id FK
+        bigint boat_id FK
+        datetime departure_time
+        bigint recurring_schedule_id FK
+    }
+
+    BOOKINGS {
+        bigint booking_id PK
+        bigint user_id FK
+        bigint trip_id FK
+        double cargo_weight
+        varchar cargo_type
+        double total_fare
+        varchar status "PENDING | CONFIRMED | COMPLETED | CANCELLED"
+        datetime booked_at
+    }
+
+    PAYMENT_TRANSACTIONS {
+        bigint transaction_id PK
+        varchar transaction_ref UK
+        bigint booking_id FK
+        double amount
+        varchar status "PENDING | SUCCESS | FAILED"
+        varchar gateway "bKash | SSLCommerz"
+        datetime created_at
+    }
+
+    NOTIFICATIONS {
+        bigint notification_id PK
+        bigint user_id FK
+        varchar message
+        boolean is_read
+        datetime created_at
+        datetime read_at
+    }
+
+    RECURRING_TRIP_SCHEDULES {
+        bigint schedule_id PK
+        bigint route_id FK
+        bigint boat_id FK
+        varchar day_of_week
+        time departure_time
+        boolean active
+    }
 ```
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Java 25+
-- MySQL 8.0+
-- Maven 3.8.1+ (bundled with `mvnw`)
-
-### Setup (5 minutes)
-
-```bash
-# 1. Clone project
-git clone <url>
-cd NoboGhat
-
-# 2. Configure backend
-cd backend
-cp .env.example .env
-# Edit .env: set DB_USERNAME, DB_PASSWORD, JWT_SECRET
-
-# 3. Start backend
-./mvnw spring-boot:run
-# Running on http://localhost:8080
-
-# 4. Start frontend (new terminal)
-cd frontend
-python -m http.server 5500
-# Running on http://localhost:5500
-
-# 5. Open browser
-# Visit: http://localhost:5500
-# Register → Login → Explore!
-```
-
----
-
-## 📁 Project Structure
+## 📁 Project Directory Structure
 
 ```
 NoboGhat/
-├── backend/
-│   ├── src/main/java/.../
-│   │   ├── config/              # Spring configuration
-│   │   ├── controller/          # REST endpoints (/api/*)
-│   │   ├── service/             # Business logic
-│   │   ├── model/               # JPA entities
-│   │   ├── dto/                 # Data transfer objects
-│   │   ├── repository/          # Database access
-│   │   └── security/            # JWT & authentication
-│   ├── pom.xml                  # Maven dependencies
-│   └── .env.example             # Configuration template
-├── frontend/
-│   ├── index.html               # Landing page
+├── backend/                             # Spring Boot REST & WebSocket API
+│   ├── src/main/java/com/noboghat/mahi/
+│   │   ├── config/                      # WebSockets, Cache, Async, DataSeeder
+│   │   ├── controller/                  # REST Controllers (/api/*)
+│   │   ├── dto/                         # Request/Response Data Transfer Objects
+│   │   ├── model/                       # JPA Entities (User, Boat, Trip, Booking, etc.)
+│   │   ├── repository/                  # Spring Data JPA Repositories
+│   │   ├── security/                    # SecurityConfig, JWT Filter, OAuth2 Handler
+│   │   └── service/                     # Business Logic (BookingService, TripService, etc.)
+│   ├── src/main/resources/
+│   │   ├── application.properties       # Core Spring Configuration & Environment Bindings
+│   │   └── db/migration/                # Database Migration Scripts
+│   ├── .env.example                     # Environment variables template
+│   ├── Dockerfile                       # Production multi-stage container build
+│   └── pom.xml                          # Maven build descriptors & dependencies
+├── frontend/                            # Framework-free Modern Client Application
+│   ├── index.html                       # Landing Page & Public Voyage Search
 │   ├── pages/
-│   │   ├── login.html
-│   │   ├── register.html
-│   │   ├── dashboard.html
-│   │   ├── admin.html
-│   │   └── routes.html
+│   │   ├── login.html                   # Dual Sign-in (Local Phone + Google OAuth)
+│   │   ├── register.html                # Multi-role User Registration
+│   │   ├── dashboard.html               # Unified User Dashboard (Farmer, Trader, Boat Owner)
+│   │   ├── admin.html                   # Administrative Operations Dashboard
+│   │   ├── routes.html                  # Interactive River Corridor Explorer & Timetable
+│   │   └── about.html                   # Platform Mission & Logistics Network Details
 │   └── assets/
-│       ├── css/                 # Stylesheets
-│       ├── js/                  # JavaScript files
-│       └── images/              # SVGs, icons, images
-├── database/
-│   ├── schema.sql               # Database structure
-│   └── migration-v2-auth.sql    # OAuth migration
-└── docs/
-    ├── ARCHITECTURE.md          # Technical design
-    ├── GOOGLE_LOGIN_SETUP.md    # OAuth configuration
-    └── PRESENTATION_NOTES.md    # Demo script
+│       ├── css/                         # Custom CSS Design System, Components & Animations
+│       ├── js/
+│       │   ├── config.js                # Environment backend URL configuration
+│       │   ├── api.js                   # Fetch wrapper with auto-refresh token interceptor
+│       │   ├── session.js               # LocalStorage & Session state management
+│       │   ├── websocket.js             # STOMP/SockJS real-time toast notification client
+│       │   ├── auth.js                  # Authentication, login, register, password reset
+│       │   ├── dashboard.js             # Booking management, fleet control, capacity UI
+│       │   ├── admin.js                 # Admin metrics, user moderation, route creation
+│       │   └── routes.js                # Route explorer, trip filtering, booking modal
+│       └── images/                      # SVGs, icons, river vessel illustrations
+├── docs/                                # Project Documentation & Architecture Guides
+│   ├── ARCHITECTURE.md                  # High-level architecture blueprint
+│   ├── GOOGLE_LOGIN_SETUP.md            # Google Cloud OAuth2 setup instructions
+│   └── PRESENTATION_NOTES.md            # Demonstration walkthrough & presenter guide
+├── render.yaml                          # Render Cloud blueprint for Docker deployment
+└── README.md                            # Comprehensive Project Documentation (This file)
 ```
 
 ---
 
-## 🔌 API Endpoints
+## 🔌 REST API Reference
 
-### Public
-```
-GET  /api/trips              # List all trips
-GET  /api/routes             # List all routes
-POST /api/auth/register      # Create account
-POST /api/auth/login         # Login
-```
+All protected endpoints require an `Authorization: Bearer <JWT_TOKEN>` header.
 
-### Authenticated (Requires JWT in Authorization header)
-```
-GET  /api/profile            # User profile
-POST /api/bookings           # Create booking
-GET  /api/bookings           # User's bookings
-POST /api/boats              # Create boat (boat owner)
-```
+### 1. Authentication & Account Management (`/api/auth`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Public | Register new user (`name, phone/email, password, role`) |
+| `POST` | `/api/auth/login` | Public | Authenticate user; returns JWT + sets Refresh Cookie |
+| `POST` | `/api/auth/refresh` | Public | Rotates expired access token using HttpOnly cookie |
+| `POST` | `/api/auth/forgot-password` | Public | Initiates password reset token generation |
+| `POST` | `/api/auth/reset-password` | Public | Validates token and resets account password |
 
-### Admin Only
-```
-GET  /api/admin/dashboard    # Analytics
-```
+### 2. User Profile & Role Elevation (`/api/users`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/users/profile` | Authenticated | Retrieve authenticated user profile |
+| `PUT` | `/api/users/profile` | Authenticated | Update profile details and avatar URL |
+| `PUT` | `/api/users/update-role` | Authenticated | Switch active role (`FARMER`, `TRADER`, `BOAT_OWNER`) |
+| `DELETE`| `/api/users/profile` | Authenticated | Soft deactivate current user account |
 
----
+### 3. Trips & Vessel Schedules (`/api/trips`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/trips` | Public | List voyages with dynamic real-time capacity remaining |
+| `GET` | `/api/trips?source=X&destination=Y&date=Z` | Public | Search voyages with corridor and date filters |
+| `POST` | `/api/trips` | Boat Owner / Admin | Create a new scheduled journey |
+| `DELETE`| `/api/trips/{id}` | Boat Owner / Admin | Delete/Cancel a scheduled voyage |
 
-## 🔄 How It Works
+### 4. Cargo Bookings (`/api/bookings`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/api/bookings` | Farmer / Trader | Create cargo reservation with pessimistic capacity check |
+| `GET` | `/api/bookings` | Authenticated | Fetch bookings scoped to authenticated user or boat fleet |
+| `GET` | `/api/bookings/{id}` | Authenticated | Get detailed booking receipt |
+| `PATCH`| `/api/bookings/{id}/status` | Boat Owner / Admin | Update booking status (`CONFIRMED`, `COMPLETED`, `CANCELLED`)|
+| `DELETE`| `/api/bookings/{id}` | Authenticated | Cancel pending booking and release held capacity |
 
-### 1. User Registration
-```
-User Form (register.html)
-  ↓
-POST /api/auth/register {name, phone, password, role}
-  ↓
-UserService.registerNewUser()
-  - Validate phone not already registered
-  - Hash password with BCrypt
-  - Create User entity with appropriate role (Farmer/Trader/Owner)
-  ↓
-Save to MySQL users table
-  ↓
-Response: userId, name, role
-  ↓
-Frontend redirects to login
-```
+### 5. Fleet & Vessels (`/api/boats`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/boats` | Authenticated | List all boats (or fleet owned by user) |
+| `POST` | `/api/boats` | Boat Owner / Admin | Register new boat vessel |
+| `PUT` | `/api/boats/{id}` | Boat Owner / Admin | Update boat specifications and capacity |
+| `DELETE`| `/api/boats/{id}` | Boat Owner / Admin | Remove vessel from service |
 
-### 2. User Login
-```
-Login Form (login.html)
-  ↓
-POST /api/auth/login {phone, password}
-  ↓
-Spring Security AuthenticationManager
-  - Find user by phone
-  - Compare password with BCrypt hash
-  ↓
-JwtUtil.generateToken(userDetails)
-  - Create JWT with phone as subject
-  - Sign with HS256 + secret key
-  ↓
-Response: {token, phone, role}
-  ↓
-session.js saves token to localStorage
-  ↓
-Frontend redirects to dashboard.html
-```
+### 6. River Corridors & Routes (`/api/routes`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/routes` | Public | List all active navigable river corridors and tariffs |
+| `POST` | `/api/routes` | Admin | Register a new river route with price-per-kg |
 
-### 3. Booking Creation (Capacity Check)
-```
-Booking Form (dashboard.html)
-  ↓
-POST /api/bookings {tripId, cargoWeight}
-Header: Authorization: Bearer <jwt_token>
-  ↓
-BookingController validates JWT
-  ↓
-BookingService.createBooking()
-  - Lock trip with PESSIMISTIC_WRITE lock
-  - Query existing bookings: SELECT SUM(cargoWeight) FROM bookings
-    WHERE trip_id = ? AND status IN ('PENDING', 'CONFIRMED')
-  - Calculate: reserved = sum of existing bookings
-  - Check: reserved + newWeight ≤ boat.capacity
-  ↓
-  If valid:
-    - Save Booking with status=PENDING
-    - Unlock trip
-    - Return success
-  Else:
-    - Throw BookingException
-    - Return 400 Bad Request
-  ↓
-Frontend displays success/error message
-```
+### 7. Real-Time Notifications (`/api/notifications`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/notifications` | Authenticated | Fetch notifications for logged-in user |
+| `GET` | `/api/notifications/unread-count` | Authenticated | Fetch count of unread notifications |
+| `PUT` | `/api/notifications/{id}/read` | Authenticated | Mark notification as read |
 
-### 4. Admin Dashboard
-```
-Admin user visits /pages/admin.html
-  ↓
-dashboard.js sends: GET /api/admin/dashboard
-Header: Authorization: Bearer <admin_token>
-  ↓
-Spring Security checks:
-  - Token valid?
-  - User has ROLE_ADMIN?
-  ↓
-AdminService.getDashboardStats()
-  - Count total users
-  - Count total boats
-  - Count total bookings
-  - Sum total cargo weight
-  ↓
-Response: {totalUsers, totalBoats, totalBookings, totalCargoWeight}
-  ↓
-Frontend renders analytics charts
-```
+### 8. Payments & Webhooks (`/api/payments`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/api/payments/initiate` | Farmer / Trader | Generate payment transaction reference |
+| `POST` | `/api/payments/webhook` | Public | Process payment gateway settlement notification |
+
+### 9. File Uploads (`/api/files`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/api/files/upload` | Authenticated | Upload user avatar or shipping document |
+| `GET` | `/api/files/{fileName}` | Public | Download stored file asset |
+
+### 10. Administrative Management (`/api/admin`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/admin/dashboard` | Admin | Fetch system analytics (Users, Boats, Bookings, Cargo Weight) |
+| `GET` | `/api/admin/users` | Admin | List all registered accounts with status & roles |
+| `DELETE`| `/api/admin/users/{id}` | Admin | Delete a user account |
+| `GET` | `/api/admin/recurring-trips`| Admin | List automated weekly recurring schedules |
+| `POST` | `/api/admin/recurring-trips`| Admin | Create automated recurring voyage schedule |
 
 ---
 
-## 🗄 Database Schema
+## ⚡ Real-Time WebSocket System
 
-### Key Tables
+NoboGhat incorporates a reactive STOMP messaging broker over SockJS at endpoint `/ws`.
 
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| users | User accounts | userId (PK), name, phone (UNIQUE), email, passwordHash, role |
-| boats | Vessels | boatId (PK), name, capacity (kg), owner_id (FK) |
-| routes | Geographic paths | routeId (PK), source, destination |
-| trips | Scheduled journeys | tripId (PK), route_id (FK), boat_id (FK), departure_time |
-| bookings | Cargo reservations | bookingId (PK), user_id (FK), trip_id (FK), cargoWeight, status |
-| payments | Transactions | paymentId (PK), booking_id (FK), amount |
-
-### Relationships
-```
-User (1) ──owns──→ (many) Boat
-Boat (1) ──scheduled──→ (many) Trip
-Route (1) ──uses──→ (many) Trip
-Trip (1) ──has──→ (many) Booking
-User (1) ──creates──→ (many) Booking
-Booking (1) ──associated──→ (one) Payment
-```
-
-### Booking Capacity Logic
-```
-Scenario: Boat capacity = 5000 kg
-
-Booking 1: 1500 kg → Reserved: 1500 kg ✅
-Booking 2: 2000 kg → Reserved: 3500 kg ✅
-Booking 3: 1500 kg → Reserved: 5000 kg ✅ (at limit)
-Booking 4: 100 kg → Reserved would be: 5100 kg ❌ REJECTED
-
-Check: SELECT SUM(cargoWeight) FROM bookings 
-       WHERE trip_id = ? AND status IN ('PENDING', 'CONFIRMED')
-Result + newWeight > capacity → REJECT
-```
+- **Client Subscription:** `/topic/notifications/{userId}`
+- **Trigger Events:**
+  - Booking confirmed or status updated by vessel owner.
+  - New cargo reservation placed on a boat owner's scheduled voyage.
+  - Automated weekly trip instance generated.
+- **Frontend Behavior:** `websocket.js` intercepts messages and dynamically renders non-intrusive floating toast alerts and updates unread notification counters.
 
 ---
 
-## 🔐 Security
+## 🔐 Security & Authentication
 
-### Authentication Methods
-
-**1. Local Authentication**
-- Username: Phone number
-- Password: BCrypt-hashed (10 rounds)
-- Storage: MySQL users table
-- Validation: Spring Security AuthenticationManager
-
-**2. JWT (JSON Web Tokens)**
-- Generation: POST /api/auth/login
-- Content: {phone, issued_at, expiration}
-- Signature: HS256 with secret key
-- Expiration: 10 hours (configurable)
-- Storage: Browser localStorage
-- Transmission: Authorization: Bearer <token>
-
-**3. OAuth2 (Google Login) - Optional**
-- Setup: Google Cloud Console OAuth credentials
-- Process: Redirect → Google → Authorization Code → JWT
-- User Creation: Auto-created by email if not exists
-- Default Role: FARMER
-
-### Password Security
-```java
-// NEVER store plain text
-passwordHash = new BCryptPasswordEncoder().encode(rawPassword);
-
-// Validation
-encoder.matches(inputPassword, storedHash) // returns true/false
-```
-
-### JWT Security
-```
-Secret Key: Minimum 32 characters
-Algorithm: HS256 (HMAC with SHA-256)
-Expiration: Tokens expire and require re-login
-Transmission: Only over HTTPS in production
-Storage: localStorage (vulnerable to XSS, but no alternative for SPA)
-```
-
-### Role-Based Authorization
-```
-Public:     Anyone can browse trips/routes
-Authenticated: Need valid JWT for bookings/profile
-Admin:      Need JWT + ADMIN role for analytics
-```
+### Multi-Layer Security Architecture
+1. **Password Protection:** Passwords are never stored in plaintext; hashed using `BCryptPasswordEncoder` (10 rounds).
+2. **Stateless JWT Tokens:** 
+   - **Access Token:** Compact HMAC-SHA256 token containing user identifier and role authorities (valid for 24h configurable).
+   - **Refresh Token:** Stored in a secure, `HttpOnly`, `SameSite=Strict` cookie (valid for 7 days) to enable silent background token rotation.
+3. **Pessimistic Concurrency Locking:**
+   ```java
+   @Lock(LockModeType.PESSIMISTIC_WRITE)
+   @Query("SELECT t FROM Trip t WHERE t.tripId = :tripId")
+   Optional<Trip> findByIdWithLock(@Param("tripId") Long tripId);
+   ```
+   Prevents race conditions where two simultaneous bookings could exceed maximum vessel payload.
+4. **CORS Hardening:** Configurable origins whitelist with automatic development and production Vercel preview matching.
+5. **IDOR & Role Isolation:** Non-admin endpoints enforce that users can only view, update, or cancel their own bookings, vessels, and profile data.
 
 ---
 
-## 🎓 For Lecturers: Project Description
+## 🚀 Getting Started & Local Development
 
-### What This Project Teaches
+### Prerequisites
+- **Java Development Kit (JDK):** Version 21 LTS or newer
+- **Maven:** 3.8+ (or use the included `./mvnw` wrapper)
+- **Database:** MySQL 8.0+ *(Optional: The application automatically falls back to an in-memory H2 database for zero-config instant local development if MySQL is not running)*.
 
-| Concept | Implementation |
-|---------|-----------------|
-| **Three-Tier Architecture** | Presentation (HTML/JS) → Logic (Spring) → Data (MySQL) |
-| **REST API Design** | HTTP methods, status codes, JSON payloads |
-| **Database Design** | Normalization, foreign keys, relationships |
-| **Security** | Password hashing (BCrypt), JWT tokens, role-based access |
-| **Frontend-Backend** | CORS, Fetch API, async/await, localStorage |
-| **ORM & JPA** | Entity mapping, repositories, JPQL queries |
-| **Dependency Injection** | Spring constructor injection, service layer |
-| **Transaction Management** | Pessimistic locking, JDBC transactions |
-| **DevOps** | Environment configuration, cloud deployment |
-
-### How to Present (5-10 minutes)
-
-1. **Problem** (1 min): Manual river transport coordination inefficient
-2. **Solution** (1 min): Digital platform connecting all stakeholders
-3. **Architecture** (2 min): Show three-layer diagram, explain flow
-4. **Demo** (3 min): Register → Login → Browse trips → Create booking
-5. **Tech Stack** (2 min): Spring Boot backend, vanilla JS frontend, MySQL
-6. **Key Features** (1 min): JWT auth, capacity checking, admin dashboard
-7. **Deployment** (1 min): Render backend & frontend
-
-### Interview Answer
-
-> "NoboGhat is a full-stack web application that connects cargo providers with boat owners for river transport in Bangladesh. The backend is built with Spring Boot 4.1 and Java 25, implementing a REST API with JWT authentication and role-based authorization. I used JPA/Hibernate for ORM, with a MySQL database using normalized schema. The frontend is vanilla JavaScript with HTML5/CSS3, making async API calls via Fetch. Key implementation includes BCrypt password hashing, pessimistic locking for capacity validation, and Google OAuth2 integration. I deployed it on Render for both the backend and frontend. The project demonstrates three-tier architecture, RESTful design, security best practices, and full-stack development."
-
----
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**Port 8080 already in use**
+### Step 1: Clone Repository
 ```bash
-# Windows: Find & kill process
-netstat -ano | findstr :8080
-taskkill /PID <PID> /F
-
-# Or change port in .env: SERVER_PORT=8081
+git clone https://github.com/EHMahi9/NoboGhat-Bangladesh.git
+cd NoboGhat
 ```
 
-**MySQL Connection Failed**
+### Step 2: Configure Environment
+Navigate to `backend/` and copy the example environment configuration:
+```bash
+cd backend
+cp .env.example .env
 ```
-✓ MySQL server running (Services → MySQL80)
-✓ .env credentials match (DB_USERNAME, DB_PASSWORD)
-✓ Database created (auto-created if not exists)
-✓ Connection string correct in application.properties
-```
-
-**JWT Signature Mismatch**
-```
-Cause: JWT_SECRET changed between restarts
-Fix: Use same JWT_SECRET value in .env
-Note: In production, handle token rotation properly
-```
-
-### Frontend Issues
-
-**CORS Error: "Access to XMLHttpRequest blocked"**
-```
-Check:
-1. Backend running on http://localhost:8080
-2. Frontend on http://localhost:5500
-3. CORS_ALLOWED_ORIGINS includes http://localhost:5500
-4. Backend restarted after changing config
+*(Optional)* Edit `backend/.env` to point to your local MySQL instance:
+```properties
+DB_URL=jdbc:mysql://localhost:3306/noboghat?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+DB_USERNAME=root
+DB_PASSWORD=yourpassword
+JWT_SECRET=YourSuperSecretKeyWithAtLeast32CharactersLong!
 ```
 
-**"Cannot find token" - Stuck on login page**
-```
-Debug:
-1. DevTools → Application → localStorage → "jwtToken"
-2. Check login response contains "token" field
-3. Verify session.js storing token correctly
-```
+### Step 3: Run the Backend
+```bash
+# On Linux / macOS
+./mvnw spring-boot:run
 
-**API returns 401 Unauthorized**
+# On Windows PowerShell
+.\mvnw.cmd spring-boot:run
 ```
-Possible causes:
-- JWT expired (default 10 hours) → login again
-- Token not sent in Authorization header
-- User deleted after token issued
-- Token tampered or corrupted
+The backend will initialize, auto-seed default demo accounts, routes, vessels, and start on `http://localhost:8080`.
+
+### Step 4: Run the Frontend
+In a new terminal window:
+```bash
+cd frontend
+
+# Using Python 3 built-in web server
+python -m http.server 5500
+
+# Or using Node.js http-server
+npx http-server -p 5500
 ```
+Open your browser and navigate to: `http://localhost:5500`
+
+### 🔑 Demo Accounts (Pre-Seeded)
+| Role | Phone | Password |
+|---|---|---|
+| **Administrator** | `01700000000` | `admin123` |
+| **Boat Owner** | `01711111111` | `owner123` |
+| **Farmer** | `01722222222` | `farmer123` |
+| **Trader** | `01733333333` | `trader123` |
 
 ---
 
-## 📈 Future Enhancements
+## ☁️ Production Deployment
 
-- **Phase 2**: Payment gateway, real-time notifications, GPS tracking
-- **Mobile**: React Native app for iOS/Android
-- **Advanced**: Microservices, caching (Redis), analytics dashboards
+### Backend Deployment (Render / Docker)
+The project includes a ready-to-deploy [`render.yaml`](./render.yaml) blueprint and optimized [`Dockerfile`](./backend/Dockerfile).
+1. Link your GitHub repository in Render.
+2. Render detects `render.yaml` and provisions the Docker web service.
+3. Configure environment variables in the Render Dashboard (`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `JWT_SECRET`).
 
----
-
-## 📞 Documentation
-
-- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - Technical design details
-- [GOOGLE_LOGIN_SETUP.md](./docs/GOOGLE_LOGIN_SETUP.md) - OAuth configuration
-- [PRESENTATION_NOTES.md](./docs/PRESENTATION_NOTES.md) - Demo walkthrough
-
----
-
-## ✅ Quick Verification Checklist
-
-- [ ] Java 25 installed
-- [ ] MySQL running locally
-- [ ] Backend `.env` configured
-- [ ] Backend starts on port 8080
-- [ ] Frontend accessible on port 5500
-- [ ] Can register and login
-- [ ] Can browse trips
-- [ ] Can create booking
-- [ ] Admin dashboard works
+### Frontend Deployment (Vercel)
+1. Import the repository into Vercel and set the Root Directory to `frontend`.
+2. Ensure `frontend/assets/js/config.js` points to your active Render API URL:
+   ```javascript
+   window.NoboGhatConfig = {
+       apiBaseUrl: "https://noboghat-bangladesh.onrender.com"
+   };
+   ```
 
 ---
 
-**Project Status**: ✅ Complete & Production-Ready  
-**Version**: 1.0.0  
-**Last Updated**: July 2024  
-**Semester**: Desktop & Web Programming Lab (SE 236)
+## 🐛 Troubleshooting & FAQs
+
+- **Q: Why does the backend start even if MySQL is not installed?**  
+  **A:** `DatabaseSchemaMigrator` and H2 runtime dependencies detect when MySQL is unreachable locally and boot an in-memory SQL database automatically so developers can test immediately without database setup.
+- **Q: I received a 401 Unauthorized error in API calls.**  
+  **A:** JWT tokens expire after 24 hours. The frontend automatically attempts refresh token renewal. If the session has completely lapsed, simply re-authenticate via the login page.
+- **Q: How does the system prevent double booking?**  
+  **A:** `BookingService` executes a `PESSIMISTIC_WRITE` lock on the `Trip` row and computes `SUM(cargoWeight) WHERE status IN ('PENDING', 'CONFIRMED') + requestedWeight <= boat.capacity` inside a single atomic database transaction.
+
+---
+
+## 👥 Authors & Academic Context
+
+- **Developer:** [EHMahi9](https://github.com/EHMahi9)
+- **Course:** Desktop & Web Programming Lab (`SE 236`)
+- **Institution:** Department of Software Engineering
+- **Semester:** 6th Semester
+
+---
+
+**Project Status:** Active & Production Ready  
+**License:** MIT License  
+**Copyright:** © 2026 NoboGhat Logistics Bangladesh
