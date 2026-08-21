@@ -93,7 +93,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function canCreateBooking() {
         var token = localStorage.getItem("noboghatToken");
-        var role = (localStorage.getItem("noboghatRole") || "").toUpperCase();
+        var rawRole = localStorage.getItem("noboghatRole") || "";
+        var role = rawRole.toUpperCase().replace(/^ROLE_/, "");
 
         if (!token) {
             window.location.href = "login.html?message=" + encodeURIComponent("Please sign in to book cargo.");
@@ -106,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         if (role !== "FARMER" && role !== "TRADER") {
-            setBookingMessage("Only Farmer and Trader accounts can create cargo bookings.", "error");
+            setBookingMessage("Only Farmer and Trader accounts can create cargo bookings. (Current role: " + (role || "None") + ". You can switch roles in your Dashboard).", "error");
             return false;
         }
 
@@ -300,10 +301,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     throw new Error(payload.message || "Booking could not be created.");
                 }
 
-                setBookingMessage("Booking created successfully.", "success");
+                setBookingMessage("Booking created successfully! Redirecting to Dashboard...", "success");
                 await loadTrips(currentSearchSource, currentSearchDestination, currentSearchDate);
                 bookingForm.reset();
                 selectedTrip = null;
+                setTimeout(function () {
+                    window.location.href = "dashboard.html";
+                }, 1500);
             } catch (error) {
                 setBookingMessage(error.message, "error");
             } finally {

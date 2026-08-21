@@ -35,7 +35,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('ROLE_FARMER', 'ROLE_TRADER')")
-    public Booking createNewBooking(@Valid @RequestBody BookingDto bookingDto, Authentication authentication) {
+    public BookingSummaryDto createNewBooking(@Valid @RequestBody BookingDto bookingDto, Authentication authentication) {
         return bookingService.createBooking(bookingDto, authentication.getName());
     }
 

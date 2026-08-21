@@ -35,7 +35,7 @@ public class BookingService {
 
     @Transactional
     @CacheEvict(value = "trips", allEntries = true)
-    public Booking createBooking(BookingDto bookingDto, String requester) {
+    public BookingSummaryDto createBooking(BookingDto bookingDto, String requester) {
         User user = userService.getUserByIdentifier(requester);
         Trip trip = tripRepository.findByIdForBooking(bookingDto.getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found."));
@@ -49,7 +49,7 @@ public class BookingService {
 
         Booking booking = new Booking();
         booking.setCargoWeight(requestedWeight);
-        booking.setCargoType(bookingDto.getCargoType() != null ? bookingDto.getCargoType().trim() : "General");
+        booking.setCargoType(bookingDto.getCargoType() != null && !bookingDto.getCargoType().isBlank() ? bookingDto.getCargoType().trim() : "General");
         booking.setStatus("PENDING");
         booking.setUser(user);
         booking.setTrip(trip);
@@ -59,7 +59,7 @@ public class BookingService {
         }
         Booking saved = bookingRepository.save(booking);
         notificationService.createForUser(requester, "Your booking for trip #" + trip.getTripId() + " has been created.");
-        return saved;
+        return toSummaryDto(saved);
     }
 
     public Booking getBookingById(Long id, String requester, boolean isAdmin) {
@@ -80,7 +80,7 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookingsForAdmin() {
-        return bookingRepository.findAll().stream().map(this::toSummaryDto).toList();
+        return bookingRepository.findAllWithDetails().stream().map(this::toSummaryDto).toList();
     }
 
     @Transactional(readOnly = true)
