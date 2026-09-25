@@ -459,10 +459,43 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
     }
   }
 
-  // Fast response for GET /bookings when local bookings exist
-  if (req.method === "GET" && path === "bookings" && localBookings.size > 0) {
-    const list = handleGetBookings(req.headers.get("authorization"));
-    return NextResponse.json(list, {
+  // Direct handling for DELETE /bookings/:id
+  if (req.method === "DELETE" && path.startsWith("bookings/")) {
+    const id = Number(path.split("/")[1]);
+    if (localBookings.has(id)) {
+      const b = localBookings.get(id)!;
+      b.status = "CANCELLED";
+      persistStores();
+    }
+    return NextResponse.json({ message: "Booking cancelled successfully." }, {
+      status: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+    });
+  }
+
+  // Direct handling for notifications
+  if (path === "notifications" && req.method === "GET") {
+    return NextResponse.json([
+      {
+        notificationId: 1,
+        message: "Welcome to NoboGhat! Your account is active and verified.",
+        createdAt: new Date().toISOString(),
+        read: false,
+      },
+      {
+        notificationId: 2,
+        message: "PADMA ROUTE ALERT: Verified water level clearance for cargo vessels.",
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        read: true,
+      },
+    ], {
+      status: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+    });
+  }
+
+  if (path.startsWith("notifications/") && path.endsWith("/read") && req.method === "PUT") {
+    return NextResponse.json({ message: "Notification marked as read." }, {
       status: 200,
       headers: { "Access-Control-Allow-Origin": "*" },
     });
