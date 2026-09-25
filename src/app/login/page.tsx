@@ -14,9 +14,20 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, login, loading } = useAuth();
   const { lang } = useLanguage();
   const router = useRouter();
+
+  // If already authenticated, automatically redirect to appropriate dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
+    }
+  }, [user, loading, router]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -72,6 +83,22 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  if (!loading && user) {
+    return (
+      <div className="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12">
+        <div className="glass w-full max-w-md rounded-2xl p-8 shadow-xl text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-[#0e5e94] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#123b59]">
+            {lang === "bn" ? "আপনি ইতিমধ্যে লগইন অবস্থায় আছেন" : "You are already logged in"}
+          </h2>
+          <p className="mt-2 text-sm text-[#667f91]">
+            {lang === "bn" ? "ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে..." : "Redirecting to your dashboard..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12">

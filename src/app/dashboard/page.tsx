@@ -1305,17 +1305,13 @@ export default function DashboardPage() {
           DIGITAL WAYBILL MODAL
          ======================================================== */}
       {selectedWaybill && (
-        <div className="modal-overlay" style={{ display: "flex" }}>
-          <div
-            className="modal-box"
-            style={{
-              maxWidth: "680px",
-              textAlign: "left",
-              padding: "2rem",
-              maxHeight: "90vh",
-              overflowY: "auto",
-            }}
-          >
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedWaybill(null);
+          }}
+        >
+          <div className="modal-box">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #0e5e94", paddingBottom: "1rem", marginBottom: "1.5rem" }}>
               <div>
                 <span style={{ fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#147860" }}>
@@ -1409,8 +1405,13 @@ export default function DashboardPage() {
           PAYMENT MODAL (bKash / Nagad Interactive Escrow)
          ======================================================== */}
       {paymentBooking && (
-        <div className="modal-overlay" style={{ display: "flex" }}>
-          <div className="modal-box" style={{ maxWidth: "460px", padding: "2rem" }}>
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPaymentBooking(null);
+          }}
+        >
+          <div className="modal-box" style={{ maxWidth: "460px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <CreditCard className="h-6 w-6 text-[#0e5e94]" />

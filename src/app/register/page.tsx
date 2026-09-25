@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -15,8 +16,20 @@ export default function RegisterPage() {
   const [role, setRole] = useState("farmer");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { user, loading } = useAuth();
   const { lang } = useLanguage();
   const router = useRouter();
+
+  // If already authenticated, automatically redirect to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
+    }
+  }, [user, loading, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +104,22 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
+  if (!loading && user) {
+    return (
+      <div className="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12">
+        <div className="glass w-full max-w-md rounded-2xl p-8 shadow-xl text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-[#0e5e94] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#123b59]">
+            {lang === "bn" ? "আপনি ইতিমধ্যে লগইন অবস্থায় আছেন" : "You are already logged in"}
+          </h2>
+          <p className="mt-2 text-sm text-[#667f91]">
+            {lang === "bn" ? "ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে..." : "Redirecting to your dashboard..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12">

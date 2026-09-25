@@ -482,3 +482,54 @@ body {
   .dash-card { padding: 1.2rem; }
   .history-table { min-width: 500px; }
 }
+
+/* ========================================================
+   MODAL DIALOGS (Digital Waybill & Payment Escrow)
+======================================================== */
+.modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(18, 59, 89, 0.72) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 99999 !important;
+  padding: 1.2rem !important;
+  box-sizing: border-box !important;
+}
+
+.modal-box {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 2.2rem !important;
+  width: 95% !important;
+  max-width: 680px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  text-align: left !important;
+  box-shadow: 0 25px 70px rgba(10, 37, 64, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  position: relative !important;
+  z-index: 100000 !important;
+  margin: auto !important;
+  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes modalScaleUp {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
