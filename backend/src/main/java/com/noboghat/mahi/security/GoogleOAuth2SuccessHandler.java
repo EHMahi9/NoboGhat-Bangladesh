@@ -44,7 +44,7 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         User user = userService.registerGoogleUser(email, name);
         UserDetails details = userService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(details);
-        String location = frontendUrl + "/pages/dashboard.html?token="
+        String location = frontendUrl + "/dashboard?token="
                 + URLEncoder.encode(token, StandardCharsets.UTF_8)
                 + "&role=" + URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8);
         getRedirectStrategy().sendRedirect(request, response, location);

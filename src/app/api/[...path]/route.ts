@@ -439,8 +439,13 @@ function handlePaymentWebhook(body: any) {
 
 async function proxyRequest(req: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const resolvedParams = await context.params;
-  const path = resolvedParams.path.join("/");
+  const path = resolvedParams.path ? (Array.isArray(resolvedParams.path) ? resolvedParams.path.join("/") : String(resolvedParams.path)) : "";
   const backendUrl = `${BASE_REMOTE_BACKEND}/api/${path}${req.nextUrl.search}`;
+
+  // 0. Direct handling for Google OAuth initiation: GET /api/auth/google
+  if (path === "auth/google" || path === "oauth2/authorization/google" || req.nextUrl.pathname === "/api/auth/google") {
+    return NextResponse.redirect(`${BASE_REMOTE_BACKEND}/oauth2/authorization/google`);
+  }
 
   // If local booking exists for a local ID, return directly for fast response
   if (req.method === "GET" && path.startsWith("bookings/")) {
@@ -972,6 +977,24 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
         token,
         email: identifier,
         role
+      }, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
+    }
+
+    if ((path === "users/update-role" || path === "users/role") && req.method === "PUT") {
+      const authHeader = req.headers.get("authorization");
+      const sub = getUserIdentifierFromToken(authHeader);
+      const newRole = (parsedBody.role || "TRADER").toUpperCase();
+      const prof = localUserProfiles.get(sub);
+      if (prof) {
+        prof.role = newRole;
+      }
+      const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+      const payload = Buffer.from(JSON.stringify({ sub, id: 1, roles: [newRole], role: newRole })).toString("base64url");
+      const token = `${header}.${payload}.signature`;
+      return NextResponse.json({
+        message: "Role updated successfully.",
+        token,
+        role: newRole
       }, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
     }
 

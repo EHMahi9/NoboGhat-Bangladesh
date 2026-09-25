@@ -1165,6 +1165,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Onboarding Role Selection Modal for Google Login / PENDING Users */}
+      {user?.role === "PENDING" && <RoleSelectionModal />}
     </div>
   );
 }

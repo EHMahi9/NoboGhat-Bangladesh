@@ -53,7 +53,7 @@
     "phone": "01911111111",
     "email": "lalisa@gmail.com",
     "role": "TRADER",
-    "profilePictureUrl": ""
+    "profilePictureUrl": "/uploads/avatar-1790347498557-lebtfw.png"
   },
   "01911111111": {
     "userId": 1,
@@ -61,6 +61,6 @@
     "phone": "01911111111",
     "email": "lalisa@gmail.com",
     "role": "TRADER",
-    "profilePictureUrl": ""
+    "profilePictureUrl": "/uploads/avatar-1790347498557-lebtfw.png"
   }
 }

@@ -1,4 +1,4 @@
-# 🚢 NoboGhat (নৌঘাট বাংলাদেশ) - Modern Inland Waterway Transport Platform
+# 🚢 NoboGhat (নবঘাট বাংলাদেশ) - Modern Inland Waterway Transport Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1-blue?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
@@ -9,7 +9,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-> **NoboGhat** (নৌঘাট বাংলাদেশ - *"The Modern Digital River Port"*) is a comprehensive, full-stack river logistics and inland waterway cargo reservation ecosystem designed to digitize, empower, and streamline river freight transport across Bangladesh. Connecting farmers, commodity traders, vessel owners, and port authorities, NoboGhat provides transparent scheduling, capacity-aware reservations, escrow payment protection, and multi-user governance across the nation's vital river arteries.
+> **NoboGhat** (নবঘাট বাংলাদেশ - *"The Modern Digital River Port"*) is a comprehensive, full-stack river logistics and inland waterway cargo reservation ecosystem designed to digitize, empower, and streamline river freight transport across Bangladesh. Connecting farmers, commodity traders, vessel owners, and port authorities, NoboGhat provides transparent scheduling, capacity-aware reservations, escrow payment protection, and multi-user governance across the nation's vital river arteries.
 
 ---
 
@@ -293,8 +293,10 @@ All client requests route through the Next.js API Gateway (`/api/*`), which prox
 |---|---|---|---|
 | `/api/auth/register` | `POST` | No | Register new user (Farmer, Trader, Boat Owner) |
 | `/api/auth/login` | `POST` | No | Authenticate user and issue JWT bearer token |
+| `/api/auth/google` | `GET` | No | Initiate Google OAuth2 Single Sign-On flow |
 | `/api/users/profile` | `GET` | Yes | Retrieve authenticated user profile & role |
 | `/api/users/profile` | `PUT` | Yes | Update profile name, phone, email, or avatar |
+| `/api/users/update-role` | `PUT` | Yes | Onboarding role assignment for Google users |
 | `/api/files/upload` | `POST` | Yes | Upload avatar image (multipart form data) |
 | `/api/files/:fileName` | `GET` | No | Stream avatar image directly |
 | `/api/routes` | `GET` | No | Fetch list of active river corridors & tariffs |
@@ -357,4 +359,3 @@ The Spring Boot service builds via the root [`render.yaml`](render.yaml) bluepri
 - **Lead Developer:** [EHMahi9](https://github.com/EHMahi9)
 - **Institution:** Daffodil International University (DIU)
 - **Department:** Software Engineering
-- **Course:** Desktop and Web Programming Lab (SE 236)

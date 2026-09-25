@@ -2,25 +2,33 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Get token from cookies
-  const token = request.cookies.get('token')?.value;
+  const { pathname, search } = request.nextUrl;
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
-                     request.nextUrl.pathname.startsWith('/register');
-                     
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                           request.nextUrl.pathname.startsWith('/admin');
+  // 1. Handle legacy HTML path redirects from Spring Boot OAuth2
+  if (pathname === '/pages/dashboard.html' || pathname === '/dashboard.html') {
+    return NextResponse.redirect(new URL(`/dashboard${search}`, request.url));
+  }
+  if (pathname === '/pages/login.html' || pathname === '/login.html') {
+    return NextResponse.redirect(new URL(`/login${search}`, request.url));
+  }
+  if (pathname === '/pages/routes.html' || pathname === '/routes.html') {
+    return NextResponse.redirect(new URL(`/routes${search}`, request.url));
+  }
+
+  // 2. Get token from cookies OR URL search params (e.g. returning from Google OAuth2 redirect)
+  const token = request.cookies.get('token')?.value || request.nextUrl.searchParams.get('token');
+
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+  const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
 
   // If trying to access protected route without token, redirect to login
   if (isProtectedRoute && !token) {
     const loginUrl = new URL('/login', request.url);
-    // Optionally preserve the attempted URL to redirect back after login
-    // loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // If trying to access auth pages WITH a token, redirect to dashboard
-  if (isAuthPage && token) {
+  if (isAuthPage && token && !request.nextUrl.searchParams.has('registered')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -29,5 +37,14 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/login', '/register'],
+  matcher: [
+    '/dashboard/:path*',
+    '/admin/:path*',
+    '/login',
+    '/register',
+    '/pages/:path*',
+    '/dashboard.html',
+    '/login.html',
+    '/routes.html',
+  ],
 };

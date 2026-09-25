@@ -62,10 +62,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Check token on mount
-    const token = Cookies.get('token');
-    const savedRole = Cookies.get('role');
-    
+    // 1. Check URL search parameters for OAuth2 token (e.g. Google OAuth redirect)
+    let token = Cookies.get('token');
+    let savedRole = Cookies.get('role');
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlToken = params.get('token');
+      const urlRole = params.get('role');
+      if (urlToken) {
+        token = urlToken;
+        savedRole = urlRole || savedRole || 'PENDING';
+        Cookies.set('token', token, { expires: 7 });
+        if (savedRole) Cookies.set('role', savedRole, { expires: 7 });
+        try {
+          localStorage.setItem('noboghatToken', token);
+          localStorage.setItem('noboghatRole', savedRole);
+        } catch (e) {}
+        // Remove token from address bar to protect against history leakage
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    }
+
     if (token) {
       try {
         const decoded = jwtDecode<any>(token);
@@ -91,6 +110,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (role) {
       Cookies.set('role', role, { expires: 7 });
     }
+    try {
+      localStorage.setItem('noboghatToken', token);
+      if (role) localStorage.setItem('noboghatRole', role);
+    } catch (e) {}
     
     try {
       const decoded = jwtDecode<any>(token);
@@ -110,6 +133,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     Cookies.remove('token');
     Cookies.remove('role');
+    try {
+      localStorage.removeItem('noboghatToken');
+      localStorage.removeItem('noboghatRole');
+    } catch (e) {}
     setUser(null);
     window.location.href = '/login';
   };
