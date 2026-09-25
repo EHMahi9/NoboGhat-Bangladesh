@@ -11,6 +11,7 @@ interface LocalUserProfile {
   profilePictureUrl: string;
 }
 const localUserProfiles: Map<string, LocalUserProfile> = new Map();
+const uploadedFilesCache: Map<string, { buffer: Buffer; contentType: string }> = new Map();
 
 function getTokenPayload(authHeader: string | null): any {
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
@@ -512,23 +513,42 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
 
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-
-      const uploadDir = pathModule.join(process.cwd(), "public", "uploads");
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
+      const mimeType = file.type || "image/png";
 
       const extension = pathModule.extname(file.name) || ".png";
       const uniqueName = `avatar-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${extension}`;
-      const filePath = pathModule.join(uploadDir, uniqueName);
-      fs.writeFileSync(filePath, buffer);
 
-      const fileDownloadUri = `/uploads/${uniqueName}`;
+      // 1. Always store in in-memory cache for ultra-fast, zero-IO retrieval
+      uploadedFilesCache.set(uniqueName, { buffer, contentType: mimeType });
+
+      // 2. Attempt write to public/uploads (local development environment)
+      try {
+        const uploadDir = pathModule.join(process.cwd(), "public", "uploads");
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        fs.writeFileSync(pathModule.join(uploadDir, uniqueName), buffer);
+      } catch (e) {
+        // Read-only filesystem in serverless environments like Vercel Lambda
+      }
+
+      // 3. Attempt write to /tmp/uploads (standard writable scratch space in serverless/AWS Lambda)
+      try {
+        const tmpDir = pathModule.join("/tmp", "uploads");
+        if (!fs.existsSync(tmpDir)) {
+          fs.mkdirSync(tmpDir, { recursive: true });
+        }
+        fs.writeFileSync(pathModule.join(tmpDir, uniqueName), buffer);
+      } catch (e) {
+        // Safe to ignore if /tmp is not accessible
+      }
+
+      const fileDownloadUri = `/api/files/${uniqueName}`;
 
       return NextResponse.json({
         fileName: uniqueName,
         fileDownloadUri,
-        fileType: file.type || "image/png",
+        fileType: mimeType,
         size: String(buffer.length)
       }, {
         status: 200,
@@ -540,23 +560,82 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
     }
   }
 
-  // 2. Direct streaming for uploaded avatars when requested via /api/files/...
-  if (path.startsWith("files/") && req.method === "GET") {
-    const fileName = path.replace("files/", "");
-    const uploadDir = pathModule.join(process.cwd(), "public", "uploads");
-    const filePath = pathModule.join(uploadDir, fileName);
-    if (fs.existsSync(filePath)) {
-      const fileBuffer = fs.readFileSync(filePath);
-      const ext = pathModule.extname(fileName).toLowerCase();
-      const contentType = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "application/octet-stream";
-      return new NextResponse(fileBuffer, {
+  // 2. Direct streaming for uploaded avatars when requested via /api/files/... or /api/uploads/...
+  if ((path.startsWith("files/") || path.startsWith("uploads/")) && req.method === "GET") {
+    const fileName = path.replace(/^(files|uploads)\//, "");
+
+    // 1. Check in-memory cache
+    const cached = uploadedFilesCache.get(fileName);
+    if (cached) {
+      return new NextResponse(new Uint8Array(cached.buffer), {
         status: 200,
         headers: {
-          "Content-Type": contentType,
+          "Content-Type": cached.contentType,
+          "Cache-Control": "public, max-age=31536000, immutable",
           "Access-Control-Allow-Origin": "*",
         }
       });
     }
+
+    // 2. Check public/uploads
+    try {
+      const uploadDir = pathModule.join(process.cwd(), "public", "uploads");
+      const filePath = pathModule.join(uploadDir, fileName);
+      if (fs.existsSync(filePath)) {
+        const fileBuffer = fs.readFileSync(filePath);
+        const ext = pathModule.extname(fileName).toLowerCase();
+        const contentType = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "application/octet-stream";
+        uploadedFilesCache.set(fileName, { buffer: fileBuffer, contentType });
+        return new NextResponse(new Uint8Array(fileBuffer), {
+          status: 200,
+          headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "Access-Control-Allow-Origin": "*",
+          }
+        });
+      }
+    } catch (e) {}
+
+    // 3. Check /tmp/uploads
+    try {
+      const tmpPath = pathModule.join("/tmp", "uploads", fileName);
+      if (fs.existsSync(tmpPath)) {
+        const fileBuffer = fs.readFileSync(tmpPath);
+        const ext = pathModule.extname(fileName).toLowerCase();
+        const contentType = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "application/octet-stream";
+        uploadedFilesCache.set(fileName, { buffer: fileBuffer, contentType });
+        return new NextResponse(new Uint8Array(fileBuffer), {
+          status: 200,
+          headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "Access-Control-Allow-Origin": "*",
+          }
+        });
+      }
+    } catch (e) {}
+
+    // 4. Remote backend fallback
+    try {
+      const remoteRes = await fetch(`${BASE_REMOTE_BACKEND}/api/files/${fileName}`);
+      if (remoteRes.ok) {
+        const blob = await remoteRes.arrayBuffer();
+        const buf = Buffer.from(blob);
+        const contentType = remoteRes.headers.get("content-type") || "image/png";
+        uploadedFilesCache.set(fileName, { buffer: buf, contentType });
+        return new NextResponse(new Uint8Array(buf), {
+          status: 200,
+          headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "Access-Control-Allow-Origin": "*",
+          }
+        });
+      }
+    } catch (e) {}
+
+    return NextResponse.json({ message: "File not found" }, { status: 404 });
   }
 
   // Extract headers but omit 'host' and 'origin' to bypass strict backend CORS validation
@@ -620,10 +699,17 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
     const authHeader = req.headers.get("authorization");
     const prof = handleUpdateUserProfile(authHeader, parsedBody);
 
+    const payloadForBackend = {
+      ...parsedBody,
+      name: parsedBody.name && String(parsedBody.name).trim().length >= 2 ? String(parsedBody.name).trim() : (prof.name || "User"),
+      phone: parsedBody.phone !== undefined ? parsedBody.phone : (prof.phone || undefined),
+      profilePictureUrl: parsedBody.profilePictureUrl !== undefined ? parsedBody.profilePictureUrl : (prof.profilePictureUrl || undefined),
+    };
+
     fetch(`${BASE_REMOTE_BACKEND}/api/users/profile`, {
       method: "PUT",
       headers: headers,
-      body: JSON.stringify(parsedBody),
+      body: JSON.stringify(payloadForBackend),
     }).catch(() => {});
 
     return NextResponse.json({

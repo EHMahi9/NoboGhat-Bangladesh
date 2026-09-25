@@ -87,6 +87,7 @@ export default function DashboardPage() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isUploadingPic, setIsUploadingPic] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Waybill Modal State
@@ -294,6 +295,14 @@ export default function DashboardPage() {
     user?.profilePictureUrl ||
     null;
 
+  const userInitials = (userDisplayName || "NB")
+    .split(" ")
+    .filter(Boolean)
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "NB";
+
   // Mark notification read
   const handleMarkNotificationRead = async (id: number) => {
     setNotifications((prev) =>
@@ -326,8 +335,23 @@ export default function DashboardPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMessage({
+        text: lang === "bn" ? "ফাইলের সাইজ সর্বোচ্চ ৫ মেগাবাইট হতে পারবে।" : "File size cannot exceed 5MB.",
+        type: "error",
+      });
+      return;
+    }
+
     setIsUploadingPic(true);
     setProfileMessage(null);
+    setAvatarError(false);
+
+    // Instant local preview
+    try {
+      const localPreview = URL.createObjectURL(file);
+      setProfilePicPreview(localPreview);
+    } catch (e) {}
 
     const formData = new FormData();
     formData.append("file", file);
@@ -340,17 +364,47 @@ export default function DashboardPage() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("File upload failed.");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || (lang === "bn" ? "ছবি আপলোড করতে সমস্যা হয়েছে।" : "File upload failed."));
+      }
+
       const data = await res.json();
       const newPicUrl = data.fileDownloadUri;
       setProfilePicPreview(newPicUrl);
+      setAvatarError(false);
 
-      // Persist in profile
+      // Persist in profile with name to satisfy backend validation
+      const currentName = profileName.trim() || user?.name?.trim() || "User";
+      const currentPhone = profilePhone.trim() || user?.phone?.trim() || undefined;
+
       await fetchApi("/users/profile", {
         method: "PUT",
-        body: JSON.stringify({ profilePictureUrl: newPicUrl }),
+        body: JSON.stringify({
+          name: currentName,
+          phone: currentPhone,
+          profilePictureUrl: newPicUrl,
+        }),
       });
-      updateUserProfile({ profilePictureUrl: newPicUrl });
+
+      updateUserProfile({
+        name: currentName,
+        phone: currentPhone,
+        profilePictureUrl: newPicUrl,
+      });
+
+      try {
+        if (user?.sub) {
+          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
+          const parsed = cached ? JSON.parse(cached) : {};
+          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
+            ...parsed,
+            name: currentName,
+            phone: currentPhone,
+            profilePictureUrl: newPicUrl,
+          }));
+        }
+      } catch (e) {}
 
       setProfileMessage({
         text: lang === "bn" ? "প্রোফাইল ছবি সফলভাবে পরিবর্তিত হয়েছে!" : "Profile photo updated successfully!",
@@ -529,18 +583,18 @@ export default function DashboardPage() {
         <aside className="dashboard-sidebar">
           {/* User Profile Summary */}
           <div className="user-profile-summary">
-            <div className="avatar">
-              {displayAvatar ? (
+            <div className="avatar" style={{ position: "relative" }}>
+              {displayAvatar && !avatarError ? (
                 <img
                   src={displayAvatar}
-                  alt="Avatar"
+                  alt={userDisplayName}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
+                  onError={() => setAvatarError(true)}
                 />
               ) : (
-                <i className="fa-solid fa-user"></i>
+                <span style={{ fontSize: "1.75rem", fontWeight: 700, color: "#fff", letterSpacing: "1px" }}>
+                  {userInitials}
+                </span>
               )}
             </div>
             <h3>{userDisplayName}</h3>
@@ -1111,14 +1165,17 @@ export default function DashboardPage() {
                         fontSize: "2.5rem",
                       }}
                     >
-                      {displayAvatar ? (
+                      {displayAvatar && !avatarError ? (
                         <img
                           src={displayAvatar}
                           alt="Profile Picture"
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={() => setAvatarError(true)}
                         />
                       ) : (
-                        <i className="fa-solid fa-user"></i>
+                        <span style={{ fontSize: "2.2rem", fontWeight: 700, color: "#fff" }}>
+                          {userInitials}
+                        </span>
                       )}
                     </div>
                     <label

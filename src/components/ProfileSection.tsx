@@ -49,6 +49,7 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [photoMessage, setPhotoMessage] = useState<MessageState | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Security / Password State
@@ -125,6 +126,7 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
+    setAvatarError(false);
     setPhotoMessage({
       text: lang === "bn" ? "নতুন ছবি নির্বাচিত হয়েছে। নিশ্চিত করতে নিচের 'ছবি সংরক্ষণ করুন' বাটনে চাপুন।" : "New photo selected. Click 'Save Photo' below to confirm.",
       type: "info",
@@ -137,6 +139,7 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
 
     setIsUploadingPhoto(true);
     setPhotoMessage(null);
+    setAvatarError(false);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -151,20 +154,45 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to upload image");
+        throw new Error(errorData.message || (lang === "bn" ? "ছবি আপলোড করতে সমস্যা হয়েছে।" : "Failed to upload image"));
       }
 
       const data = await res.json();
       const newPhotoUrl = data.fileDownloadUri;
       setProfilePictureUrl(newPhotoUrl);
+      setAvatarError(false);
 
-      // Automatically persist to user profile in backend
+      // Persist to user profile with name and phone to ensure backend DTO passes validation
+      const currentName = name.trim() || user?.name?.trim() || "User";
+      const currentPhone = phone.trim() || user?.phone?.trim() || undefined;
+
       await fetchApi("/users/profile", {
         method: "PUT",
-        body: JSON.stringify({ profilePictureUrl: newPhotoUrl }),
+        body: JSON.stringify({
+          name: currentName,
+          phone: currentPhone,
+          profilePictureUrl: newPhotoUrl,
+        }),
       });
 
-      updateUserProfile({ profilePictureUrl: newPhotoUrl });
+      updateUserProfile({
+        name: currentName,
+        phone: currentPhone,
+        profilePictureUrl: newPhotoUrl,
+      });
+
+      try {
+        if (user?.sub) {
+          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
+          const parsed = cached ? JSON.parse(cached) : {};
+          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
+            ...parsed,
+            name: currentName,
+            phone: currentPhone,
+            profilePictureUrl: newPhotoUrl,
+          }));
+        }
+      } catch (e) {}
 
       setPhotoMessage({
         text: lang === "bn" ? "প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে!" : "Profile photo updated successfully!",
@@ -187,9 +215,16 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
     setPhotoMessage(null);
 
     try {
+      const currentName = name.trim() || user?.name?.trim() || "User";
+      const currentPhone = phone.trim() || user?.phone?.trim() || undefined;
+
       await fetchApi("/users/profile", {
         method: "PUT",
-        body: JSON.stringify({ profilePictureUrl: "" }),
+        body: JSON.stringify({
+          name: currentName,
+          phone: currentPhone,
+          profilePictureUrl: "",
+        }),
       });
 
       setProfilePictureUrl("");
@@ -197,7 +232,24 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
-      updateUserProfile({ profilePictureUrl: "" });
+      updateUserProfile({
+        name: currentName,
+        phone: currentPhone,
+        profilePictureUrl: "",
+      });
+
+      try {
+        if (user?.sub) {
+          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
+          const parsed = cached ? JSON.parse(cached) : {};
+          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
+            ...parsed,
+            name: currentName,
+            phone: currentPhone,
+            profilePictureUrl: "",
+          }));
+        }
+      } catch (e) {}
 
       setPhotoMessage({
         text: lang === "bn" ? "প্রোফাইল ছবি সফলভাবে মুছে ফেলা হয়েছে।" : "Profile photo removed successfully.",
@@ -375,18 +427,23 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
               {/* Live Avatar Preview Container */}
               <div className="relative group mb-4">
                 <div className="h-32 w-32 rounded-full border-4 border-white bg-slate-100 flex items-center justify-center overflow-hidden shadow-md ring-2 ring-slate-200">
-                  {displayAvatar ? (
+                  {displayAvatar && !avatarError ? (
                     <img
                       src={displayAvatar}
                       alt="Profile Avatar"
                       className="h-full w-full object-cover"
-                      onError={(e) => {
-                        // Fallback gracefully on broken images
-                        e.currentTarget.style.display = "none";
-                      }}
+                      onError={() => setAvatarError(true)}
                     />
                   ) : (
-                    <UserIcon className="h-16 w-16 text-slate-400" />
+                    <div className="h-full w-full bg-[#0F4C81] flex items-center justify-center text-white text-3xl font-extrabold">
+                      {(name || user?.name || "NB")
+                        .split(" ")
+                        .filter(Boolean)
+                        .map((w: string) => w[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase() || "NB"}
+                    </div>
                   )}
                 </div>
 
