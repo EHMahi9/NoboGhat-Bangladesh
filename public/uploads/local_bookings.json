@@ -1,0 +1,45 @@
+[
+  {
+    "bookingId": 1001,
+    "cargoWeight": 100,
+    "cargoType": "General",
+    "status": "CONFIRMED",
+    "tripId": 18,
+    "boatName": "Khulna Express",
+    "source": "Sadarghat",
+    "destination": "Khulna",
+    "departureTime": "2026-09-26T11:05:28.429Z",
+    "bookedAt": "2026-09-25T11:05:28.429Z",
+    "totalFare": 750,
+    "userKey": "01912805975",
+    "userEmail": "jisoo@gmail.com",
+    "userPhone": "01912805975",
+    "userName": "Jisoo KIm"
+  },
+  {
+    "bookingId": 1002,
+    "cargoWeight": 50,
+    "cargoType": "PERISHABLE",
+    "status": "CONFIRMED",
+    "tripId": 22,
+    "boatName": "MV Shitalakkhya",
+    "source": "Narayanganj",
+    "destination": "Chandpur",
+    "departureTime": "2026-10-01T07:30:00",
+    "bookedAt": "2026-09-25T12:34:23.079Z",
+    "totalFare": 250,
+    "userKey": "01912805975",
+    "userEmail": "jisoo@gmail.com",
+    "userPhone": "01912805975",
+    "userName": "Jisoo KIm",
+    "trip": {
+      "tripId": 22,
+      "source": "Narayanganj",
+      "destination": "Chandpur",
+      "departureTime": "2026-10-01T07:30:00",
+      "boat": {
+        "boatName": "MV Shitalakkhya"
+      }
+    }
+  }
+]

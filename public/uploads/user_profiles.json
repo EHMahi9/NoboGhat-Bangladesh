@@ -1,0 +1,66 @@
+{
+  "default_user": {
+    "userId": 1,
+    "name": "মোহাম্মদ রফিক",
+    "phone": "01700112233",
+    "email": "default_user@noboghat.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/uploads/test-profile-avatar.png"
+  },
+  "01912805975": {
+    "userId": 1,
+    "name": "Jisoo KIm",
+    "phone": "01912805975",
+    "email": "jisoo@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/uploads/avatar-1790335649468-ssh1f5.png"
+  },
+  "01888123456": {
+    "userId": 1790344803318,
+    "name": "মোহাম্মদ মাহি তালুকদার",
+    "phone": "01888123456",
+    "email": "mahi_transport@example.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  },
+  "mahi_transport@example.com": {
+    "userId": 1790344803318,
+    "name": "মোহাম্মদ মাহি তালুকদার",
+    "phone": "01888123456",
+    "email": "mahi_transport@example.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  },
+  "lisa": {
+    "userId": 1,
+    "name": "Lisa",
+    "phone": "",
+    "email": "lisa@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  },
+  "lisa@gmail.com": {
+    "userId": 1,
+    "name": "Lisa",
+    "phone": "",
+    "email": "lisa@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  },
+  "lalisa@gmail.com": {
+    "userId": 1,
+    "name": "Lalisa",
+    "phone": "01911111111",
+    "email": "lalisa@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  },
+  "01911111111": {
+    "userId": 1,
+    "name": "Lalisa",
+    "phone": "01911111111",
+    "email": "lalisa@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": ""
+  }
+}

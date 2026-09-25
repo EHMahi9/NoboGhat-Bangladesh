@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0F4C81; /* NoboGhat Maritime Navy */
+  --color-primary-light: #2F80ED; /* NoboGhat River Blue */
+  --color-secondary: #2F80ED; /* River Blue */
+  --color-accent: #2E8B57; /* Bangladesh Green - Action CTA */
+  --color-accent-hover: #246e45;
+  --color-warning: #F59E0B; /* Amber/Warning */
+  --color-background: #F8FAFC; /* Slate 50 */
+  --color-surface: #FFFFFF;
+  --color-text-main: #0F172A; /* Slate 900 */
+  --color-text-muted: #64748B; /* Slate 500 */
+  --color-border: #E2E8F0; /* Slate 200 */
+}
+
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-text-main);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass-morphism utilities for later use */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
