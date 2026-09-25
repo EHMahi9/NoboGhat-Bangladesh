@@ -19,7 +19,7 @@ services:
         value: update
 
       - key: FRONTEND_URL
-        value: https://noboghat-bangladesh.vercel.app
+        value: https://noboghatbangladesh.vercel.app
 
       - key: CORS_ALLOWED_ORIGINS
         value: https://noboghatbangladesh.vercel.app,https://noboghat-bangladesh.vercel.app

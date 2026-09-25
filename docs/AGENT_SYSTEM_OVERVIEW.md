@@ -348,7 +348,7 @@ To avoid undefined variable errors, HTML pages in `frontend/pages/` MUST import 
 | `JWT_SECRET` | Auto-generated dev key | Minimum 32-character secret for HMAC-SHA256 |
 | `JWT_EXPIRATION_MS` | `86400000` (24 Hours) | Access token lifespan |
 | `JWT_REFRESH_EXPIRATION_MS` | `604800000` (7 Days) | Refresh cookie lifespan |
-| `FRONTEND_URL` | `https://noboghat-bangladesh.vercel.app` | Production frontend domain |
+| `FRONTEND_URL` | `https://noboghatbangladesh.vercel.app` | Production frontend domain |
 | `CORS_ALLOWED_ORIGINS` | Whitelist (localhost + Vercel) | Comma-separated CORS allowed origins |
 | `ADMIN_EMAIL` | `""` | Optional initial admin email |
 | `ADMIN_PASSWORD` | `""` | Optional initial admin password |

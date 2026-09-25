@@ -17,7 +17,7 @@
 
 | Service | Environment | URL |
 |---|---|---|
-| **Web Application** | Vercel Production | [https://noboghat-bangladesh.vercel.app](https://noboghat-bangladesh.vercel.app) |
+| **Web Application** | Vercel Production | [https://noboghatbangladesh.vercel.app](https://noboghatbangladesh.vercel.app) |
 | **API Gateway & Backend** | Render Production | [https://noboghat-bangladesh.onrender.com](https://noboghat-bangladesh.onrender.com) |
 | **Backend Health Check** | Actuator Probe | [https://noboghat-bangladesh.onrender.com/actuator/health](https://noboghat-bangladesh.onrender.com/actuator/health) |
 
