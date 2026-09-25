@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Anchor,
   Target,
@@ -14,22 +16,98 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
+const slides = [
+  "/images/hero.png",
+  "/images/hero-slide-2.jpg",
+  "/images/hero-slide-3.jpg",
+  "/images/hero-slide-4.jpg",
+];
+
 export default function AboutPage() {
   const { lang, t } = useLanguage();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-slide every 6 seconds matching Home page
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
 
   return (
     <div className="min-h-screen bg-white">
       {/* ========================================================
-          1. Hero Section
+          1. Hero Section (With Animated Image Slider like Home)
          ======================================================== */}
-      <header className="relative overflow-hidden bg-slate-950 py-20 lg:py-28 text-white">
-        {/* Background Gradient & Water Wave Glow */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a192f] via-slate-900 to-slate-950 opacity-95" />
-        <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      <header className="relative w-full overflow-hidden bg-slate-950 py-24 lg:py-32 flex items-center min-h-[580px] text-white text-center">
+        {/* Background Slider Images */}
+        {slides.map((slide, index) => (
+          <div
+            key={slide}
+            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={slide}
+              alt={`NoboGhat River Transport Hero Slide ${index + 1}`}
+              fill
+              className="object-cover"
+              priority={index === 0}
+            />
+          </div>
+        ))}
+
+        {/* Cinematic Gradient Overlays for High Legibility */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-950/85 via-slate-900/70 to-slate-950/90" />
+        <div className="absolute inset-0 z-0 bg-blue-950/25 mix-blend-multiply" />
+
+        {/* Carousel Slide Arrows */}
+        <button
+          onClick={prevSlide}
+          className="hidden sm:flex absolute left-4 z-20 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md shadow-md transition-all border border-white/20 hover:scale-105"
+          aria-label="Previous image"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+
+        <button
+          onClick={nextSlide}
+          className="hidden sm:flex absolute right-4 z-20 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md shadow-md transition-all border border-white/20 hover:scale-105"
+          aria-label="Next image"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+
+        {/* Slide Indicator Dots */}
+        <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === currentSlide
+                  ? "w-8 bg-emerald-400"
+                  : "w-2 bg-white/50 hover:bg-white/80"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
 
         <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/20 px-4 py-1.5 text-xs sm:text-sm font-semibold text-blue-200 border border-blue-400/30 mb-6 backdrop-blur-md">
@@ -37,7 +115,7 @@ export default function AboutPage() {
             {lang === "bn" ? "নবোঘাট পরিচিতি" : "About NoboGhat"}
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 drop-shadow-md">
             {lang === "bn" ? (
               <>
                 ডিজিটালাইজিং বাংলাদেশের <br />
@@ -55,7 +133,7 @@ export default function AboutPage() {
             )}
           </h1>
 
-          <p className="max-w-3xl text-base sm:text-lg text-slate-200/90 font-normal mx-auto leading-relaxed mb-10">
+          <p className="max-w-3xl text-base sm:text-lg text-slate-100/95 font-normal mx-auto leading-relaxed mb-10 drop-shadow-sm">
             {lang === "bn"
               ? "নবোঘাট একটি ডিজিটাল কার্গো শেয়ারিং মার্কেটপ্লেস—যা বাংলাদেশের নদীপথের কৃষক, পাইকারি ব্যবসায়ী এবং মাঝিমালিকদের সরাসরি সংযুক্ত করে পণ্য পরিবহনকে সাশ্রয়ী, স্বচ্ছ এবং নির্ভরযোগ্য করে তুলেছে।"
               : "NoboGhat is a digital cargo-sharing marketplace connecting farmers, wholesale traders, and vessel operators across the river networks of Bangladesh — making inland freight transport affordable, transparent, and reliable."}
