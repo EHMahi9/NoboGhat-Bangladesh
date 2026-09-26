@@ -113,7 +113,7 @@ public class SecurityConfig {
                                 "/api/trips", "/api/trips/**",
                                 "/api/routes", "/api/routes/**",
                                 "/api/boats", "/api/boats/**",
-                                "/error")
+                                "/error", "/api/test-error", "/api/db-check")
                         .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
@@ -155,3 +155,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
