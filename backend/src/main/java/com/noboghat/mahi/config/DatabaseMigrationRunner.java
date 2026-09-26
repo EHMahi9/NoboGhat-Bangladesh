@@ -18,8 +18,17 @@ public class DatabaseMigrationRunner {
             jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN profile_picture_url LONGTEXT");
             logger.info("Successfully altered profile_picture_url column.");
         } catch (Exception e) {
+            logger.warn("Could not alter users column: " + e.getMessage());
+        }
+
+        try {
+            logger.info("Ensuring booked_at exists in bookings...");
+            jdbcTemplate.execute("ALTER TABLE bookings ADD COLUMN booked_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+            logger.info("Successfully added booked_at column.");
+        } catch (Exception e) {
             logger.warn("Could not alter column (might already be LONGTEXT or unsupported dialect): " + e.getMessage());
             e.printStackTrace();
         }
     }
 }
+
