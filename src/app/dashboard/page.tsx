@@ -258,6 +258,14 @@ export default function DashboardPage() {
     loadBookings();
   }, [loadBookings]);
 
+  // Reset avatar error when a valid avatar URL is present (must run before early returns)
+  const avatarUrl = profilePicPreview || user?.profilePictureUrl || null;
+  useEffect(() => {
+    if (avatarUrl) {
+      setAvatarError(false);
+    }
+  }, [avatarUrl]);
+
   if (loading) {
     return (
       <div style={{ display: "flex", minHeight: "calc(100vh - 140px)", alignItems: "center", justifyContent: "center" }}>
@@ -365,16 +373,7 @@ export default function DashboardPage() {
       ? "সম্মানিত ব্যবহারকারী"
       : user?.sub || "Trader";
 
-  const displayAvatar =
-    profilePicPreview ||
-    user?.profilePictureUrl ||
-    null;
-
-  useEffect(() => {
-    if (displayAvatar) {
-      setAvatarError(false);
-    }
-  }, [displayAvatar]);
+  const displayAvatar = avatarUrl;
 
   const userInitials = (userDisplayName || "NB")
     .split(" ")
