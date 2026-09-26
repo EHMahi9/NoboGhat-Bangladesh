@@ -15,10 +15,11 @@ public class DatabaseMigrationRunner {
     public void run() {
         try {
             logger.info("Ensuring profile_picture_url is LONGTEXT to support Base64 avatars...");
-            jdbcTemplate.execute("ALTER TABLE users MODIFY profile_picture_url LONGTEXT");
+            jdbcTemplate.execute("ALTER TABLE users MODIFY COLUMN profile_picture_url LONGTEXT");
             logger.info("Successfully altered profile_picture_url column.");
         } catch (Exception e) {
             logger.warn("Could not alter column (might already be LONGTEXT or unsupported dialect): " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
