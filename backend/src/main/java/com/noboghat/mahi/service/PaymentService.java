@@ -28,7 +28,13 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found."));
 
         if (booking.getTotalFare() == null || booking.getTotalFare() <= 0) {
-            throw new IllegalStateException("Booking has no fare to pay.");
+            double fallbackRate = 10.0;
+            if (booking.getTrip() != null && booking.getTrip().getRoute() != null && booking.getTrip().getRoute().getPricePerKg() != null && booking.getTrip().getRoute().getPricePerKg() > 0) {
+                fallbackRate = booking.getTrip().getRoute().getPricePerKg();
+            }
+            double weight = booking.getCargoWeight() != null && booking.getCargoWeight() > 0 ? booking.getCargoWeight() : 1.0;
+            booking.setTotalFare(Math.round(weight * fallbackRate * 100.0) / 100.0);
+            booking = bookingRepository.save(booking);
         }
 
         PaymentTransaction transaction = new PaymentTransaction();

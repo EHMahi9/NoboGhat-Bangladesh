@@ -175,8 +175,8 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       <div
-        className={`lg:hidden border-t border-slate-200/90 bg-white/98 backdrop-blur-md transition-all duration-200 overflow-hidden ${
-          isMobileMenuOpen ? "max-h-[500px] opacity-100 shadow-lg" : "max-h-0 opacity-0 py-0 border-t-0 pointer-events-none"
+        className={`lg:hidden border-t border-slate-200/90 bg-white/98 backdrop-blur-md transition-all duration-200 ${
+          isMobileMenuOpen ? "max-h-[85vh] overflow-y-auto opacity-100 shadow-lg" : "max-h-0 overflow-hidden opacity-0 py-0 border-t-0 pointer-events-none"
         }`}
       >
         <div className="px-4 py-4 space-y-1 sm:px-6">

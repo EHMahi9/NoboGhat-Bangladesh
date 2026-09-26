@@ -113,18 +113,23 @@ export default function DashboardPage() {
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
 
-  // Notifications state
+  const [isClientMounted, setIsClientMounted] = useState(false);
+  useEffect(() => {
+    setIsClientMounted(true);
+  }, []);
+
+  // Notifications state with static SSR dates to avoid hydration mismatches
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       notificationId: 1,
       message: "Welcome to NoboGhat! Your account is active and verified.",
-      createdAt: new Date().toISOString(),
+      createdAt: "2025-01-01T08:00:00.000Z",
       read: false,
     },
     {
       notificationId: 2,
       message: "River transit advisory active: Padma & Meghna waterways clear.",
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      createdAt: "2025-01-01T06:00:00.000Z",
       read: true,
     },
   ]);
@@ -303,6 +308,9 @@ export default function DashboardPage() {
     if (!val) return "N/A";
     const d = new Date(val);
     if (Number.isNaN(d.getTime())) return "N/A";
+    if (!isClientMounted) {
+      return d.toISOString().split("T")[0];
+    }
     return d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", {
       year: "numeric",
       month: "short",
@@ -1125,4 +1133,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
 

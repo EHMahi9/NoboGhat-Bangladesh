@@ -54,10 +54,11 @@ public class BookingService {
         booking.setStatus("PENDING");
         booking.setUser(user);
         booking.setTrip(trip);
-        // Compute fare if route has a price set
-        if (trip.getRoute() != null && trip.getRoute().getPricePerKg() != null) {
-            booking.setTotalFare(requestedWeight * trip.getRoute().getPricePerKg());
-        }
+        // Compute fare if route has a price set, or fallback to standard rate (10 BDT/kg)
+        double pricePerKg = (trip.getRoute() != null && trip.getRoute().getPricePerKg() != null && trip.getRoute().getPricePerKg() > 0)
+                ? trip.getRoute().getPricePerKg()
+                : 10.0;
+        booking.setTotalFare(Math.round(requestedWeight * pricePerKg * 100.0) / 100.0);
         Booking saved = bookingRepository.save(booking);
         notificationService.createForUser(requester, "Your booking for trip #" + trip.getTripId() + " has been created.");
         return toSummaryDto(saved);
