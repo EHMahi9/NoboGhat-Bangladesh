@@ -16,6 +16,13 @@ import {
   ShieldCheck,
   CreditCard,
   Lock,
+  LayoutDashboard,
+  Package,
+  Ship,
+  Bell,
+  Settings,
+  Plus,
+  AlertTriangle,
 } from "lucide-react";
 
 interface BookingItem {
@@ -699,7 +706,7 @@ export default function DashboardPage() {
                 className={activeTab === "overview" ? "active" : ""}
                 onClick={() => setActiveTab("overview")}
               >
-                <i className="fa-solid fa-gauge"></i>
+                <LayoutDashboard className="h-4 w-4" />
                 <span>{lang === "bn" ? "সারসংক্ষেপ" : "Overview"}</span>
               </button>
             </li>
@@ -709,7 +716,7 @@ export default function DashboardPage() {
                 className={activeTab === "active-bookings" ? "active" : ""}
                 onClick={() => setActiveTab("active-bookings")}
               >
-                <i className="fa-solid fa-box-open"></i>
+                <Package className="h-4 w-4" />
                 <span>{lang === "bn" ? "সক্রিয় বুকিং" : "Active Bookings"}</span>
               </button>
             </li>
@@ -719,7 +726,7 @@ export default function DashboardPage() {
                 className={activeTab === "my-trips" ? "active" : ""}
                 onClick={() => setActiveTab("my-trips")}
               >
-                <i className="fa-solid fa-ship"></i>
+                <Ship className="h-4 w-4" />
                 <span>{lang === "bn" ? "আমার ট্রিপ" : "My Trips"}</span>
               </button>
             </li>
@@ -729,7 +736,7 @@ export default function DashboardPage() {
                 className={activeTab === "notifications" ? "active" : ""}
                 onClick={() => setActiveTab("notifications")}
               >
-                <i className="fa-solid fa-bell"></i>
+                <Bell className="h-4 w-4" />
                 <span>
                   {lang === "bn" ? "বিজ্ঞপ্তি" : "Notifications"}{" "}
                   {unreadNotifsCount > 0 && `(${unreadNotifsCount})`}
@@ -742,7 +749,7 @@ export default function DashboardPage() {
                 className={activeTab === "profile-settings" ? "active" : ""}
                 onClick={() => setActiveTab("profile-settings")}
               >
-                <i className="fa-solid fa-gear"></i>
+                <Settings className="h-4 w-4" />
                 <span>{lang === "bn" ? "প্রোফাইল সেটিংস" : "Profile Settings"}</span>
               </button>
             </li>
@@ -758,7 +765,7 @@ export default function DashboardPage() {
           <header className="dashboard-header">
             <div className="dashboard-header-content">
               <p className="dashboard-eyebrow">
-                <i className="fa-solid fa-gauge" aria-hidden="true"></i>{" "}
+                <LayoutDashboard className="h-3.5 w-3.5 inline mr-1" aria-hidden="true" />
                 {lang === "bn" ? "ব্যক্তিগত ড্যাশবোর্ড" : "Personal Workspace"}
               </p>
               <h1>
@@ -783,7 +790,7 @@ export default function DashboardPage() {
                 {/* Book Cargo Card */}
                 <div className="dash-card">
                   <div className="card-icon">
-                    <i className="fa-solid fa-plus"></i>
+                    <Plus className="h-5 w-5" />
                   </div>
                   <h3>{lang === "bn" ? "কার্গো বুক করুন" : "Book Cargo"}</h3>
                   <p>
@@ -799,7 +806,7 @@ export default function DashboardPage() {
                 {/* Active Bookings Summary */}
                 <div className="dash-card">
                   <div className="card-icon">
-                    <i className="fa-solid fa-spinner"></i>
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   </div>
                   <h3>{lang === "bn" ? "সক্রিয় বুকিং" : "Active Bookings"}</h3>
                   <p>
@@ -827,7 +834,7 @@ export default function DashboardPage() {
                 {/* Capacity Alert */}
                 <div className="dash-card alert-card">
                   <div className="card-icon">
-                    <i className="fa-solid fa-triangle-exclamation"></i>
+                    <AlertTriangle className="h-5 w-5" />
                   </div>
                   <h3>{lang === "bn" ? "ধারণক্ষমতা আপডেট" : "Capacity Update"}</h3>
                   <p>
@@ -851,7 +858,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <span className="section-icon">
-                    <i className="fa-solid fa-box-open"></i>
+                    <Package className="h-5 w-5" />
                   </span>
                 </div>
                 <div className="table-responsive">
@@ -978,7 +985,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <span className="section-icon">
-                  <i className="fa-solid fa-box-open"></i>
+                  <Package className="h-5 w-5" />
                 </span>
               </div>
               <div className="table-responsive">
@@ -1104,7 +1111,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <span className="section-icon">
-                  <i className="fa-solid fa-ship"></i>
+                  <Ship className="h-5 w-5" />
                 </span>
               </div>
               <div className="table-responsive">
@@ -1160,7 +1167,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <span className="section-icon">
-                  <i className="fa-solid fa-bell"></i>
+                  <Bell className="h-5 w-5" />
                 </span>
               </div>
               <div className="table-responsive">
@@ -1229,7 +1236,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <span className="section-icon">
-                  <i className="fa-solid fa-gear"></i>
+                  <Settings className="h-5 w-5" />
                 </span>
               </div>
 
