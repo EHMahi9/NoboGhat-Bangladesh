@@ -791,6 +791,445 @@ export default function DashboardPage() {
           </header>
 
           {/* ========================================================
+              SECTION 1: OVERVIEW (3 Action Cards + Recent Bookings)
+             ======================================================== */}
+          {activeTab === "overview" && (
+            <div className="dashboard-section">
+              <div className="dashboard-grid">
+                {/* Book Cargo Card */}
+                <div className="dash-card">
+                  <div className="card-icon">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <h3>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï αª¼αºüαªò αªòαª░αºüαª¿" : "Book Cargo"}</h3>
+                  <p>
+                    {lang === "bn"
+                      ? "αªåαª╕αª¿αºìαª¿ αª»αª╛αªÜαª╛αªçαªòαºâαªñ αª░αºüαªƒαºç αª»αºîαªÑ αªòαª╛αª░αºìαªùαºï αª╕αºìαª¬αºçαª╕ αªûαºüαªüαª£αºüαª¿αÑñ"
+                      : "Find shared cargo space on upcoming verified routes."}
+                  </p>
+                  <Link href="/routes" className="btn-secondary">
+                    {lang === "bn" ? "αª¿αªñαºüαª¿ αª¼αºüαªòαª┐αªé" : "New Booking"}
+                  </Link>
+                </div>
+
+                {/* Active Bookings Summary */}
+                <div className="dash-card">
+                  <div className="card-icon">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </div>
+                  <h3>{lang === "bn" ? "αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé" : "Active Bookings"}</h3>
+                  <p>
+                    {loadingBookings
+                      ? lang === "bn"
+                        ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..."
+                        : "Loading your bookings..."
+                      : bookings.length === 0
+                      ? lang === "bn"
+                        ? "αªåαª¬αª¿αª╛αª░ αªòαºïαª¿αºï αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé αª¿αºçαªçαÑñ"
+                        : "You do not have any bookings yet."
+                      : lang === "bn"
+                      ? `αªåαª¬αª¿αª╛αª░ ${activeCount}αªƒαª┐ αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé αª░αºƒαºçαª¢αºçαÑñ`
+                      : `You have ${activeCount} active booking${activeCount === 1 ? "" : "s"}.`}
+                  </p>
+                  <button
+                    className="btn-outline"
+                    type="button"
+                    onClick={() => setActiveTab("active-bookings")}
+                  >
+                    {lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕ αªªαºçαªûαºüαª¿" : "View Status"}
+                  </button>
+                </div>
+
+                {/* Capacity Alert */}
+                <div className="dash-card alert-card">
+                  <div className="card-icon">
+                    <AlertTriangle className="h-5 w-5" />
+                  </div>
+                  <h3>{lang === "bn" ? "αªºαª╛αª░αªúαªòαºìαª╖αª«αªñαª╛ αªåαª¬αªíαºçαªƒ" : "Capacity Update"}</h3>
+                  <p>
+                    {lang === "bn"
+                      ? "αªÿαª╛αªƒ-αºº αªÑαºçαªòαºç αªûαºüαª▓αª¿αª╛ αª░αºüαªƒαºçαª░ αªƒαºìαª░αª┐αª¬ αº»αºª% αª¬αºéαª░αºìαªúαÑñ αªªαºìαª░αºüαªñ αª¼αºüαªòαª┐αªé αª¿αª┐αª╢αºìαªÜαª┐αªñ αªòαª░αºüαª¿αÑñ"
+                      : "The Ghat-1 trip to Khulna is 90% full. Confirm pending bookings soon."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Overview Recent Bookings History */}
+              <section className="recent-history">
+                <div className="section-heading">
+                  <div>
+                    <p className="section-kicker">{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï" : "Cargo"}</p>
+                    <h2>{lang === "bn" ? "αª╕αª╛αª«αºìαª¬αºìαª░αªñαª┐αªò αª¼αºüαªòαª┐αªé αªçαªñαª┐αª╣αª╛αª╕" : "Recent Booking History"}</h2>
+                    <p>
+                      {lang === "bn"
+                        ? "αªåαª¬αª¿αª╛αª░ αª¼αª░αºìαªñαª«αª╛αª¿ αªô αª¬αºéαª░αºìαª¼αºçαª░ αªòαª╛αª░αºìαªùαºï αªÜαª╛αª▓αª╛αª¿ αªªαºçαªûαºüαª¿αÑñ"
+                        : "View your active and past cargo shipments."}
+                    </p>
+                  </div>
+                  <span className="section-icon">
+                    <Package className="h-5 w-5" />
+                  </span>
+                </div>
+                <div className="table-responsive">
+                  <table className="history-table">
+                    <thead>
+                      <tr>
+                        <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªé αªåαªçαªíαª┐" : "Booking ID"}</th>
+                        <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
+                        <th>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºïαª░ αªºαª░αª¿" : "Cargo Type"}</th>
+                        <th>{lang === "bn" ? "αªôαª£αª¿ (αªòαºçαª£αª┐)" : "Weight (kg)"}</th>
+                        <th>{lang === "bn" ? "αª«αºïαªƒ αª¡αª╛αº£αª╛" : "Total Fare"}</th>
+                        <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªéαºƒαºçαª░ αªñαª╛αª░αª┐αªû" : "Booked On"}</th>
+                        <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
+                        <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loadingBookings ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: "center", padding: "2rem" }}>
+                            {lang === "bn" ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..." : "Loading your bookings..."}
+                          </td>
+                        </tr>
+                      ) : bookings.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
+                            {lang === "bn" ? "αªòαºïαª¿αºï αª¼αºüαªòαª┐αªé αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐αÑñ" : "No bookings found for your account."}
+                          </td>
+                        </tr>
+                      ) : (
+                        bookings.map((booking) => {
+                          const bStatus = (booking.status || "").toUpperCase();
+                          return (
+                            <tr key={booking.bookingId}>
+                              <td style={{ fontWeight: 700 }}>#NBG-{booking.bookingId}</td>
+                              <td>{formatRoute(booking)}</td>
+                              <td>{booking.cargoType || "General"}</td>
+                              <td>{booking.cargoWeight || 0} kg</td>
+                              <td style={{ fontWeight: 700 }}>
+                                αº│ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
+                              </td>
+                              <td>{formatDate(booking.bookedAt || booking.departureTime)}</td>
+                              <td>
+                                <span className={`status ${statusClass(booking.status)}`}>
+                                  {booking.status || "PENDING"}
+                                </span>
+                              </td>
+                              <td>
+                                {bStatus === "PENDING" ? (
+                                  <div style={{ display: "flex", gap: "6px" }}>
+                                    <button
+                                      type="button"
+                                      className="btn-primary"
+                                      style={{
+                                        fontSize: "0.78rem",
+                                        padding: "4px 10px",
+                                        backgroundColor: "#147860",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        fontWeight: 700,
+                                      }}
+                                      onClick={() => {
+                                        setPaymentBooking(booking);
+                                        setPaymentStep(1);
+                                        setPaymentError("");
+                                        setPinCode("");
+                                      }}
+                                    >
+                                      {lang === "bn" ? "αª¡αª╛αº£αª╛ αª¬αª░αª┐αª╢αºïαªº" : "Pay Now"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn-outline"
+                                      style={{
+                                        color: "#e74c3c",
+                                        borderColor: "#e74c3c",
+                                        fontSize: "0.78rem",
+                                        padding: "4px 10px",
+                                      }}
+                                      onClick={() => handleCancelBooking(booking.bookingId)}
+                                    >
+                                      {lang === "bn" ? "αª¼αª╛αªñαª┐αª▓" : "Cancel"}
+                                    </button>
+                                  </div>
+                                ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
+                                  <button
+                                    type="button"
+                                    className="btn-outline"
+                                    style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                    onClick={() => setSelectedWaybill(booking)}
+                                  >
+                                    {lang === "bn" ? "αªÜαª╛αª▓αª╛αª¿ αª░αª╢αª┐αªª" : "View Waybill"}
+                                  </button>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {/* ========================================================
+              SECTION 2: ACTIVE BOOKINGS (Dedicated Tab)
+             ======================================================== */}
+          {activeTab === "active-bookings" && (
+            <section className="recent-history dashboard-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-kicker">{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï" : "Cargo"}</p>
+                  <h2>{lang === "bn" ? "αª╕αª╛αª«αºìαª¬αºìαª░αªñαª┐αªò αª¼αºüαªòαª┐αªé αªçαªñαª┐αª╣αª╛αª╕" : "Recent Booking History"}</h2>
+                  <p>
+                    {lang === "bn"
+                      ? "αªåαª¬αª¿αª╛αª░ αª¼αª░αºìαªñαª«αª╛αª¿ αªô αª¬αºéαª░αºìαª¼αºçαª░ αªòαª╛αª░αºìαªùαºï αªÜαª╛αª▓αª╛αª¿ αªªαºçαªûαºüαª¿αÑñ"
+                      : "View your active and past cargo shipments."}
+                  </p>
+                </div>
+                <span className="section-icon">
+                  <Package className="h-5 w-5" />
+                </span>
+              </div>
+              <div className="table-responsive">
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªé αªåαªçαªíαª┐" : "Booking ID"}</th>
+                      <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
+                      <th>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºïαª░ αªºαª░αª¿" : "Cargo Type"}</th>
+                      <th>{lang === "bn" ? "αªôαª£αª¿ (αªòαºçαª£αª┐)" : "Weight (kg)"}</th>
+                      <th>{lang === "bn" ? "αª«αºïαªƒ αª¡αª╛αº£αª╛" : "Total Fare"}</th>
+                      <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªéαºƒαºçαª░ αªñαª╛αª░αª┐αªû" : "Booked On"}</th>
+                      <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
+                      <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loadingBookings ? (
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: "center", padding: "2rem" }}>
+                          {lang === "bn" ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..." : "Loading your bookings..."}
+                        </td>
+                      </tr>
+                    ) : bookings.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
+                          {lang === "bn" ? "αªòαºïαª¿αºï αª¼αºüαªòαª┐αªé αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐αÑñ" : "No bookings found for your account."}
+                        </td>
+                      </tr>
+                    ) : (
+                      bookings.map((booking) => {
+                        const bStatus = (booking.status || "").toUpperCase();
+                        return (
+                          <tr key={booking.bookingId}>
+                            <td style={{ fontWeight: 700 }}>#NBG-{booking.bookingId}</td>
+                            <td>{formatRoute(booking)}</td>
+                            <td>{booking.cargoType || "General"}</td>
+                            <td>{booking.cargoWeight || 0} kg</td>
+                            <td style={{ fontWeight: 700 }}>
+                              αº│ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
+                            </td>
+                            <td>{formatDate(booking.bookedAt || booking.departureTime)}</td>
+                            <td>
+                              <span className={`status ${statusClass(booking.status)}`}>
+                                {booking.status || "PENDING"}
+                              </span>
+                            </td>
+                            <td>
+                              {bStatus === "PENDING" ? (
+                                <div style={{ display: "flex", gap: "6px" }}>
+                                  <button
+                                    type="button"
+                                    className="btn-primary"
+                                    style={{
+                                      fontSize: "0.78rem",
+                                      padding: "4px 10px",
+                                      backgroundColor: "#147860",
+                                      color: "#fff",
+                                      border: "none",
+                                      borderRadius: "6px",
+                                      cursor: "pointer",
+                                      fontWeight: 700,
+                                    }}
+                                    onClick={() => {
+                                      setPaymentBooking(booking);
+                                      setPaymentStep(1);
+                                      setPaymentError("");
+                                      setPinCode("");
+                                    }}
+                                  >
+                                    {lang === "bn" ? "αª¡αª╛αº£αª╛ αª¬αª░αª┐αª╢αºïαªº" : "Pay Now"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-outline"
+                                    style={{
+                                      color: "#e74c3c",
+                                      borderColor: "#e74c3c",
+                                      fontSize: "0.78rem",
+                                      padding: "4px 10px",
+                                    }}
+                                    onClick={() => handleCancelBooking(booking.bookingId)}
+                                  >
+                                    {lang === "bn" ? "αª¼αª╛αªñαª┐αª▓" : "Cancel"}
+                                  </button>
+                                </div>
+                              ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
+                                <button
+                                  type="button"
+                                  className="btn-outline"
+                                  style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                  onClick={() => setSelectedWaybill(booking)}
+                                >
+                                  {lang === "bn" ? "αªÜαª╛αª▓αª╛αª¿ αª░αª╢αª┐αªª" : "View Waybill"}
+                                </button>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* ========================================================
+              SECTION 3: MY TRIPS (Exact match with classic dashboard)
+             ======================================================== */}
+          {activeTab === "my-trips" && (
+            <section className="recent-history dashboard-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-kicker">{lang === "bn" ? "αª¡αºìαª░αª«αªú" : "Travel"}</p>
+                  <h2>{lang === "bn" ? "αªåαª«αª╛αª░ αªƒαºìαª░αª┐αª¬" : "My Trips"}</h2>
+                  <p>
+                    {lang === "bn"
+                      ? "αªåαª¬αª¿αª╛αª░ αªåαª╕αª¿αºìαª¿ αª¿αºîαª»αª╛αªñαºìαª░αª╛αª░ αª¼αª┐αª¼αª░αªú αª¬αª░αºÇαªòαºìαª╖αª╛ αªòαª░αºüαª¿αÑñ"
+                      : "Check the details of your upcoming passenger trips."}
+                  </p>
+                </div>
+                <span className="section-icon">
+                  <Ship className="h-5 w-5" />
+                </span>
+              </div>
+              <div className="table-responsive">
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>{lang === "bn" ? "αªƒαºìαª░αª┐αª¬ αªåαªçαªíαª┐" : "Trip ID"}</th>
+                      <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
+                      <th>{lang === "bn" ? "αª¿αºîαª»αª╛αª¿" : "Boat"}</th>
+                      <th>{lang === "bn" ? "αª»αª╛αªñαºìαª░αª╛αª░ αª╕αª«αª»αª╝" : "Departure"}</th>
+                      <th>{lang === "bn" ? "αªåαª«αª╛αª░ αªòαª╛αª░αºìαªùαºï" : "My Cargo"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupedTrips.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
+                          {lang === "bn"
+                            ? "αªåαª¬αª¿αª╛αª░ αªàαºìαª»αª╛αªòαª╛αªëαª¿αºìαªƒαºç αªòαºïαª¿αºï αªƒαºìαª░αª┐αª¬ αª¬αª╛αªôαª»αª╝αª╛ αª»αª╛αª»αª╝αª¿αª┐αÑñ"
+                            : "No trips found for your account."}
+                        </td>
+                      </tr>
+                    ) : (
+                      groupedTrips.map((trip) => (
+                        <tr key={trip.tripId}>
+                          <td style={{ fontWeight: 700 }}>#TRP-{trip.tripId}</td>
+                          <td>{trip.source} ΓåÆ {trip.destination}</td>
+                          <td>{trip.boatName}</td>
+                          <td>{formatDate(trip.departureTime)}</td>
+                          <td>{trip.cargoWeight} kg</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* ========================================================
+              SECTION 4: NOTIFICATIONS
+             ======================================================== */}
+          {activeTab === "notifications" && (
+            <section className="recent-history dashboard-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-kicker">{lang === "bn" ? "αªåαª¬αªíαºçαªƒ" : "Updates"}</p>
+                  <h2>{lang === "bn" ? "αª¼αª┐αª£αºìαª₧αª¬αºìαªñαª┐" : "Notifications"}</h2>
+                  <p>
+                    {lang === "bn"
+                      ? "αªåαª¬αª¿αª╛αª░ αªàαºìαª»αª╛αªòαª╛αªëαª¿αºìαªƒαºçαª░ αªùαºüαª░αºüαªñαºìαª¼αª¬αºéαª░αºìαªú αª¼αª╛αª░αºìαªñαª╛ αªô αª╕αªñαª░αºìαªòαª¼αª╛αª░αºìαªñαª╛αÑñ"
+                      : "Important alerts and messages about your account."}
+                  </p>
+                </div>
+                <span className="section-icon">
+                  <Bell className="h-5 w-5" />
+                </span>
+              </div>
+              <div className="table-responsive">
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>{lang === "bn" ? "αª¼αª╛αª░αºìαªñαª╛" : "Message"}</th>
+                      <th>{lang === "bn" ? "αªñαª╛αª░αª┐αªû" : "Date"}</th>
+                      <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
+                      <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notifications.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
+                          {lang === "bn" ? "αªòαºïαª¿αºï αª¼αª┐αª£αºìαª₧αª¬αºìαªñαª┐ αª¿αºçαªçαÑñ" : "No notifications yet."}
+                        </td>
+                      </tr>
+                    ) : (
+                      notifications.map((item) => (
+                        <tr key={item.notificationId}>
+                          <td>{item.message}</td>
+                          <td>{formatDate(item.createdAt)}</td>
+                          <td>
+                            <span className={`status ${item.read ? "completed" : "pending"}`}>
+                              {item.read ? (lang === "bn" ? "αª¬αªáαª┐αªñ" : "Read") : (lang === "bn" ? "αªàαª¬αªáαª┐αªñ" : "Unread")}
+                            </span>
+                          </td>
+                          <td>
+                            {!item.read ? (
+                              <button
+                                type="button"
+                                className="btn-outline"
+                                style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                onClick={() => handleMarkNotificationRead(item.notificationId)}
+                              >
+                                {lang === "bn" ? "αª¬αªáαª┐αªñ αªÜαª┐αª╣αºìαª¿αª┐αªñ αªòαª░αºüαª¿" : "Mark Read"}
+                              </button>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* ========================================================
               SECTION 5: PROFILE SETTINGS
              ======================================================== */}
           {activeTab === "profile-settings" && (

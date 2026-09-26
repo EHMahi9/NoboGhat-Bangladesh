@@ -31,7 +31,8 @@ public class LocalFileStorageService implements FileStorageService {
 
     @Override
     public String storeFile(MultipartFile file) {
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String rawName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "avatar.jpg";
+        String originalFileName = StringUtils.cleanPath(rawName);
         
         try {
             if (originalFileName.contains("..")) {

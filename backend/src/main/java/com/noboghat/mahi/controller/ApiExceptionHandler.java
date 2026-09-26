@@ -67,6 +67,13 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(403).body(Map.of("message", message));
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleMaxUploadSize(org.springframework.web.multipart.MaxUploadSizeExceededException exception) {
+        return ResponseEntity.badRequest().body(Map.of(
+            "message", "File size exceeds the maximum allowed limit of 10MB."
+        ));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllUncaughtException(Exception exception) {
         // Log to console for debugging on Render
