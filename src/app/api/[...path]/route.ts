@@ -543,7 +543,9 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
         // Safe to ignore if /tmp is not accessible
       }
 
-      const fileDownloadUri = `/api/files/${uniqueName}`;
+      // Generate self-contained base64 data URI for 100% serverless/Vercel compatibility
+      const base64 = buffer.toString("base64");
+      const fileDownloadUri = `data:${mimeType};base64,${base64}`;
 
       return NextResponse.json({
         fileName: uniqueName,

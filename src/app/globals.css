@@ -303,6 +303,7 @@ body {
   border: 1px solid #dce9f1;
   box-shadow: 0 7px 20px rgba(13, 66, 104, 0.05);
   margin-bottom: 2rem;
+  scroll-margin-top: 85px;
 }
 
 .section-heading {

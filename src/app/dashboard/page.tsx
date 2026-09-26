@@ -48,6 +48,50 @@ interface NotificationItem {
   read: boolean;
 }
 
+function resizeAndConvertToBase64(file: File, maxWidth = 320, maxHeight = 320): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(readerEvent.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        resolve(readerEvent.target?.result as string);
+      };
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function DashboardPage() {
   const { user, loading, logout, updateUserProfile } = useAuth();
   const { lang } = useLanguage();
@@ -142,11 +186,39 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  // Scroll to top smoothly when switching dashboard tabs
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
+
   // Load user profile details for profile tab
   useEffect(() => {
     let isMounted = true;
     async function initProfile() {
       if (!user) return;
+
+      // 1. Immediate hydration from localStorage and user state
+      if (user.sub) {
+        try {
+          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.name && !/^\d+$/.test(parsed.name)) setProfileName(parsed.name);
+            if (parsed.phone) setProfilePhone(parsed.phone);
+            if (parsed.profilePictureUrl) {
+              setProfilePicPreview(parsed.profilePictureUrl);
+              setAvatarError(false);
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (user.profilePictureUrl) {
+        setProfilePicPreview(user.profilePictureUrl);
+        setAvatarError(false);
+      }
+
+      // 2. Refresh from API
       try {
         const prof = await fetchApi("/users/profile");
         if (isMounted && prof) {
@@ -155,7 +227,10 @@ export default function DashboardPage() {
           if (prof.phone) setProfilePhone(prof.phone);
           if (prof.email && !prof.email.endsWith("@noboghat.com")) setProfileEmail(prof.email);
           else if (user.sub && user.sub.includes("@") && !user.sub.endsWith("@noboghat.com")) setProfileEmail(user.sub);
-          if (prof.profilePictureUrl) setProfilePicPreview(prof.profilePictureUrl);
+          if (prof.profilePictureUrl) {
+            setProfilePicPreview(prof.profilePictureUrl);
+            setAvatarError(false);
+          }
         }
       } catch {
         if (isMounted && user) {
@@ -295,6 +370,12 @@ export default function DashboardPage() {
     user?.profilePictureUrl ||
     null;
 
+  useEffect(() => {
+    if (displayAvatar) {
+      setAvatarError(false);
+    }
+  }, [displayAvatar]);
+
   const userInitials = (userDisplayName || "NB")
     .split(" ")
     .filter(Boolean)
@@ -335,9 +416,9 @@ export default function DashboardPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 8 * 1024 * 1024) {
       setProfileMessage({
-        text: lang === "bn" ? "ফাইলের সাইজ সর্বোচ্চ ৫ মেগাবাইট হতে পারবে।" : "File size cannot exceed 5MB.",
+        text: lang === "bn" ? "ফাইলের সাইজ সর্বোচ্চ ৮ মেগাবাইট হতে পারবে।" : "File size cannot exceed 8MB.",
         type: "error",
       });
       return;
@@ -347,63 +428,56 @@ export default function DashboardPage() {
     setProfileMessage(null);
     setAvatarError(false);
 
-    // Instant local preview
     try {
-      const localPreview = URL.createObjectURL(file);
-      setProfilePicPreview(localPreview);
-    } catch (e) {}
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const token = Cookies.get("token");
-      const res = await fetch("/api/files/upload", {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || (lang === "bn" ? "ছবি আপলোড করতে সমস্যা হয়েছে।" : "File upload failed."));
-      }
-
-      const data = await res.json();
-      const newPicUrl = data.fileDownloadUri;
-      setProfilePicPreview(newPicUrl);
+      // 1. Optimize and convert to permanent Base64 Data URL (never 404s, works reliably across serverless instances)
+      const base64DataUrl = await resizeAndConvertToBase64(file, 360, 360);
+      setProfilePicPreview(base64DataUrl);
       setAvatarError(false);
 
-      // Persist in profile with name to satisfy backend validation
       const currentName = profileName.trim() || user?.name?.trim() || "User";
       const currentPhone = profilePhone.trim() || user?.phone?.trim() || undefined;
 
-      await fetchApi("/users/profile", {
-        method: "PUT",
-        body: JSON.stringify({
-          name: currentName,
-          phone: currentPhone,
-          profilePictureUrl: newPicUrl,
-        }),
-      });
-
-      updateUserProfile({
-        name: currentName,
-        phone: currentPhone,
-        profilePictureUrl: newPicUrl,
-      });
-
-      try {
-        if (user?.sub) {
+      // 2. Persist to browser storage immediately
+      if (user?.sub) {
+        try {
           const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
           const parsed = cached ? JSON.parse(cached) : {};
           localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
             ...parsed,
             name: currentName,
             phone: currentPhone,
-            profilePictureUrl: newPicUrl,
+            profilePictureUrl: base64DataUrl,
           }));
-        }
+        } catch (e) {}
+      }
+
+      // 3. Update auth state immediately
+      updateUserProfile({
+        name: currentName,
+        phone: currentPhone,
+        profilePictureUrl: base64DataUrl,
+      });
+
+      // 4. Update backend profile
+      await fetchApi("/users/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: currentName,
+          phone: currentPhone,
+          profilePictureUrl: base64DataUrl,
+        }),
+      });
+
+      // 5. Also sync to /api/files/upload in background
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const token = Cookies.get("token");
+        await fetch("/api/files/upload", {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: formData,
+        });
       } catch (e) {}
 
       setProfileMessage({
@@ -427,10 +501,11 @@ export default function DashboardPage() {
     setProfileMessage(null);
 
     try {
+      const targetPic = profilePicPreview || user?.profilePictureUrl || null;
       const payload: any = {
         name: profileName.trim(),
         phone: profilePhone.trim() || null,
-        profilePictureUrl: profilePicPreview || null,
+        profilePictureUrl: targetPic,
       };
       if (currentPassword) payload.currentPassword = currentPassword;
       if (newPassword) payload.newPassword = newPassword;
@@ -443,7 +518,21 @@ export default function DashboardPage() {
       updateUserProfile({
         name: profileName.trim(),
         phone: profilePhone.trim(),
+        profilePictureUrl: targetPic || undefined,
       });
+
+      if (user?.sub && targetPic) {
+        try {
+          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
+          const parsed = cached ? JSON.parse(cached) : {};
+          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
+            ...parsed,
+            name: profileName.trim(),
+            phone: profilePhone.trim(),
+            profilePictureUrl: targetPic,
+          }));
+        } catch (e) {}
+      }
 
       setCurrentPassword("");
       setNewPassword("");

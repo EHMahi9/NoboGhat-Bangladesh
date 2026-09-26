@@ -26,14 +26,14 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-2xs">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center">
+        <div className="flex items-center shrink-0">
           <Link href="/">
             <Image src="/images/noboghat-svg.svg" alt="NoboGhat Logo" width={140} height={40} priority className="h-8 w-auto" />
           </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-7">
+        <div className="hidden lg:flex lg:items-center lg:gap-5 xl:gap-7 shrink-0">
           <Link
             href="/"
             className={`text-sm transition-all py-1 relative ${
@@ -92,7 +92,7 @@ export default function Navbar() {
         </div>
 
         {/* Language Switcher & Auth Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={toggleLang}
             className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 hover:border-slate-300 text-[#0F4C81] hover:bg-slate-50 transition-colors shadow-2xs"
@@ -140,7 +140,7 @@ export default function Navbar() {
                 <div className={`h-8 w-8 items-center justify-center rounded-full bg-[#0F4C81]/10 text-[#0F4C81] border border-[#0F4C81]/20 avatar-fallback ${user.profilePictureUrl ? 'hidden' : 'flex'}`}>
                   <User className="h-4 w-4" />
                 </div>
-                <span className="hidden sm:inline-block max-w-[140px] truncate text-slate-900 group-hover:text-[#0F4C81]">
+                <span className="hidden sm:inline-block max-w-[105px] xl:max-w-[150px] truncate text-slate-900 group-hover:text-[#0F4C81]">
                   {user.name && user.name.trim() !== "" && !/^\d+$/.test(user.name.trim())
                     ? user.name
                     : (user.sub.includes("@") ? user.sub.split('@')[0] : (lang === "bn" ? "আমার অ্যাকাউন্ট" : "My Account"))}
@@ -160,7 +160,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-slate-700 hover:text-[#0F4C81] hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/30"
+            className="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-slate-700 hover:text-[#0F4C81] hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/30"
             aria-expanded={isMobileMenuOpen}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
@@ -175,7 +175,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       <div
-        className={`md:hidden border-t border-slate-200/90 bg-white/98 backdrop-blur-md transition-all duration-200 overflow-hidden ${
+        className={`lg:hidden border-t border-slate-200/90 bg-white/98 backdrop-blur-md transition-all duration-200 overflow-hidden ${
           isMobileMenuOpen ? "max-h-[500px] opacity-100 shadow-lg" : "max-h-0 opacity-0 py-0 border-t-0 pointer-events-none"
         }`}
       >
