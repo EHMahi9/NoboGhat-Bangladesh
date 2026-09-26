@@ -9,7 +9,8 @@ import { useLanguage } from "@/context/LanguageContext";
 
 interface Boat {
   boatId: number;
-  boatName: string;
+  boatName?: string;
+  name?: string;
   capacity: number;
 }
 
@@ -102,6 +103,14 @@ function RoutesContent() {
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (source && destination && source.trim().toLowerCase() === destination.trim().toLowerCase()) {
+      setSearchError(lang === "bn" ? "প্রারম্ভিক ঘাট ও গন্তব্য ঘাট একই হতে পারে না।" : "Source and destination cannot be the same ghat.");
+      setIsSearching(false);
+      setTrips([]);
+      setHasSearched(true);
+      return;
+    }
+
     setIsSearching(true);
     setSearchError("");
     setHasSearched(true);
@@ -124,7 +133,9 @@ function RoutesContent() {
         const fallbackData = await fetchApi(`/trips?${fallbackQuery.toString()}`);
         if (fallbackData && fallbackData.length > 0) {
           setTrips(fallbackData);
-          setSearchError(`No trips scheduled on ${date}. Showing available trips on other dates for this route:`);
+          setSearchError(lang === "bn"
+            ? `${date} তারিখে কোনো যাত্রা নেই। এই রুটে অন্যান্য তারিখের উপলভ্য যাত্রা দেখানো হচ্ছে:`
+            : `No trips scheduled on ${date}. Showing available trips on other dates for this route:`);
         } else {
           setTrips([]);
         }
@@ -292,6 +303,7 @@ function RoutesContent() {
                   type="date"
                   className="block w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-3 text-slate-900 focus:border-[#2F80ED] focus:ring-1 focus:ring-[#2F80ED]"
                   value={date}
+                  min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
@@ -375,7 +387,7 @@ function RoutesContent() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                       <div>
                         <p className="text-xs text-slate-500 font-medium">{t("routes.boat")}</p>
-                        <p className="font-semibold text-slate-900">{trip.boatName || trip.boat?.boatName || 'Unknown'}</p>
+                        <p className="font-semibold text-slate-900">{trip.boatName || trip.boat?.name || trip.boat?.boatName || 'Unknown'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-slate-500 font-medium">{t("routes.departure")}</p>
@@ -389,7 +401,7 @@ function RoutesContent() {
                       </div>
                       <div>
                         <p className="text-xs text-slate-500 font-medium">{t("routes.pricePerKg")}</p>
-                        <p className="font-bold text-[#2E8B57]">৳ {trip.pricePerKg || 5} {lang === "bn" ? "/ কেজি" : "/ kg"}</p>
+                        <p className="font-bold text-[#2E8B57]">৳ {(Number(trip.pricePerKg) || 10).toFixed(2)} {lang === "bn" ? "/ কেজি" : "/ kg"}</p>
                       </div>
                     </div>
                   </div>

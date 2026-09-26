@@ -57,7 +57,7 @@ export default function PaymentPage() {
           cargoType: data.cargoType,
           status: data.status,
           tripId: data.trip?.tripId || data.tripId,
-          boatName: data.trip?.boat?.boatName || data.boatName || "Unknown",
+          boatName: data.trip?.boat?.name || data.trip?.boat?.boatName || data.boatName || "Unknown",
           source: data.trip?.source || data.source || "",
           destination: data.trip?.destination || data.destination || "",
           departureTime: data.trip?.departureTime || data.departureTime || "",
@@ -136,8 +136,43 @@ export default function PaymentPage() {
 
   if (!booking) return null;
 
+  // If booking is cancelled
+  if (booking.status === "CANCELLED") {
+    return (
+      <div className="flex min-h-[calc(100vh-140px)] items-center justify-center bg-slate-50 px-4">
+        <div className="text-center max-w-md bg-white p-8 rounded-2xl shadow-sm border border-red-200">
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-red-50 flex items-center justify-center">
+            <Shield className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
+            {lang === "bn" ? "বুকিং বাতিল করা হয়েছে" : "Booking Cancelled"}
+          </h2>
+          <p className="text-slate-500 mb-6">
+            {lang === "bn"
+              ? "এই বুকিংটি ইতিমধ্যে বাতিল করা হয়েছে। বাতিলকৃত বুকিংয়ের জন্য পেমেন্ট গ্রহণ করা হয় না।"
+              : "This booking has been cancelled. Payment cannot be initiated for a cancelled booking."}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => router.push("/routes")}
+              className="inline-flex items-center justify-center rounded-lg bg-[#2E8B57] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#246e45]"
+            >
+              {lang === "bn" ? "নতুন বুকিং করুন" : "Book New Cargo"}
+            </button>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="inline-flex items-center justify-center rounded-lg bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-300"
+            >
+              {lang === "bn" ? "ড্যাশবোর্ডে ফিরে যান" : "Back to Dashboard"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // If booking is already confirmed/paid
-  if (booking.status === "CONFIRMED") {
+  if (booking.status === "CONFIRMED" || booking.status === "COMPLETED") {
     return (
       <div className="flex min-h-[calc(100vh-140px)] items-center justify-center bg-slate-50 px-4">
         <div className="text-center max-w-md">

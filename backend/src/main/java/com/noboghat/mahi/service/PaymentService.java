@@ -27,6 +27,13 @@ public class PaymentService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found."));
 
+        if ("CANCELLED".equalsIgnoreCase(booking.getStatus())) {
+            throw new IllegalStateException("Cannot initiate payment for a cancelled booking.");
+        }
+        if ("CONFIRMED".equalsIgnoreCase(booking.getStatus()) || "COMPLETED".equalsIgnoreCase(booking.getStatus())) {
+            throw new IllegalStateException("Booking has already been confirmed and paid.");
+        }
+
         if (booking.getTotalFare() == null || booking.getTotalFare() <= 0) {
             double fallbackRate = 10.0;
             if (booking.getTrip() != null && booking.getTrip().getRoute() != null && booking.getTrip().getRoute().getPricePerKg() != null && booking.getTrip().getRoute().getPricePerKg() > 0) {

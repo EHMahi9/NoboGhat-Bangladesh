@@ -221,6 +221,7 @@ export default function Home() {
                 <input
                   type="date"
                   value={searchDate}
+                  min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setSearchDate(e.target.value)}
                   className="w-full text-sm font-semibold text-slate-900 bg-transparent focus:outline-none cursor-pointer"
                 />

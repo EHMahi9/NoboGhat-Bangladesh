@@ -18,9 +18,17 @@ export default function LoginPage() {
   const { lang } = useLanguage();
   const router = useRouter();
 
-  // If already authenticated, automatically redirect to appropriate dashboard
+  // If already authenticated, automatically redirect to appropriate dashboard or redirect URL
   useEffect(() => {
     if (!loading && user) {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/")) {
+          router.replace(redirect);
+          return;
+        }
+      }
       if (user.role === "ADMIN") {
         router.replace("/admin");
       } else {
@@ -35,11 +43,22 @@ export default function LoginPage() {
       if (params.get("registered") === "true") {
         setSuccessMsg(lang === "bn" ? "নিবন্ধন সম্পন্ন হয়েছে! পাসওয়ার্ড প্রদান করে লগইন করুন।" : "Registration completed! Please log in with your password.");
       }
+      const message = params.get("message");
+      if (message) {
+        setSuccessMsg(message);
+      }
       const token = params.get("token");
       const role = params.get("role");
       if (token) {
         login(token, role || undefined);
-        router.push("/dashboard");
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/")) {
+          router.push(redirect);
+        } else if (role === "ADMIN" || role === "ROLE_ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
         return;
       }
       const id = params.get("identifier");
@@ -76,7 +95,15 @@ export default function LoginPage() {
       }
 
       login(data.token, data.role);
-      router.push("/dashboard");
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      if (redirect && redirect.startsWith("/")) {
+        router.push(redirect);
+      } else if (data.role === "ADMIN" || data.role === "ROLE_ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message || (lang === "bn" ? "সার্ভারে সংযোগ করতে সমস্যা হয়েছে" : "Failed to connect to the server"));
     } finally {

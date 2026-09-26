@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const urlRole = params.get('role');
       if (urlToken) {
         token = urlToken;
-        savedRole = urlRole || savedRole || 'PENDING';
+        savedRole = (urlRole || savedRole || 'PENDING').replace(/^ROLE_/, '');
         Cookies.set('token', token, { expires: 7 });
         if (savedRole) Cookies.set('role', savedRole, { expires: 7 });
         try {
@@ -88,11 +88,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (token) {
       try {
         const decoded = jwtDecode<any>(token);
+        const rawRole = savedRole || decoded.role || (decoded.roles && decoded.roles[0]) || 'PENDING';
+        const cleanRole = typeof rawRole === 'string' ? rawRole.replace(/^ROLE_/, '') : rawRole;
         const baseUser: User = {
           sub: decoded.sub || '',
           id: decoded.id || 0,
           roles: decoded.roles || [],
-          role: savedRole || decoded.role || (decoded.roles && decoded.roles[0]) || 'PENDING'
+          role: cleanRole
         };
         setUser(baseUser);
         fetchUserProfile(baseUser, token);
@@ -106,22 +108,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (token: string, role?: string) => {
+    const cleanRole = role ? role.replace(/^ROLE_/, '') : undefined;
     Cookies.set('token', token, { expires: 7 }); // 7 days expiry
-    if (role) {
-      Cookies.set('role', role, { expires: 7 });
+    if (cleanRole) {
+      Cookies.set('role', cleanRole, { expires: 7 });
     }
     try {
       localStorage.setItem('noboghatToken', token);
-      if (role) localStorage.setItem('noboghatRole', role);
+      if (cleanRole) localStorage.setItem('noboghatRole', cleanRole);
     } catch (e) {}
     
     try {
       const decoded = jwtDecode<any>(token);
+      const rawRole = cleanRole || decoded.role || (decoded.roles && decoded.roles[0]) || 'PENDING';
+      const userRole = typeof rawRole === 'string' ? rawRole.replace(/^ROLE_/, '') : rawRole;
       const baseUser: User = {
         sub: decoded.sub || '',
         id: decoded.id || 0,
         roles: decoded.roles || [],
-        role: role || decoded.role || (decoded.roles && decoded.roles[0]) || 'PENDING'
+        role: userRole
       };
       setUser(baseUser);
       fetchUserProfile(baseUser, token);

@@ -39,7 +39,12 @@ export async function fetchApi(endpoint: string, options: FetchOptions = {}) {
       Cookies.remove('token');
       Cookies.remove('role');
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname + window.location.search;
+        if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+          window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+        } else {
+          window.location.href = '/login';
+        }
       }
     }
     

@@ -13,4 +13,10 @@ public class BoatCreationDto {
     @Positive(message = "Boat capacity must be greater than zero")
     private Double capacity;
     private Long ownerId;
+
+    public void setBoatName(String boatName) {
+        if (this.name == null || this.name.isBlank()) {
+            this.name = boatName;
+        }
+    }
 }

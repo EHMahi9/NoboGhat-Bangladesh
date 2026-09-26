@@ -139,7 +139,7 @@ export default function AdminPage() {
       });
       setActionMessage({ text: `Route ${newRoute.source} ➔ ${newRoute.destination} created successfully!`, type: "success" });
       setShowAddRoute(false);
-      setNewRoute({ source: "", destination: "", pricePerKg: 5 });
+      setNewRoute({ source: "", destination: "", pricePerKg: 10 });
       loadAllAdminData();
     } catch (err: any) {
       setActionMessage({ text: err.message || "Failed to create route", type: "error" });
@@ -154,7 +154,11 @@ export default function AdminPage() {
       await fetchApi("/boats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newBoat),
+        body: JSON.stringify({
+          name: newBoat.boatName,
+          boatName: newBoat.boatName,
+          capacity: Number(newBoat.capacity),
+        }),
       });
       setActionMessage({ text: `Vessel ${newBoat.boatName} registered successfully!`, type: "success" });
       setShowAddBoat(false);
@@ -450,7 +454,7 @@ export default function AdminPage() {
                       <td className="py-3 px-4 font-mono font-bold">#{boat.boatId}</td>
                       <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
                         <Ship className="h-4 w-4 text-blue-600" />
-                        {boat.boatName}
+                        {boat.boatName || boat.name}
                       </td>
                       <td className="py-3 px-4 font-medium">{Number(boat.capacity).toLocaleString()} kg</td>
                       <td className="py-3 px-4">
@@ -688,7 +692,7 @@ export default function AdminPage() {
                   <option value="">Choose carrier...</option>
                   {boatsList.map((b) => (
                     <option key={b.boatId} value={b.boatId}>
-                      {b.boatName} ({Number(b.capacity).toLocaleString()} kg)
+                      {b.boatName || b.name} ({Number(b.capacity).toLocaleString()} kg)
                     </option>
                   ))}
                 </select>

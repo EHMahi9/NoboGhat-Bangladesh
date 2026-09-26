@@ -44,7 +44,8 @@ interface BookingItem {
     destination: string;
     departureTime: string;
     boat?: {
-      boatName: string;
+      boatName?: string;
+      name?: string;
     };
   };
 }
@@ -102,7 +103,7 @@ function resizeAndConvertToBase64(file: File, maxWidth = 320, maxHeight = 320): 
 
 export default function DashboardPage() {
   const { user, loading, logout, updateUserProfile } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, formatLocation, formatStatus } = useLanguage();
 
   // Navigation tab state matching classic dashboard
   const [activeTab, setActiveTab] = useState<
@@ -321,7 +322,7 @@ export default function DashboardPage() {
   const formatRoute = (b: BookingItem) => {
     const s = b.source || b.trip?.source || "N/A";
     const d = b.destination || b.trip?.destination || "N/A";
-    return `${s} → ${d}`;
+    return `${formatLocation(s)} → ${formatLocation(d)}`;
   };
 
   const statusClass = (st?: string) => {
@@ -332,20 +333,22 @@ export default function DashboardPage() {
   };
 
   const getRoleClass = (role?: string) => {
-    const r = (role || "").toUpperCase();
+    const r = (role || "").toUpperCase().replace(/^ROLE_/, "");
     if (r === "BOAT_OWNER" || r === "OWNER") return "owner";
     if (r === "FARMER") return "farmer";
+    if (r === "ADMIN") return "admin";
     return "trader";
   };
 
   const getRoleDisplay = (role?: string) => {
-    const r = (role || "").toUpperCase();
+    const r = (role || "").toUpperCase().replace(/^ROLE_/, "");
     if (lang === "bn") {
+      if (r === "ADMIN") return "সিস্টেম অ্যাডমিন";
       if (r === "BOAT_OWNER" || r === "OWNER") return "নৌযান মালিক";
       if (r === "FARMER") return "কৃষক উদ্যোক্তা";
       return "ব্যবসায়ী / ট্রেডার";
     }
-    return (role || "TRADER").replace("_", " ");
+    return (r || "TRADER").replace("_", " ");
   };
 
   // Active bookings count (PENDING or CONFIRMED)
@@ -372,7 +375,7 @@ export default function DashboardPage() {
         tripId: tid,
         source: b.source || b.trip?.source || "Sadarghat",
         destination: b.destination || b.trip?.destination || "Khulna",
-        boatName: b.boatName || b.trip?.boat?.boatName || "Cargo Vessel",
+        boatName: b.boatName || b.trip?.boat?.name || b.trip?.boat?.boatName || "Cargo Vessel",
         departureTime: b.departureTime || b.trip?.departureTime,
         cargoWeight: b.cargoWeight || 0,
       });
@@ -419,7 +422,13 @@ export default function DashboardPage() {
 
     try {
       await fetchApi(`/bookings/${id}`, { method: "DELETE" });
-      setBookings((prev) => prev.filter((b) => b.bookingId !== id));
+      setBookings((prev) => prev.map((b) => (b.bookingId === id ? { ...b, status: "CANCELLED" } : b)));
+      try {
+        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
+        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+        const updatedList = confirmedList.filter((bId: number) => bId !== id);
+        localStorage.setItem(cacheKey, JSON.stringify(updatedList));
+      } catch {}
       alert(lang === "bn" ? "বুকিং সফলভাবে বাতিল করা হয়েছে।" : "Booking cancelled successfully.");
     } catch (err: any) {
       alert(err.message || (lang === "bn" ? "বুকিং বাতিল করা যায়নি।" : "Could not cancel booking."));
@@ -1143,7 +1152,7 @@ export default function DashboardPage() {
                       groupedTrips.map((trip) => (
                         <tr key={trip.tripId}>
                           <td style={{ fontWeight: 700 }}>#TRP-{trip.tripId}</td>
-                          <td>{trip.source} → {trip.destination}</td>
+                          <td>{formatLocation(trip.source)} → {formatLocation(trip.destination)}</td>
                           <td>{trip.boatName}</td>
                           <td>{formatDate(trip.departureTime)}</td>
                           <td>{trip.cargoWeight} kg</td>

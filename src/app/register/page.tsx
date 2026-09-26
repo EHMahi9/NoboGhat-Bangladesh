@@ -44,6 +44,28 @@ export default function RegisterPage() {
       return;
     }
 
+    if (trimmedPhone) {
+      const cleanPhone = trimmedPhone.replace(/^(\+880|880)/, '');
+      const bdPhoneRegex = /^01[3-9]\d{8}$/;
+      if (!bdPhoneRegex.test(cleanPhone)) {
+        setError(lang === "bn" ? "সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)" : "Please enter a valid 11-digit Bangladeshi mobile number (e.g., 017XXXXXXXX)");
+        return;
+      }
+    }
+
+    if (trimmedEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        setError(lang === "bn" ? "সঠিক ইমেইল ঠিকানা প্রদান করুন।" : "Please enter a valid email address.");
+        return;
+      }
+    }
+
+    if (!password || password.length < 6) {
+      setError(lang === "bn" ? "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" : "Password must be at least 6 characters.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
