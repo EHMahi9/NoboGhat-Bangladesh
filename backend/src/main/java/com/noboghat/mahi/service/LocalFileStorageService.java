@@ -31,31 +31,25 @@ public class LocalFileStorageService implements FileStorageService {
 
     @Override
     public String storeFile(MultipartFile file) {
-        // Normalize file name
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
         
         try {
-            // Check if the file's name contains invalid characters
             if (originalFileName.contains("..")) {
                 throw new RuntimeException("Sorry! Filename contains invalid path sequence " + originalFileName);
             }
 
-            // Generate a unique filename to prevent overwriting
-            String extension = "";
-            int i = originalFileName.lastIndexOf('.');
-            if (i > 0) {
-                extension = originalFileName.substring(i);
-            }
-            String fileName = UUID.randomUUID().toString() + extension;
-
-            // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-            logger.info("Stored file: {}", targetLocation.toString());
+            // Convert to Base64 to avoid Render's ephemeral disk wipes
+            byte[] fileBytes = file.getBytes();
+            String base64Encoded = java.util.Base64.getEncoder().encodeToString(fileBytes);
             
-            // Return the path or URL where the file can be accessed
-            return "/api/files/" + fileName;
+            String contentType = file.getContentType();
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            
+            logger.info("Stored file {} as Base64", originalFileName);
+            
+            return "data:" + contentType + ";base64," + base64Encoded;
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + originalFileName + ". Please try again!", ex);
         }

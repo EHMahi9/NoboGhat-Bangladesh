@@ -40,7 +40,14 @@ public class FileUploadController {
     @GetMapping("/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         try {
-            Path filePath = Paths.get("uploads").toAbsolutePath().normalize().resolve(fileName).normalize();
+            Path baseDirPath = Paths.get("uploads").toAbsolutePath().normalize();
+            Path filePath = baseDirPath.resolve(fileName).normalize();
+
+            // Prevent path traversal attacks
+            if (!filePath.startsWith(baseDirPath)) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists()) {

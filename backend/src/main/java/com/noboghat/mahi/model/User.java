@@ -49,7 +49,7 @@ public class User {
     @Column(nullable = false)
     private boolean isActive = true;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "LONGTEXT")
     private String profilePictureUrl;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
