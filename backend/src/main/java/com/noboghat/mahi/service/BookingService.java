@@ -42,7 +42,8 @@ public class BookingService {
 
         double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
         double requestedWeight = bookingDto.getCargoWeight();
-        double boatCapacity = trip.getBoat().getCapacity();
+        Double capacityOpt = trip.getBoat().getCapacity();
+        double boatCapacity = capacityOpt != null ? capacityOpt : 0.0;
         if (reservedWeight + requestedWeight > boatCapacity) {
             throw new IllegalArgumentException("Capacity error: this booking exceeds the boat's remaining capacity.");
         }

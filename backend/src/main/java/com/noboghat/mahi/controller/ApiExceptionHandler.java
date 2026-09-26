@@ -66,4 +66,17 @@ public class ApiExceptionHandler {
         }
         return ResponseEntity.status(403).body(Map.of("message", message));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleAllUncaughtException(Exception exception) {
+        // Log to console for debugging on Render
+        exception.printStackTrace(); 
+        
+        // Send the actual exception name and message to the frontend instead of generic 500
+        String errorName = exception.getClass().getSimpleName();
+        String errorMessage = exception.getMessage() != null ? exception.getMessage() : "No message";
+        return ResponseEntity.status(500).body(Map.of(
+            "message", "Backend Error (" + errorName + "): " + errorMessage
+        ));
+    }
 }
