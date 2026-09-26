@@ -24,8 +24,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-2xs">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200/90 bg-white shadow-xs">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
         <div className="flex items-center shrink-0">
           <Link href="/">
             <Image src="/images/noboghat-svg.svg" alt="NoboGhat Logo" width={140} height={40} priority className="h-8 w-auto" />
@@ -33,33 +33,33 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex lg:items-center lg:gap-5 xl:gap-7 shrink-0">
+        <div className="hidden lg:flex lg:items-center lg:gap-1.5 xl:gap-2 shrink-0">
           <Link
             href="/"
-            className={`text-sm transition-all py-1 relative ${
+            className={`text-sm px-3.5 py-1.5 rounded-lg transition-all ${
               isActive("/")
-                ? "text-[#0F4C81] font-bold after:content-[''] after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-[2.5px] after:bg-[#2E8B57] after:rounded-full"
-                : "text-slate-600 font-medium hover:text-[#0F4C81]"
+                ? "bg-[#0F4C81]/10 text-[#0F4C81] font-bold shadow-2xs"
+                : "text-slate-600 font-medium hover:text-[#0F4C81] hover:bg-slate-100/70"
             }`}
           >
             {t("nav.home")}
           </Link>
           <Link
             href="/about"
-            className={`text-sm transition-all py-1 relative ${
+            className={`text-sm px-3.5 py-1.5 rounded-lg transition-all ${
               isActive("/about")
-                ? "text-[#0F4C81] font-bold after:content-[''] after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-[2.5px] after:bg-[#2E8B57] after:rounded-full"
-                : "text-slate-600 font-medium hover:text-[#0F4C81]"
+                ? "bg-[#0F4C81]/10 text-[#0F4C81] font-bold shadow-2xs"
+                : "text-slate-600 font-medium hover:text-[#0F4C81] hover:bg-slate-100/70"
             }`}
           >
             {t("nav.about")}
           </Link>
           <Link
             href="/routes"
-            className={`text-sm transition-all py-1 relative ${
+            className={`text-sm px-3.5 py-1.5 rounded-lg transition-all ${
               isActive("/routes")
-                ? "text-[#0F4C81] font-bold after:content-[''] after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-[2.5px] after:bg-[#2E8B57] after:rounded-full"
-                : "text-slate-600 font-medium hover:text-[#0F4C81]"
+                ? "bg-[#0F4C81]/10 text-[#0F4C81] font-bold shadow-2xs"
+                : "text-slate-600 font-medium hover:text-[#0F4C81] hover:bg-slate-100/70"
             }`}
           >
             {t("nav.routes")}
@@ -67,10 +67,10 @@ export default function Navbar() {
           {user && (
             <Link
               href="/dashboard"
-              className={`text-sm transition-all py-1 relative ${
+              className={`text-sm px-3.5 py-1.5 rounded-lg transition-all ${
                 isActive("/dashboard")
-                  ? "text-[#0F4C81] font-bold after:content-[''] after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-[2.5px] after:bg-[#2E8B57] after:rounded-full"
-                  : "text-slate-600 font-medium hover:text-[#0F4C81]"
+                  ? "bg-[#0F4C81]/10 text-[#0F4C81] font-bold shadow-2xs"
+                  : "text-slate-600 font-medium hover:text-[#0F4C81] hover:bg-slate-100/70"
               }`}
             >
               {t("nav.dashboard")}
@@ -79,10 +79,10 @@ export default function Navbar() {
           {user && user.role === "ADMIN" && (
             <Link
               href="/admin"
-              className={`text-sm font-bold transition-all py-1 relative flex items-center gap-1 ${
+              className={`text-sm px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
                 isActive("/admin")
-                  ? "text-[#2F80ED] font-bold after:content-[''] after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-[2.5px] after:bg-[#2F80ED] after:rounded-full"
-                  : "text-[#2F80ED] hover:text-[#0F4C81]"
+                  ? "bg-[#2F80ED]/15 text-[#2F80ED] font-bold shadow-2xs"
+                  : "text-[#2F80ED] hover:bg-blue-50/70 font-semibold"
               }`}
             >
               <Shield className="h-3.5 w-3.5" />

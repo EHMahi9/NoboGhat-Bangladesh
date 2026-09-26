@@ -102,6 +102,10 @@ export default function AdminPage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
+
   if (loading) {
     return (
       <div className="flex min-h-[calc(100vh-140px)] items-center justify-center">
@@ -195,37 +199,92 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] bg-slate-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-slate-900 text-white flex-shrink-0 hidden md:block">
-        <div className="p-6 border-b border-slate-800">
-          <h2 className="text-xl font-bold flex items-center">
-            <Shield className="mr-2.5 h-6 w-6 text-blue-400" />
+    <div className="min-h-[calc(100vh-70px)] bg-slate-50 flex flex-col md:flex-row">
+      {/* Mobile/Tablet Admin Tabs Bar */}
+      <div className="md:hidden bg-[#0A192F] text-white px-4 py-2.5 border-b border-slate-800 flex items-center gap-2 overflow-x-auto no-scrollbar sticky top-[60px] z-30 shadow-xs">
+        <button
+          type="button"
+          onClick={() => setActiveTab("overview")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            activeTab === "overview" ? "bg-[#0F4C81] text-white shadow-xs" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <Shield className="h-3.5 w-3.5" />
+          Overview
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("routes")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            activeTab === "routes" ? "bg-[#0F4C81] text-white shadow-xs" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <MapPin className="h-3.5 w-3.5" />
+          Routes
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("boats")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            activeTab === "boats" ? "bg-[#0F4C81] text-white shadow-xs" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <Ship className="h-3.5 w-3.5" />
+          Vessels
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("trips")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            activeTab === "trips" ? "bg-[#0F4C81] text-white shadow-xs" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          Departures
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("users")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            activeTab === "users" ? "bg-[#0F4C81] text-white shadow-xs" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <Users className="h-3.5 w-3.5" />
+          Users
+        </button>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-[#0A192F] text-white flex-shrink-0 hidden md:flex md:flex-col border-r border-slate-800/80">
+        <div className="p-6 border-b border-slate-800/80">
+          <h2 className="text-xl font-bold flex items-center text-white">
+            <Shield className="mr-2.5 h-5 w-5 text-blue-400" />
             NoboGhat Ops
           </h2>
-          <span className="text-xs text-slate-400 mt-1 block">Maritime Administration</span>
+          <span className="text-xs text-slate-400 mt-1 block font-medium">Maritime Administration</span>
         </div>
-        <nav className="mt-4 px-3 space-y-1.5">
+        <nav className="mt-4 px-3 space-y-1.5 flex-1">
           <SidebarBtn active={activeTab === "overview"} onClick={() => setActiveTab("overview")} icon={<Shield className="h-4 w-4" />} text="Overview" />
           <SidebarBtn active={activeTab === "routes"} onClick={() => setActiveTab("routes")} icon={<MapPin className="h-4 w-4" />} text="River Routes" />
           <SidebarBtn active={activeTab === "boats"} onClick={() => setActiveTab("boats")} icon={<Ship className="h-4 w-4" />} text="Fleet & Vessels" />
           <SidebarBtn active={activeTab === "trips"} onClick={() => setActiveTab("trips")} icon={<Calendar className="h-4 w-4" />} text="Trip Departures" />
           <SidebarBtn active={activeTab === "users"} onClick={() => setActiveTab("users")} icon={<Users className="h-4 w-4" />} text="User Directory" />
         </nav>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 sm:p-10 overflow-y-auto">
+      {/* Main Content Area with generous top breathing room */}
+      <main className="flex-1 p-6 sm:p-10 pt-8 sm:pt-10 min-w-0 max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 capitalize tracking-tight">
-              {activeTab === "overview" ? "Operations Centre" : activeTab}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 capitalize tracking-tight">
+              {activeTab === "overview" ? "Operations Centre" : activeTab.replace("-", " ")}
             </h1>
             <p className="text-slate-500 text-sm mt-1">Manage system configurations, tariffs, fleet, and consignments.</p>
           </div>
           <button
+            type="button"
             onClick={loadAllAdminData}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs self-start sm:self-auto"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs self-start sm:self-auto hover:bg-slate-50 transition-colors"
           >
             {isLoadingData ? "Refreshing..." : "↻ Refresh Data"}
           </button>
@@ -497,7 +556,7 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Modal: Add Route */}
       {showAddRoute && (
