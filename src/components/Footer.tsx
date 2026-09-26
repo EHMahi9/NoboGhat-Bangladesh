@@ -4,9 +4,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { Mail, Phone, MapPin, ExternalLink, Ship } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const { lang, t } = useLanguage();
+  const pathname = usePathname();
+
+  // Hide the marketing footer on application portals, admin console, and auth/payment flows
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/dashboard") ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname?.startsWith("/payment")
+  ) {
+    return null;
+  }
+
+  const isHome = pathname === "/";
 
   return (
     <footer id="contact" className="bg-[#0F4C81] text-[#E2E8F0] pt-10 pb-6 border-t border-blue-900/40">
