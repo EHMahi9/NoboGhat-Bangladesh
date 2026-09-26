@@ -801,14 +801,14 @@ export default function DashboardPage() {
                   <div className="card-icon">
                     <Plus className="h-5 w-5" />
                   </div>
-                  <h3>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï αª¼αºüαªò αªòαª░αºüαª¿" : "Book Cargo"}</h3>
+                  <h3>{lang === "bn" ? "কার্গো বুক করুন" : "Book Cargo"}</h3>
                   <p>
                     {lang === "bn"
-                      ? "αªåαª╕αª¿αºìαª¿ αª»αª╛αªÜαª╛αªçαªòαºâαªñ αª░αºüαªƒαºç αª»αºîαªÑ αªòαª╛αª░αºìαªùαºï αª╕αºìαª¬αºçαª╕ αªûαºüαªüαª£αºüαª¿αÑñ"
+                      ? "আসন্ন যাচাইকৃত রুটে যৌথ কার্গো স্পেস খুঁজুন।"
                       : "Find shared cargo space on upcoming verified routes."}
                   </p>
                   <Link href="/routes" className="btn-secondary">
-                    {lang === "bn" ? "αª¿αªñαºüαª¿ αª¼αºüαªòαª┐αªé" : "New Booking"}
+                    {lang === "bn" ? "নতুন বুকিং" : "New Booking"}
                   </Link>
                 </div>
 
@@ -817,18 +817,18 @@ export default function DashboardPage() {
                   <div className="card-icon">
                     <Loader2 className="h-5 w-5 animate-spin" />
                   </div>
-                  <h3>{lang === "bn" ? "αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé" : "Active Bookings"}</h3>
+                  <h3>{lang === "bn" ? "সক্রিয় বুকিং" : "Active Bookings"}</h3>
                   <p>
                     {loadingBookings
                       ? lang === "bn"
-                        ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..."
+                        ? "বুকিং লোড হচ্ছে..."
                         : "Loading your bookings..."
                       : bookings.length === 0
                       ? lang === "bn"
-                        ? "αªåαª¬αª¿αª╛αª░ αªòαºïαª¿αºï αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé αª¿αºçαªçαÑñ"
+                        ? "আপনার কোনো সক্রিয় বুকিং নেই।"
                         : "You do not have any bookings yet."
                       : lang === "bn"
-                      ? `αªåαª¬αª¿αª╛αª░ ${activeCount}αªƒαª┐ αª╕αªòαºìαª░αª┐αª»αª╝ αª¼αºüαªòαª┐αªé αª░αºƒαºçαª¢αºçαÑñ`
+                      ? `আপনার ${activeCount}টি সক্রিয় বুকিং রয়েছে।`
                       : `You have ${activeCount} active booking${activeCount === 1 ? "" : "s"}.`}
                   </p>
                   <button
@@ -836,7 +836,7 @@ export default function DashboardPage() {
                     type="button"
                     onClick={() => setActiveTab("active-bookings")}
                   >
-                    {lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕ αªªαºçαªûαºüαª¿" : "View Status"}
+                    {lang === "bn" ? "স্ট্যাটাস দেখুন" : "View Status"}
                   </button>
                 </div>
 
@@ -845,10 +845,10 @@ export default function DashboardPage() {
                   <div className="card-icon">
                     <AlertTriangle className="h-5 w-5" />
                   </div>
-                  <h3>{lang === "bn" ? "αªºαª╛αª░αªúαªòαºìαª╖αª«αªñαª╛ αªåαª¬αªíαºçαªƒ" : "Capacity Update"}</h3>
+                  <h3>{lang === "bn" ? "ধারণক্ষমতা আপডেট" : "Capacity Update"}</h3>
                   <p>
                     {lang === "bn"
-                      ? "αªÿαª╛αªƒ-αºº αªÑαºçαªòαºç αªûαºüαª▓αª¿αª╛ αª░αºüαªƒαºçαª░ αªƒαºìαª░αª┐αª¬ αº»αºª% αª¬αºéαª░αºìαªúαÑñ αªªαºìαª░αºüαªñ αª¼αºüαªòαª┐αªé αª¿αª┐αª╢αºìαªÜαª┐αªñ αªòαª░αºüαª¿αÑñ"
+                      ? "ঘাট-১ থেকে খুলনা রুটের ট্রিপ ৯০% পূর্ণ। দ্রুত বুকিং নিশ্চিত করুন।"
                       : "The Ghat-1 trip to Khulna is 90% full. Confirm pending bookings soon."}
                   </p>
                 </div>
@@ -858,11 +858,11 @@ export default function DashboardPage() {
               <section className="recent-history">
                 <div className="section-heading">
                   <div>
-                    <p className="section-kicker">{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï" : "Cargo"}</p>
-                    <h2>{lang === "bn" ? "αª╕αª╛αª«αºìαª¬αºìαª░αªñαª┐αªò αª¼αºüαªòαª┐αªé αªçαªñαª┐αª╣αª╛αª╕" : "Recent Booking History"}</h2>
+                    <p className="section-kicker">{lang === "bn" ? "কার্গো" : "Cargo"}</p>
+                    <h2>{lang === "bn" ? "সাম্প্রতিক বুকিং ইতিহাস" : "Recent Booking History"}</h2>
                     <p>
                       {lang === "bn"
-                        ? "αªåαª¬αª¿αª╛αª░ αª¼αª░αºìαªñαª«αª╛αª¿ αªô αª¬αºéαª░αºìαª¼αºçαª░ αªòαª╛αª░αºìαªùαºï αªÜαª╛αª▓αª╛αª¿ αªªαºçαªûαºüαª¿αÑñ"
+                        ? "আপনার বর্তমান ও পূর্বের কার্গো চালান দেখুন।"
                         : "View your active and past cargo shipments."}
                     </p>
                   </div>
@@ -874,27 +874,27 @@ export default function DashboardPage() {
                   <table className="history-table">
                     <thead>
                       <tr>
-                        <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªé αªåαªçαªíαª┐" : "Booking ID"}</th>
-                        <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
-                        <th>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºïαª░ αªºαª░αª¿" : "Cargo Type"}</th>
-                        <th>{lang === "bn" ? "αªôαª£αª¿ (αªòαºçαª£αª┐)" : "Weight (kg)"}</th>
-                        <th>{lang === "bn" ? "αª«αºïαªƒ αª¡αª╛αº£αª╛" : "Total Fare"}</th>
-                        <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªéαºƒαºçαª░ αªñαª╛αª░αª┐αªû" : "Booked On"}</th>
-                        <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
-                        <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                        <th>{lang === "bn" ? "বুকিং আইডি" : "Booking ID"}</th>
+                        <th>{lang === "bn" ? "রুট" : "Route"}</th>
+                        <th>{lang === "bn" ? "কার্গোর ধরন" : "Cargo Type"}</th>
+                        <th>{lang === "bn" ? "ওজন (কেজি)" : "Weight (kg)"}</th>
+                        <th>{lang === "bn" ? "মোট ভাড়া" : "Total Fare"}</th>
+                        <th>{lang === "bn" ? "বুকিংয়ের তারিখ" : "Booked On"}</th>
+                        <th>{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
+                        <th>{lang === "bn" ? "অ্যাকশন" : "Action"}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {loadingBookings ? (
                         <tr>
                           <td colSpan={8} style={{ textAlign: "center", padding: "2rem" }}>
-                            {lang === "bn" ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..." : "Loading your bookings..."}
+                            {lang === "bn" ? "বুকিং লোড হচ্ছে..." : "Loading your bookings..."}
                           </td>
                         </tr>
                       ) : bookings.length === 0 ? (
                         <tr>
                           <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
-                            {lang === "bn" ? "αªòαºïαª¿αºï αª¼αºüαªòαª┐αªé αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐αÑñ" : "No bookings found for your account."}
+                            {lang === "bn" ? "কোনো বুকিং পাওয়া যায়নি।" : "No bookings found for your account."}
                           </td>
                         </tr>
                       ) : (
@@ -907,7 +907,7 @@ export default function DashboardPage() {
                               <td>{booking.cargoType || "General"}</td>
                               <td>{booking.cargoWeight || 0} kg</td>
                               <td style={{ fontWeight: 700 }}>
-                                αº│ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
+                                ৳ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
                               </td>
                               <td>{formatDate(booking.bookedAt || booking.departureTime)}</td>
                               <td>
@@ -938,7 +938,7 @@ export default function DashboardPage() {
                                         setPinCode("");
                                       }}
                                     >
-                                      {lang === "bn" ? "αª¡αª╛αº£αª╛ αª¬αª░αª┐αª╢αºïαªº" : "Pay Now"}
+                                      {lang === "bn" ? "ভাড়া পরিশোধ" : "Pay Now"}
                                     </button>
                                     <button
                                       type="button"
@@ -951,7 +951,7 @@ export default function DashboardPage() {
                                       }}
                                       onClick={() => handleCancelBooking(booking.bookingId)}
                                     >
-                                      {lang === "bn" ? "αª¼αª╛αªñαª┐αª▓" : "Cancel"}
+                                      {lang === "bn" ? "বাতিল" : "Cancel"}
                                     </button>
                                   </div>
                                 ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
@@ -961,7 +961,7 @@ export default function DashboardPage() {
                                     style={{ fontSize: "0.78rem", padding: "4px 10px" }}
                                     onClick={() => setSelectedWaybill(booking)}
                                   >
-                                    {lang === "bn" ? "αªÜαª╛αª▓αª╛αª¿ αª░αª╢αª┐αªª" : "View Waybill"}
+                                    {lang === "bn" ? "চালান রশিদ" : "View Waybill"}
                                   </button>
                                 ) : (
                                   "-"
@@ -985,11 +985,11 @@ export default function DashboardPage() {
             <section className="recent-history dashboard-section">
               <div className="section-heading">
                 <div>
-                  <p className="section-kicker">{lang === "bn" ? "αªòαª╛αª░αºìαªùαºï" : "Cargo"}</p>
-                  <h2>{lang === "bn" ? "αª╕αª╛αª«αºìαª¬αºìαª░αªñαª┐αªò αª¼αºüαªòαª┐αªé αªçαªñαª┐αª╣αª╛αª╕" : "Recent Booking History"}</h2>
+                  <p className="section-kicker">{lang === "bn" ? "কার্গো" : "Cargo"}</p>
+                  <h2>{lang === "bn" ? "সাম্প্রতিক বুকিং ইতিহাস" : "Recent Booking History"}</h2>
                   <p>
                     {lang === "bn"
-                      ? "αªåαª¬αª¿αª╛αª░ αª¼αª░αºìαªñαª«αª╛αª¿ αªô αª¬αºéαª░αºìαª¼αºçαª░ αªòαª╛αª░αºìαªùαºï αªÜαª╛αª▓αª╛αª¿ αªªαºçαªûαºüαª¿αÑñ"
+                      ? "আপনার বর্তমান ও পূর্বের কার্গো চালান দেখুন।"
                       : "View your active and past cargo shipments."}
                   </p>
                 </div>
@@ -1001,27 +1001,27 @@ export default function DashboardPage() {
                 <table className="history-table">
                   <thead>
                     <tr>
-                      <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªé αªåαªçαªíαª┐" : "Booking ID"}</th>
-                      <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
-                      <th>{lang === "bn" ? "αªòαª╛αª░αºìαªùαºïαª░ αªºαª░αª¿" : "Cargo Type"}</th>
-                      <th>{lang === "bn" ? "αªôαª£αª¿ (αªòαºçαª£αª┐)" : "Weight (kg)"}</th>
-                      <th>{lang === "bn" ? "αª«αºïαªƒ αª¡αª╛αº£αª╛" : "Total Fare"}</th>
-                      <th>{lang === "bn" ? "αª¼αºüαªòαª┐αªéαºƒαºçαª░ αªñαª╛αª░αª┐αªû" : "Booked On"}</th>
-                      <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
-                      <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                      <th>{lang === "bn" ? "বুকিং আইডি" : "Booking ID"}</th>
+                      <th>{lang === "bn" ? "রুট" : "Route"}</th>
+                      <th>{lang === "bn" ? "কার্গোর ধরন" : "Cargo Type"}</th>
+                      <th>{lang === "bn" ? "ওজন (কেজি)" : "Weight (kg)"}</th>
+                      <th>{lang === "bn" ? "মোট ভাড়া" : "Total Fare"}</th>
+                      <th>{lang === "bn" ? "বুকিংয়ের তারিখ" : "Booked On"}</th>
+                      <th>{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
+                      <th>{lang === "bn" ? "অ্যাকশন" : "Action"}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loadingBookings ? (
                       <tr>
                         <td colSpan={8} style={{ textAlign: "center", padding: "2rem" }}>
-                          {lang === "bn" ? "αª¼αºüαªòαª┐αªé αª▓αºïαªí αª╣αªÜαºìαª¢αºç..." : "Loading your bookings..."}
+                          {lang === "bn" ? "বুকিং লোড হচ্ছে..." : "Loading your bookings..."}
                         </td>
                       </tr>
                     ) : bookings.length === 0 ? (
                       <tr>
                         <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
-                          {lang === "bn" ? "αªòαºïαª¿αºï αª¼αºüαªòαª┐αªé αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐αÑñ" : "No bookings found for your account."}
+                          {lang === "bn" ? "কোনো বুকিং পাওয়া যায়নি।" : "No bookings found for your account."}
                         </td>
                       </tr>
                     ) : (
@@ -1034,7 +1034,7 @@ export default function DashboardPage() {
                             <td>{booking.cargoType || "General"}</td>
                             <td>{booking.cargoWeight || 0} kg</td>
                             <td style={{ fontWeight: 700 }}>
-                              αº│ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
+                              ৳ {booking.totalFare ? booking.totalFare.toFixed(2) : "0.00"}
                             </td>
                             <td>{formatDate(booking.bookedAt || booking.departureTime)}</td>
                             <td>
@@ -1065,7 +1065,7 @@ export default function DashboardPage() {
                                       setPinCode("");
                                     }}
                                   >
-                                    {lang === "bn" ? "αª¡αª╛αº£αª╛ αª¬αª░αª┐αª╢αºïαªº" : "Pay Now"}
+                                    {lang === "bn" ? "ভাড়া পরিশোধ" : "Pay Now"}
                                   </button>
                                   <button
                                     type="button"
@@ -1078,7 +1078,7 @@ export default function DashboardPage() {
                                     }}
                                     onClick={() => handleCancelBooking(booking.bookingId)}
                                   >
-                                    {lang === "bn" ? "αª¼αª╛αªñαª┐αª▓" : "Cancel"}
+                                    {lang === "bn" ? "বাতিল" : "Cancel"}
                                   </button>
                                 </div>
                               ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
@@ -1088,7 +1088,7 @@ export default function DashboardPage() {
                                   style={{ fontSize: "0.78rem", padding: "4px 10px" }}
                                   onClick={() => setSelectedWaybill(booking)}
                                 >
-                                  {lang === "bn" ? "αªÜαª╛αª▓αª╛αª¿ αª░αª╢αª┐αªª" : "View Waybill"}
+                                  {lang === "bn" ? "চালান রশিদ" : "View Waybill"}
                                 </button>
                               ) : (
                                 "-"
@@ -1111,11 +1111,11 @@ export default function DashboardPage() {
             <section className="recent-history dashboard-section">
               <div className="section-heading">
                 <div>
-                  <p className="section-kicker">{lang === "bn" ? "αª¡αºìαª░αª«αªú" : "Travel"}</p>
-                  <h2>{lang === "bn" ? "αªåαª«αª╛αª░ αªƒαºìαª░αª┐αª¬" : "My Trips"}</h2>
+                  <p className="section-kicker">{lang === "bn" ? "ভ্রমণ" : "Travel"}</p>
+                  <h2>{lang === "bn" ? "আমার ট্রিপ" : "My Trips"}</h2>
                   <p>
                     {lang === "bn"
-                      ? "αªåαª¬αª¿αª╛αª░ αªåαª╕αª¿αºìαª¿ αª¿αºîαª»αª╛αªñαºìαª░αª╛αª░ αª¼αª┐αª¼αª░αªú αª¬αª░αºÇαªòαºìαª╖αª╛ αªòαª░αºüαª¿αÑñ"
+                      ? "আপনার আসন্ন নৌযাত্রার বিবরণ পরীক্ষা করুন।"
                       : "Check the details of your upcoming passenger trips."}
                   </p>
                 </div>
@@ -1127,11 +1127,11 @@ export default function DashboardPage() {
                 <table className="history-table">
                   <thead>
                     <tr>
-                      <th>{lang === "bn" ? "αªƒαºìαª░αª┐αª¬ αªåαªçαªíαª┐" : "Trip ID"}</th>
-                      <th>{lang === "bn" ? "αª░αºüαªƒ" : "Route"}</th>
-                      <th>{lang === "bn" ? "αª¿αºîαª»αª╛αª¿" : "Boat"}</th>
-                      <th>{lang === "bn" ? "αª»αª╛αªñαºìαª░αª╛αª░ αª╕αª«αª»αª╝" : "Departure"}</th>
-                      <th>{lang === "bn" ? "αªåαª«αª╛αª░ αªòαª╛αª░αºìαªùαºï" : "My Cargo"}</th>
+                      <th>{lang === "bn" ? "ট্রিপ আইডি" : "Trip ID"}</th>
+                      <th>{lang === "bn" ? "রুট" : "Route"}</th>
+                      <th>{lang === "bn" ? "নৌযান" : "Boat"}</th>
+                      <th>{lang === "bn" ? "যাত্রার সময়" : "Departure"}</th>
+                      <th>{lang === "bn" ? "আমার কার্গো" : "My Cargo"}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1139,7 +1139,7 @@ export default function DashboardPage() {
                       <tr>
                         <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
                           {lang === "bn"
-                            ? "αªåαª¬αª¿αª╛αª░ αªàαºìαª»αª╛αªòαª╛αªëαª¿αºìαªƒαºç αªòαºïαª¿αºï αªƒαºìαª░αª┐αª¬ αª¬αª╛αªôαª»αª╝αª╛ αª»αª╛αª»αª╝αª¿αª┐αÑñ"
+                            ? "আপনার অ্যাকাউন্টে কোনো ট্রিপ পাওয়া যায়নি।"
                             : "No trips found for your account."}
                         </td>
                       </tr>
@@ -1147,7 +1147,7 @@ export default function DashboardPage() {
                       groupedTrips.map((trip) => (
                         <tr key={trip.tripId}>
                           <td style={{ fontWeight: 700 }}>#TRP-{trip.tripId}</td>
-                          <td>{trip.source} ΓåÆ {trip.destination}</td>
+                          <td>{trip.source} → {trip.destination}</td>
                           <td>{trip.boatName}</td>
                           <td>{formatDate(trip.departureTime)}</td>
                           <td>{trip.cargoWeight} kg</td>
@@ -1167,11 +1167,11 @@ export default function DashboardPage() {
             <section className="recent-history dashboard-section">
               <div className="section-heading">
                 <div>
-                  <p className="section-kicker">{lang === "bn" ? "αªåαª¬αªíαºçαªƒ" : "Updates"}</p>
-                  <h2>{lang === "bn" ? "αª¼αª┐αª£αºìαª₧αª¬αºìαªñαª┐" : "Notifications"}</h2>
+                  <p className="section-kicker">{lang === "bn" ? "আপডেট" : "Updates"}</p>
+                  <h2>{lang === "bn" ? "বিজ্ঞপ্তি" : "Notifications"}</h2>
                   <p>
                     {lang === "bn"
-                      ? "αªåαª¬αª¿αª╛αª░ αªàαºìαª»αª╛αªòαª╛αªëαª¿αºìαªƒαºçαª░ αªùαºüαª░αºüαªñαºìαª¼αª¬αºéαª░αºìαªú αª¼αª╛αª░αºìαªñαª╛ αªô αª╕αªñαª░αºìαªòαª¼αª╛αª░αºìαªñαª╛αÑñ"
+                      ? "আপনার অ্যাকাউন্টের গুরুত্বপূর্ণ বার্তা ও সতর্কবার্তা।"
                       : "Important alerts and messages about your account."}
                   </p>
                 </div>
@@ -1183,17 +1183,17 @@ export default function DashboardPage() {
                 <table className="history-table">
                   <thead>
                     <tr>
-                      <th>{lang === "bn" ? "αª¼αª╛αª░αºìαªñαª╛" : "Message"}</th>
-                      <th>{lang === "bn" ? "αªñαª╛αª░αª┐αªû" : "Date"}</th>
-                      <th>{lang === "bn" ? "αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕" : "Status"}</th>
-                      <th>{lang === "bn" ? "αªàαºìαª»αª╛αªòαª╢αª¿" : "Action"}</th>
+                      <th>{lang === "bn" ? "বার্তা" : "Message"}</th>
+                      <th>{lang === "bn" ? "তারিখ" : "Date"}</th>
+                      <th>{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
+                      <th>{lang === "bn" ? "অ্যাকশন" : "Action"}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {notifications.length === 0 ? (
                       <tr>
                         <td colSpan={4} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
-                          {lang === "bn" ? "αªòαºïαª¿αºï αª¼αª┐αª£αºìαª₧αª¬αºìαªñαª┐ αª¿αºçαªçαÑñ" : "No notifications yet."}
+                          {lang === "bn" ? "কোনো বিজ্ঞপ্তি নেই।" : "No notifications yet."}
                         </td>
                       </tr>
                     ) : (
@@ -1203,7 +1203,7 @@ export default function DashboardPage() {
                           <td>{formatDate(item.createdAt)}</td>
                           <td>
                             <span className={`status ${item.read ? "completed" : "pending"}`}>
-                              {item.read ? (lang === "bn" ? "αª¬αªáαª┐αªñ" : "Read") : (lang === "bn" ? "αªàαª¬αªáαª┐αªñ" : "Unread")}
+                              {item.read ? (lang === "bn" ? "পঠিত" : "Read") : (lang === "bn" ? "অপঠিত" : "Unread")}
                             </span>
                           </td>
                           <td>
@@ -1214,7 +1214,7 @@ export default function DashboardPage() {
                                 style={{ fontSize: "0.78rem", padding: "4px 10px" }}
                                 onClick={() => handleMarkNotificationRead(item.notificationId)}
                               >
-                                {lang === "bn" ? "αª¬αªáαª┐αªñ αªÜαª┐αª╣αºìαª¿αª┐αªñ αªòαª░αºüαª¿" : "Mark Read"}
+                                {lang === "bn" ? "পঠিত চিহ্নিত করুন" : "Mark Read"}
                               </button>
                             ) : (
                               "-"
