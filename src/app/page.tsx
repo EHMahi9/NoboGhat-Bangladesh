@@ -77,6 +77,25 @@ export default function Home() {
   const [searchFrom, setSearchFrom] = useState("");
   const [searchTo, setSearchTo] = useState("");
   const [searchDate, setSearchDate] = useState("");
+  const [searchError, setSearchError] = useState("");
+  const [availablePorts, setAvailablePorts] = useState<string[]>(riverPorts);
+
+  // Sync dynamic routes from backend to include newly created ports
+  useEffect(() => {
+    fetch("/api/routes")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: any[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const dynamicPorts = new Set(riverPorts);
+          data.forEach((r) => {
+            if (r.source) dynamicPorts.add(r.source);
+            if (r.destination) dynamicPorts.add(r.destination);
+          });
+          setAvailablePorts([...dynamicPorts].sort());
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Auto-slide every 6 seconds
   useEffect(() => {
@@ -96,8 +115,9 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setSearchError("");
     if (searchFrom && searchTo && searchFrom.trim().toLowerCase() === searchTo.trim().toLowerCase()) {
-      alert(
+      setSearchError(
         lang === "bn"
           ? "প্রারম্ভিক ঘাট ও গন্তব্য ঘাট একই হতে পারে না। অনুগ্রহ করে ভিন্ন গন্তব্য নির্বাচন করুন।"
           : "Source and destination cannot be the same ghat. Please select different ports."
@@ -184,7 +204,7 @@ export default function Home() {
                   <option value="" className="text-slate-400 font-normal">
                     {t("hero.search.selectFrom")}
                   </option>
-                  {riverPorts.map((port) => (
+                  {availablePorts.map((port) => (
                     <option key={port} value={port} className="text-slate-900 font-medium">
                       {formatLocation(port)}
                     </option>
@@ -205,7 +225,7 @@ export default function Home() {
                   <option value="" className="text-slate-400 font-normal">
                     {t("hero.search.selectTo")}
                   </option>
-                  {riverPorts.map((port) => (
+                  {availablePorts.map((port) => (
                     <option key={port} value={port} className="text-slate-900 font-medium">
                       {formatLocation(port)}
                     </option>
@@ -238,6 +258,11 @@ export default function Home() {
                 </button>
               </div>
             </form>
+            {searchError && (
+              <div className="mt-3 inline-block rounded-xl bg-red-500/20 backdrop-blur-md px-4 py-1.5 text-xs font-semibold text-red-200 border border-red-400/30">
+                {searchError}
+              </div>
+            )}
           </div>
         </div>
 

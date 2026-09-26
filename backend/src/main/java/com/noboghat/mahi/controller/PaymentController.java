@@ -19,7 +19,7 @@ public class PaymentController {
     }
 
     @PostMapping("/initiate")
-    @PreAuthorize("hasAnyRole('FARMER', 'TRADER')")
+    @PreAuthorize("hasAnyRole('FARMER', 'TRADER', 'ADMIN')")
     public ResponseEntity<PaymentTransaction> initiatePayment(@RequestBody Map<String, Object> payload) {
         Long bookingId = Long.valueOf(payload.get("bookingId").toString());
         String gateway = payload.getOrDefault("gateway", "SSLCommerz").toString();
@@ -29,10 +29,10 @@ public class PaymentController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<String> handleWebhook(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> payload) {
         // In a real scenario, this would verify the signature of the gateway
-        String transactionRef = payload.get("transactionRef");
-        String status = payload.get("status");
+        String transactionRef = payload.get("transactionRef") != null ? payload.get("transactionRef").toString() : null;
+        String status = payload.get("status") != null ? payload.get("status").toString() : null;
 
         paymentService.handleWebhook(transactionRef, status);
         return ResponseEntity.ok("Webhook received.");

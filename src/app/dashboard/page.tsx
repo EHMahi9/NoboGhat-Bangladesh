@@ -15,8 +15,6 @@ import {
   X,
   Printer,
   ShieldCheck,
-  CreditCard,
-  Lock,
   LayoutDashboard,
   Package,
   Ship,
@@ -151,15 +149,7 @@ export default function DashboardPage() {
   // Waybill Modal State
   const [selectedWaybill, setSelectedWaybill] = useState<BookingItem | null>(null);
 
-  // Payment Modal State
-  const [paymentBooking, setPaymentBooking] = useState<BookingItem | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"bkash" | "nagad">("bkash");
-  const [paymentStep, setPaymentStep] = useState<1 | 2 | 3 | 4>(1);
-  const [accountNumber, setAccountNumber] = useState("01711234567");
-  const [otpCode, setOtpCode] = useState("123456");
-  const [pinCode, setPinCode] = useState("");
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
+
 
   // Load bookings
   const loadBookings = useCallback(async () => {
@@ -598,95 +588,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Execute Payment Simulation
-  const handleExecutePayment = async () => {
-    if (!paymentBooking) return;
-    if (paymentStep === 1) {
-      if (!accountNumber || accountNumber.length < 11) {
-        setPaymentError(lang === "bn" ? "অনুগ্রহ করে সঠিক ১১-সংখ্যার মোবাইল নম্বর দিন।" : "Please enter a valid 11-digit mobile number.");
-        return;
-      }
-      setPaymentError("");
-      setPaymentStep(2);
-      return;
-    }
-
-    if (paymentStep === 2) {
-      if (!otpCode || otpCode.length < 4) {
-        setPaymentError(lang === "bn" ? "অনুগ্রহ করে ৬-সংখ্যার ওটিপি কোড দিন।" : "Please enter the 6-digit OTP.");
-        return;
-      }
-      setPaymentError("");
-      setPaymentStep(3);
-      return;
-    }
-
-    if (paymentStep === 3) {
-      if (!pinCode || pinCode.length < 4) {
-        setPaymentError(lang === "bn" ? "অনুগ্রহ করে আপনার পিন কোড দিন।" : "Please enter your secret PIN.");
-        return;
-      }
-      setIsProcessingPayment(true);
-      setPaymentError("");
-
-      try {
-        // Initiate payment with backend
-        const initData = await fetchApi("/payments/initiate", {
-          method: "POST",
-          body: JSON.stringify({
-            bookingId: paymentBooking.bookingId,
-            gateway: paymentMethod.toUpperCase(),
-          }),
-        }).catch(() => null);
-
-        // Notify payments webhook to confirm
-        const trxRef =
-          initData?.transactionRef ||
-          `${paymentMethod.toUpperCase()}-${Date.now()}-${paymentBooking.bookingId}`;
-
-        await fetchApi("/payments/webhook", {
-          method: "POST",
-          requireAuth: false,
-          body: JSON.stringify({
-            bookingId: paymentBooking.bookingId,
-            transactionRef: trxRef,
-            status: "SUCCESS",
-            provider: paymentMethod.toUpperCase(),
-          }),
-        });
-
-        // Persist confirmed booking in cache
-        try {
-          const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-          const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-          if (!confirmedList.includes(paymentBooking.bookingId)) {
-            confirmedList.push(paymentBooking.bookingId);
-            localStorage.setItem(cacheKey, JSON.stringify(confirmedList));
-          }
-        } catch {}
-
-        // Update local booking state
-        setBookings((prev) =>
-          prev.map((item) =>
-            item.bookingId === paymentBooking.bookingId
-              ? { ...item, status: "CONFIRMED" }
-              : item
-          )
-        );
-
-        setPaymentStep(4);
-      } catch (err: any) {
-        setPaymentError(
-          err.message ||
-            (lang === "bn"
-              ? "পেমেন্ট সম্পন্ন করা যায়নি। অনুগ্রহ করে সঠিক পিন দিয়ে পুনরায় চেষ্টা করুন।"
-              : "Payment could not be completed. Please check your PIN and try again.")
-        );
-      } finally {
-        setIsProcessingPayment(false);
-      }
-    }
-  };
 
   return (
     <div className="dashboard-body" style={{ minHeight: "calc(100vh - 70px)" }}>
@@ -1261,7 +1162,7 @@ export default function DashboardPage() {
             if (e.target === e.currentTarget) setSelectedWaybill(null);
           }}
         >
-          <div className="modal-box">
+          <div className="modal-box" id="printable-waybill">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #0e5e94", paddingBottom: "1rem", marginBottom: "1.5rem" }}>
               <div>
                 <span style={{ fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#147860" }}>
@@ -1276,6 +1177,7 @@ export default function DashboardPage() {
               </div>
               <button
                 type="button"
+                className="no-print"
                 onClick={() => setSelectedWaybill(null)}
                 style={{ background: "none", border: "none", cursor: "pointer", color: "#667f91" }}
               >
@@ -1296,7 +1198,7 @@ export default function DashboardPage() {
                   {lang === "bn" ? "নৌযান ও রুট" : "Vessel & Route"}
                 </p>
                 <p style={{ fontWeight: 700, color: "#123b59", margin: "2px 0" }}>
-                  {selectedWaybill.boatName || selectedWaybill.trip?.boat?.boatName || "MV Meghna Freight"}
+                  {selectedWaybill.boatName || selectedWaybill.trip?.boat?.boatName || selectedWaybill.trip?.boat?.name || "MV Meghna Freight"}
                 </p>
                 <p style={{ fontSize: "0.85rem", color: "#667f91" }}>{formatRoute(selectedWaybill)}</p>
               </div>
@@ -1327,7 +1229,7 @@ export default function DashboardPage() {
                 <ShieldCheck className="h-5 w-5" />
                 <span>Digitally Authenticated Consignment Note</span>
               </div>
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div className="no-print" style={{ display: "flex", gap: "8px" }}>
                 <button
                   type="button"
                   className="btn-outline"
@@ -1347,230 +1249,6 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================
-          PAYMENT MODAL (bKash / Nagad Interactive Escrow)
-         ======================================================== */}
-      {paymentBooking && (
-        <div
-          className="modal-overlay"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setPaymentBooking(null);
-          }}
-        >
-          <div className="modal-box" style={{ maxWidth: "460px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <CreditCard className="h-6 w-6 text-[#0e5e94]" />
-                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#123b59", margin: 0 }}>
-                  {paymentMethod === "bkash" ? "bKash Payment" : "Nagad Payment"}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPaymentBooking(null)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#667f91" }}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {paymentStep !== 4 ? (
-              <div>
-                {/* Method selector */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "1.2rem" }}>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("bkash")}
-                    style={{
-                      padding: "8px",
-                      borderRadius: "8px",
-                      border: paymentMethod === "bkash" ? "2px solid #e2136e" : "1px solid #dce9f1",
-                      backgroundColor: paymentMethod === "bkash" ? "#fff0f5" : "#fff",
-                      fontWeight: 700,
-                      color: paymentMethod === "bkash" ? "#e2136e" : "#537187",
-                      cursor: "pointer",
-                    }}
-                  >
-                    bKash
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("nagad")}
-                    style={{
-                      padding: "8px",
-                      borderRadius: "8px",
-                      border: paymentMethod === "nagad" ? "2px solid #f7941d" : "1px solid #dce9f1",
-                      backgroundColor: paymentMethod === "nagad" ? "#fff8f0" : "#fff",
-                      fontWeight: 700,
-                      color: paymentMethod === "nagad" ? "#f7941d" : "#537187",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Nagad
-                  </button>
-                </div>
-
-                <div style={{ backgroundColor: "#f1f7fa", padding: "12px", borderRadius: "10px", marginBottom: "1.2rem", textAlign: "left" }}>
-                  <p style={{ margin: 0, fontSize: "0.85rem", color: "#667f91" }}>
-                    {lang === "bn" ? "বুকিং আইডি:" : "Booking ID:"}{" "}
-                    <strong style={{ color: "#123b59" }}>#NBG-{paymentBooking.bookingId}</strong>
-                  </p>
-                  <p style={{ margin: "4px 0 0", fontSize: "1.1rem", fontWeight: 800, color: "#147860" }}>
-                    {lang === "bn" ? "মোট প্রদেয়:" : "Payable Amount:"} ৳ {paymentBooking.totalFare?.toFixed(2)}
-                  </p>
-                </div>
-
-                {paymentError && (
-                  <p style={{ color: "#e74c3c", fontSize: "0.85rem", marginBottom: "1rem" }}>
-                    {paymentError}
-                  </p>
-                )}
-
-                {paymentStep === 1 && (
-                  <div style={{ textAlign: "left" }}>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#36546b" }}>
-                      {lang === "bn" ? "অ্যাকাউন্ট মোবাইল নম্বর:" : "Account Mobile Number:"}
-                    </label>
-                    <input
-                      type="tel"
-                      value={accountNumber}
-                      onChange={(e) => setAccountNumber(e.target.value)}
-                      placeholder="01700000000"
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "8px",
-                        border: "1px solid #bfd1dd",
-                        marginTop: "6px",
-                        marginBottom: "1rem",
-                        fontSize: "1rem",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn-book"
-                      style={{ width: "100%", textAlign: "center", justifyContent: "center" }}
-                      onClick={handleExecutePayment}
-                    >
-                      {lang === "bn" ? "পরবর্তী ধাপ (ওটিপি পাঠান)" : "Next (Send OTP)"}
-                    </button>
-                  </div>
-                )}
-
-                {paymentStep === 2 && (
-                  <div style={{ textAlign: "left" }}>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#36546b" }}>
-                      {lang === "bn" ? "৬-সংখ্যার ওটিপি কোড লিখুন:" : "Enter 6-digit OTP code:"}
-                    </label>
-                    <input
-                      type="text"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                      placeholder="123456"
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "8px",
-                        border: "1px solid #bfd1dd",
-                        marginTop: "6px",
-                        marginBottom: "1rem",
-                        fontSize: "1rem",
-                        letterSpacing: "4px",
-                        textAlign: "center",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn-book"
-                      style={{ width: "100%", textAlign: "center", justifyContent: "center" }}
-                      onClick={handleExecutePayment}
-                    >
-                      {lang === "bn" ? "ওটিপি নিশ্চিত করুন" : "Confirm OTP"}
-                    </button>
-                  </div>
-                )}
-
-                {paymentStep === 3 && (
-                  <div style={{ textAlign: "left" }}>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#36546b" }}>
-                      {lang === "bn" ? "গোপন পিন নম্বর দিন:" : "Enter your secret PIN:"}
-                    </label>
-                    <input
-                      type="password"
-                      value={pinCode}
-                      onChange={(e) => setPinCode(e.target.value)}
-                      placeholder="•••••"
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "8px",
-                        border: "1px solid #bfd1dd",
-                        marginTop: "6px",
-                        marginBottom: "1rem",
-                        fontSize: "1.2rem",
-                        textAlign: "center",
-                        letterSpacing: "6px",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn-book"
-                      disabled={isProcessingPayment}
-                      style={{ width: "100%", textAlign: "center", justifyContent: "center" }}
-                      onClick={handleExecutePayment}
-                    >
-                      {isProcessingPayment
-                        ? lang === "bn"
-                          ? "পেমেন্ট প্রক্রিয়াধীন..."
-                          : "Processing Payment..."
-                        : lang === "bn"
-                        ? "পেমেন্ট সম্পন্ন করুন"
-                        : "Complete Payment"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div>
-                <div style={{ color: "#147860", marginBottom: "1rem" }}>
-                  <CheckCircle2 style={{ height: "48px", width: "48px", margin: "0 auto" }} />
-                </div>
-                <h3 style={{ color: "#123b59", fontWeight: 800, marginBottom: "0.5rem" }}>
-                  {lang === "bn" ? "পেমেন্ট সফল হয়েছে!" : "Payment Successful!"}
-                </h3>
-                <p style={{ color: "#667f91", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-                  {lang === "bn"
-                    ? "আপনার বুকিংটি নিশ্চিত করা হয়েছে। আপনি এখন চালান রশিদ দেখতে পারবেন।"
-                    : "Your booking has been verified and confirmed. You can now access your official digital waybill."}
-                </p>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    type="button"
-                    className="btn-outline"
-                    style={{ flex: 1 }}
-                    onClick={() => {
-                      const updated = bookings.find((b) => b.bookingId === paymentBooking.bookingId);
-                      setPaymentBooking(null);
-                      if (updated) setSelectedWaybill(updated);
-                    }}
-                  >
-                    {lang === "bn" ? "চালান রশিদ দেখুন" : "View Waybill"}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    style={{ flex: 1 }}
-                    onClick={() => setPaymentBooking(null)}
-                  >
-                    {lang === "bn" ? "সম্পন্ন" : "Done"}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

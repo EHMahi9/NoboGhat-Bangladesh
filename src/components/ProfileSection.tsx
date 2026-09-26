@@ -28,6 +28,50 @@ interface MessageState {
   type: "success" | "error" | "info";
 }
 
+function resizeAndConvertToBase64(file: File, maxWidth = 360, maxHeight = 360): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(readerEvent.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        resolve(readerEvent.target?.result as string);
+      };
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function ProfileSection({ user: propUser }: { user?: any }) {
   const { user: authUser, updateUserProfile } = useAuth();
   const user = propUser || authUser;
@@ -115,9 +159,9 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       setPhotoMessage({
-        text: lang === "bn" ? "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট হতে পারবে।" : "Image size must be under 5MB.",
+        text: lang === "bn" ? "ছবির সাইজ সর্বোচ্চ ১০ মেগাবাইট হতে পারবে।" : "Image size must be under 10MB.",
         type: "error",
       });
       return;
@@ -133,7 +177,7 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
     });
   };
 
-  // 2. Handle Independent Avatar Upload & Save
+  // 2. Handle Independent Avatar Upload & Save with Canvas optimization
   const handleSavePhoto = async () => {
     if (!selectedFile) return;
 
@@ -141,25 +185,11 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
     setPhotoMessage(null);
     setAvatarError(false);
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
     try {
-      const token = Cookies.get("token");
-      const res = await fetch("/api/files/upload", {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || (lang === "bn" ? "ছবি আপলোড করতে সমস্যা হয়েছে।" : "Failed to upload image"));
-      }
-
-      const data = await res.json();
-      const newPhotoUrl = data.fileDownloadUri;
-      setProfilePictureUrl(newPhotoUrl);
+      // Downscale and convert to persistent Base64 Data URL to bypass multipart size limits
+      const base64DataUrl = await resizeAndConvertToBase64(selectedFile, 360, 360);
+      setProfilePictureUrl(base64DataUrl);
+      setPreviewUrl(base64DataUrl);
       setAvatarError(false);
 
       // Persist to user profile with name and phone to ensure backend DTO passes validation
@@ -171,14 +201,14 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
         body: JSON.stringify({
           name: currentName,
           phone: currentPhone,
-          profilePictureUrl: newPhotoUrl,
+          profilePictureUrl: base64DataUrl,
         }),
       });
 
       updateUserProfile({
         name: currentName,
         phone: currentPhone,
-        profilePictureUrl: newPhotoUrl,
+        profilePictureUrl: base64DataUrl,
       });
 
       try {
@@ -189,9 +219,21 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
             ...parsed,
             name: currentName,
             phone: currentPhone,
-            profilePictureUrl: newPhotoUrl,
+            profilePictureUrl: base64DataUrl,
           }));
         }
+      } catch (e) {}
+
+      // Best-effort background sync to multipart files endpoint
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const token = Cookies.get("token");
+        await fetch("/api/files/upload", {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: formData,
+        });
       } catch (e) {}
 
       setPhotoMessage({

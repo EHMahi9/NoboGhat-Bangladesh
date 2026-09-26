@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Search, MapPin, Calendar, Ship, Package, Loader2, ArrowRight } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -288,7 +289,16 @@ function RoutesContent() {
                 {date && (
                   <button
                     type="button"
-                    onClick={() => setDate("")}
+                    onClick={() => {
+                      setDate("");
+                      const query = new URLSearchParams();
+                      if (source) query.append("source", source);
+                      if (destination) query.append("destination", destination);
+                      fetchApi(`/trips?${query.toString()}`).then((data) => {
+                        setTrips(data || []);
+                        setSearchError("");
+                      }).catch(() => {});
+                    }}
                     className="text-xs text-[#2F80ED] hover:underline"
                   >
                     {lang === "bn" ? "তারিখ মুছুন" : "Clear Date"}
@@ -440,15 +450,28 @@ function RoutesContent() {
                 {!user ? (
                   <div className="text-center p-4">
                     <p className="text-slate-600 mb-4 text-sm">{lang === "bn" ? "কার্গো স্পেস বুক করতে আপনার অ্যাকাউন্ট প্রয়োজন।" : "You need an account to book cargo space."}</p>
-                    <a href="/login" className="inline-block w-full rounded-xl bg-[#2E8B57] hover:bg-[#246e45] px-4 py-2.5 text-sm font-bold text-white shadow-xs transition-colors">
+                    <Link href="/login?redirect=/routes" className="inline-block w-full rounded-xl bg-[#2E8B57] hover:bg-[#246e45] px-4 py-2.5 text-sm font-bold text-white shadow-xs transition-colors">
                       {t("routes.loginToBook")}
-                    </a>
+                    </Link>
                   </div>
                 ) : user.role === 'PENDING' ? (
                   <div className="text-center p-4">
                     <p className="text-amber-800 bg-amber-50 rounded-lg p-3 text-sm border border-amber-200">
                       {lang === "bn" ? "বুকিং করার পূর্বে ড্যাশবোর্ড থেকে আপনার প্রোফাইল সম্পূর্ণ করুন।" : "Please complete your profile from the dashboard to make bookings."}
                     </p>
+                  </div>
+                ) : user.role === 'BOAT_OWNER' ? (
+                  <div className="text-center p-4">
+                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-sm text-left">
+                      <p className="font-bold mb-1">
+                        {lang === "bn" ? "নৌযান মালিকদের জন্য তথ্য" : "Notice for Fleet Operators"}
+                      </p>
+                      <p className="text-xs text-blue-700 leading-relaxed">
+                        {lang === "bn"
+                          ? "কার্গো স্পেস বুকিং সুবিধা কৃষক ও ব্যবসায়ীদের জন্য সংরক্ষিত। আপনি ড্যাশবোর্ড থেকে আপনার নৌযান ও ট্রিপসমূহ পরিচালনা করতে পারেন।"
+                          : "Cargo booking is reserved for farmers and traders. You can manage your fleet and trips directly from your dashboard."}
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <form onSubmit={handleBook} className="space-y-4">
