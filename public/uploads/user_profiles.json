@@ -5,11 +5,11 @@
     "phone": "01700112233",
     "email": "default_user@noboghat.com",
     "role": "TRADER",
-    "profilePictureUrl": "/uploads/test-profile-avatar.png"
+    "profilePictureUrl": "/uploads/test.png"
   },
   "01912805975": {
     "userId": 1,
-    "name": "Jisoo KIm",
+    "name": "Jisoo Kim",
     "phone": "01912805975",
     "email": "jisoo@gmail.com",
     "role": "TRADER",
@@ -62,5 +62,37 @@
     "email": "lalisa@gmail.com",
     "role": "TRADER",
     "profilePictureUrl": "/uploads/avatar-1790347498557-lebtfw.png"
+  },
+  "01700112233": {
+    "userId": 1,
+    "name": "মোহাম্মদ রফিক",
+    "phone": "01700112233",
+    "email": "default_user@noboghat.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/uploads/test.png"
+  },
+  "default_user@noboghat.com": {
+    "userId": 1,
+    "name": "মোহাম্মদ রফিক",
+    "phone": "01700112233",
+    "email": "default_user@noboghat.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/uploads/test.png"
+  },
+  "jisoo@gmail.com": {
+    "userId": 1,
+    "name": "Jisoo Kim",
+    "phone": "01912805975",
+    "email": "jisoo@gmail.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/uploads/avatar-1790335649468-ssh1f5.png"
+  },
+  "jisoo@kim.com": {
+    "userId": 1,
+    "name": "Jisoo Kim",
+    "phone": "",
+    "email": "jisoo@kim.com",
+    "role": "TRADER",
+    "profilePictureUrl": "/api/files/avatar-1790349930477-9ghzj8.png"
   }
 }
