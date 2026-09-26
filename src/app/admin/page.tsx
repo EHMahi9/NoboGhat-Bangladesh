@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { fetchApi } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Shield,
   Users,
@@ -22,6 +23,7 @@ import {
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
+  const { lang, formatLocation, formatStatus } = useLanguage();
   const [activeTab, setActiveTab] = useState<"overview" | "boats" | "trips" | "users" | "routes">("overview");
 
   // Live admin data state
@@ -47,7 +49,7 @@ export default function AdminPage() {
   const [showAddTrip, setShowAddTrip] = useState(false);
 
   // Form Fields
-  const [newRoute, setNewRoute] = useState({ source: "", destination: "", pricePerKg: 5 });
+  const [newRoute, setNewRoute] = useState({ source: "", destination: "", pricePerKg: 10 });
   const [newBoat, setNewBoat] = useState({ boatName: "", capacity: 5000 });
   const [newTrip, setNewTrip] = useState({ routeId: "", boatId: "", departureTime: "" });
 
@@ -81,13 +83,13 @@ export default function AdminPage() {
 
       // Update aggregate stats
       setStats({
-        totalUsers: Array.isArray(uData) ? uData.length : 12,
-        totalBoats: Array.isArray(bData) ? bData.length : 8,
-        activeTrips: Array.isArray(tData) ? tData.length : 6,
-        totalBookings: Array.isArray(bkData) ? bkData.length : 15,
+        totalUsers: Array.isArray(uData) ? uData.length : 0,
+        totalBoats: Array.isArray(bData) ? bData.length : 0,
+        activeTrips: Array.isArray(tData) ? tData.length : 0,
+        totalBookings: Array.isArray(bkData) ? bkData.length : 0,
         cargoWeight: Array.isArray(bkData)
           ? bkData.reduce((acc, b) => acc + (Number(b.cargoWeight) || 0), 0)
-          : 45000,
+          : 0,
       });
     } catch (e) {
       // Handled gracefully
@@ -356,14 +358,14 @@ export default function AdminPage() {
                     {bookingsList.slice(0, 5).map((b) => (
                       <tr key={b.bookingId} className="hover:bg-slate-50">
                         <td className="py-3 px-4 font-mono font-bold text-slate-900">#NBG-{b.bookingId}</td>
-                        <td className="py-3 px-4">{b.source || "Sadarghat"} ➔ {b.destination || "Khulna"}</td>
+                        <td className="py-3 px-4">{formatLocation(b.source || "Sadarghat")} ➔ {formatLocation(b.destination || "Khulna")}</td>
                         <td className="py-3 px-4">{b.cargoWeight} kg ({b.cargoType})</td>
                         <td className="py-3 px-4 font-bold text-slate-900">৳{Number(b.totalFare || 0).toFixed(2)}</td>
                         <td className="py-3 px-4">
                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                             b.status === "CONFIRMED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
                           }`}>
-                            {b.status}
+                            {formatStatus(b.status)}
                           </span>
                         </td>
                       </tr>
@@ -405,9 +407,9 @@ export default function AdminPage() {
                   {routesList.map((r) => (
                     <tr key={r.routeId} className="hover:bg-slate-50">
                       <td className="py-3 px-4 font-mono font-bold">#{r.routeId}</td>
-                      <td className="py-3 px-4 font-medium text-slate-900">{r.source}</td>
-                      <td className="py-3 px-4 font-medium text-slate-900">{r.destination}</td>
-                      <td className="py-3 px-4 font-bold text-emerald-700">৳{r.pricePerKg || 5.00}</td>
+                      <td className="py-3 px-4 font-medium text-slate-900">{formatLocation(r.source)}</td>
+                      <td className="py-3 px-4 font-medium text-slate-900">{formatLocation(r.destination)}</td>
+                      <td className="py-3 px-4 font-bold text-emerald-700">৳{(r.pricePerKg || 10).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>

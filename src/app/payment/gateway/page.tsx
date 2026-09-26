@@ -65,16 +65,6 @@ function GatewayContent() {
         }),
       });
 
-      if (success && bookingId) {
-        // Also call bookings/{id}/pay endpoint directly
-        await fetchApi(`/bookings/${bookingId}/pay`, {
-          method: "POST",
-          body: JSON.stringify({
-            amount: Number(amount) || 100,
-            provider: gateway,
-          }),
-        }).catch(() => {});
-      }
     } catch (e) {
       // Even if webhook fails, redirect with status
     }

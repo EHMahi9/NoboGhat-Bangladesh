@@ -621,18 +621,20 @@ export default function DashboardPage() {
       setPaymentError("");
 
       try {
-        await fetchApi(`/bookings/${paymentBooking.bookingId}/pay`, {
+        // Initiate payment with backend
+        const initData = await fetchApi("/payments/initiate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: paymentBooking.totalFare,
-            provider: paymentMethod.toUpperCase(),
-            accountNumber,
+            bookingId: paymentBooking.bookingId,
+            gateway: paymentMethod.toUpperCase(),
           }),
-        });
+        }).catch(() => null);
 
-        // Also notify payments webhook
-        const trxRef = `${paymentMethod.toUpperCase()}-${Date.now()}-${paymentBooking.bookingId}`;
+        // Notify payments webhook to confirm
+        const trxRef =
+          initData?.transactionRef ||
+          `${paymentMethod.toUpperCase()}-${Date.now()}-${paymentBooking.bookingId}`;
+
         await fetchApi("/payments/webhook", {
           method: "POST",
           requireAuth: false,
@@ -642,7 +644,7 @@ export default function DashboardPage() {
             status: "SUCCESS",
             provider: paymentMethod.toUpperCase(),
           }),
-        }).catch(() => {});
+        });
 
         // Persist confirmed booking in cache
         try {
@@ -918,8 +920,8 @@ export default function DashboardPage() {
                               <td>
                                 {bStatus === "PENDING" ? (
                                   <div style={{ display: "flex", gap: "6px" }}>
-                                    <button
-                                      type="button"
+                                    <Link
+                                      href={`/payment/${booking.bookingId}`}
                                       className="btn-primary"
                                       style={{
                                         fontSize: "0.78rem",
@@ -930,16 +932,13 @@ export default function DashboardPage() {
                                         borderRadius: "6px",
                                         cursor: "pointer",
                                         fontWeight: 700,
-                                      }}
-                                      onClick={() => {
-                                        setPaymentBooking(booking);
-                                        setPaymentStep(1);
-                                        setPaymentError("");
-                                        setPinCode("");
+                                        textDecoration: "none",
+                                        display: "inline-flex",
+                                        alignItems: "center",
                                       }}
                                     >
                                       {lang === "bn" ? "ভাড়া পরিশোধ" : "Pay Now"}
-                                    </button>
+                                    </Link>
                                     <button
                                       type="button"
                                       className="btn-outline"
@@ -1045,8 +1044,8 @@ export default function DashboardPage() {
                             <td>
                               {bStatus === "PENDING" ? (
                                 <div style={{ display: "flex", gap: "6px" }}>
-                                  <button
-                                    type="button"
+                                  <Link
+                                    href={`/payment/${booking.bookingId}`}
                                     className="btn-primary"
                                     style={{
                                       fontSize: "0.78rem",
@@ -1057,16 +1056,13 @@ export default function DashboardPage() {
                                       borderRadius: "6px",
                                       cursor: "pointer",
                                       fontWeight: 700,
-                                    }}
-                                    onClick={() => {
-                                      setPaymentBooking(booking);
-                                      setPaymentStep(1);
-                                      setPaymentError("");
-                                      setPinCode("");
+                                      textDecoration: "none",
+                                      display: "inline-flex",
+                                      alignItems: "center",
                                     }}
                                   >
                                     {lang === "bn" ? "ভাড়া পরিশোধ" : "Pay Now"}
-                                  </button>
+                                  </Link>
                                   <button
                                     type="button"
                                     className="btn-outline"

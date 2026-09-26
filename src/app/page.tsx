@@ -96,6 +96,14 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchFrom && searchTo && searchFrom.trim().toLowerCase() === searchTo.trim().toLowerCase()) {
+      alert(
+        lang === "bn"
+          ? "প্রারম্ভিক ঘাট ও গন্তব্য ঘাট একই হতে পারে না। অনুগ্রহ করে ভিন্ন গন্তব্য নির্বাচন করুন।"
+          : "Source and destination cannot be the same ghat. Please select different ports."
+      );
+      return;
+    }
     const params = new URLSearchParams();
     if (searchFrom.trim()) params.set("from", searchFrom.trim());
     if (searchTo.trim()) params.set("to", searchTo.trim());

@@ -140,7 +140,28 @@ function RoutesContent() {
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTrip || !user) return;
+    if (!user) {
+      router.push(`/login?redirect=/routes&message=${encodeURIComponent(lang === "bn" ? "বুকিং করতে অনুগ্রহ করে প্রথমে লগইন করুন" : "Please log in first to book cargo")}`);
+      return;
+    }
+    if (!selectedTrip) return;
+
+    const weightNum = Number(cargoWeight);
+    const availableCap = selectedTrip.remainingCapacity ?? selectedTrip.availableCapacity ?? 0;
+    if (isNaN(weightNum) || weightNum <= 0) {
+      setBookingMessage({
+        text: lang === "bn" ? "অনুগ্রহ করে সঠিক ওজনের মান (০ এর বেশি) দিন" : "Please enter a valid weight greater than 0",
+        type: "error",
+      });
+      return;
+    }
+    if (availableCap > 0 && weightNum > availableCap) {
+      setBookingMessage({
+        text: lang === "bn" ? `কার্গোর ওজন অবশিষ্ট ধারণক্ষমতার (${availableCap} কেজি) বেশি হতে পারবে না` : `Cargo weight cannot exceed remaining capacity (${availableCap} kg)`,
+        type: "error",
+      });
+      return;
+    }
     
     setIsBooking(true);
     setBookingMessage(null);
@@ -150,7 +171,7 @@ function RoutesContent() {
         method: "POST",
         body: JSON.stringify({
           tripId: selectedTrip.tripId,
-          cargoWeight: Number(cargoWeight),
+          cargoWeight: weightNum,
           cargoType: cargoType,
         }),
       });
@@ -161,8 +182,8 @@ function RoutesContent() {
           trip.tripId === selectedTrip.tripId 
             ? { 
                 ...trip, 
-                remainingCapacity: (trip.remainingCapacity || trip.availableCapacity || 0) - Number(cargoWeight),
-                availableCapacity: (trip.remainingCapacity || trip.availableCapacity || 0) - Number(cargoWeight) 
+                remainingCapacity: (trip.remainingCapacity || trip.availableCapacity || 0) - weightNum,
+                availableCapacity: (trip.remainingCapacity || trip.availableCapacity || 0) - weightNum 
               }
             : trip
         )
@@ -174,14 +195,14 @@ function RoutesContent() {
         router.push(`/payment/${newBookingId}`);
       } else {
         setBookingMessage({
-          text: "Booking successful! Redirecting to payment...",
+          text: lang === "bn" ? "বুকিং সফল হয়েছে! পেমেন্টে নেওয়া হচ্ছে..." : "Booking successful! Redirecting to payment...",
           type: "success"
         });
       }
 
     } catch (err: any) {
       setBookingMessage({
-        text: err.message || "Failed to book cargo",
+        text: err.message || (lang === "bn" ? "কার্গো বুকিং ব্যর্থ হয়েছে" : "Failed to book cargo"),
         type: "error"
       });
     } finally {
@@ -190,7 +211,7 @@ function RoutesContent() {
   };
 
   const estimatedFare = selectedTrip && cargoWeight 
-    ? (Number(cargoWeight) * (selectedTrip.pricePerKg || 5)).toFixed(2)
+    ? (Number(cargoWeight) * (selectedTrip.pricePerKg || 10)).toFixed(2)
     : "0.00";
 
   return (
