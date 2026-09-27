@@ -73,7 +73,7 @@ function resizeAndConvertToBase64(file: File, maxWidth = 360, maxHeight = 360): 
 }
 
 export default function ProfileSection({ user: propUser }: { user?: any }) {
-  const { user: authUser, updateUserProfile } = useAuth();
+  const { user: authUser, updateUserProfile, logout } = useAuth();
   const user = propUser || authUser;
   const { lang } = useLanguage();
 
@@ -105,6 +105,29 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<MessageState | null>(null);
+
+  // Deactivate Account
+  const handleDeactivateAccount = async () => {
+    const confirm1 =
+      lang === "bn"
+        ? "আপনি কি নিশ্চিতভাবে আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করতে চান? এটি পূর্বাবস্থায় ফিরিয়ে আনা যাবে না।"
+        : "Are you sure you want to deactivate your account? This action cannot be undone.";
+    if (!window.confirm(confirm1)) return;
+
+    const confirm2 =
+      lang === "bn"
+        ? "আপনার সমস্ত সক্রিয় বুকিং বাতিল হয়ে যাবে। এগিয়ে যেতে চান?"
+        : "All your active bookings will be cancelled. Proceed?";
+    if (!window.confirm(confirm2)) return;
+
+    try {
+      await fetchApi("/users/profile", { method: "DELETE" });
+      logout();
+      window.location.replace("/login?message=" + encodeURIComponent(lang === "bn" ? "আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে।" : "Your account has been deactivated."));
+    } catch (err: any) {
+      alert(err.message || (lang === "bn" ? "অ্যাকাউন্ট নিষ্ক্রিয় করতে সমস্যা হয়েছে।" : "Deactivation failed."));
+    }
+  };
 
   // Load initial profile data on mount
   useEffect(() => {
@@ -841,6 +864,31 @@ export default function ProfileSection({ user: propUser }: { user?: any }) {
                 </button>
               </div>
             </form>
+
+            {/* Danger Zone: Account Deactivation */}
+            <div className="mt-8 pt-6 border-t border-red-100">
+              <div className="rounded-xl border border-red-200 bg-red-50/50 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-red-700 flex items-center gap-2">
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                    {lang === "bn" ? "অ্যাকাউন্ট নিষ্ক্রিয়করণ" : "Deactivate Account"}
+                  </h4>
+                  <p className="text-xs text-red-600/80 mt-1 max-w-md">
+                    {lang === "bn"
+                      ? "অ্যাকাউন্টটি নিষ্ক্রিয় করলে আপনার প্রোফাইল ও সমস্ত সক্রিয় বুকিং বাতিল হয়ে যাবে।"
+                      : "Deactivating your account will permanently cancel all active bookings and session data."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDeactivateAccount}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-300 bg-white hover:bg-red-600 hover:text-white px-4 py-2 text-xs font-bold text-red-600 shadow-2xs transition-colors shrink-0"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {lang === "bn" ? "অ্যাকাউন্ট মুছুন" : "Deactivate"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

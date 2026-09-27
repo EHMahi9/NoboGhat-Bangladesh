@@ -15,8 +15,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/routes${search}`, request.url));
   }
 
-  // 2. Get token from cookies OR URL search params (e.g. returning from Google OAuth2 redirect)
+  // 2. Get token and role from cookies OR URL search params (e.g. returning from Google OAuth2 redirect)
   const token = request.cookies.get('token')?.value || request.nextUrl.searchParams.get('token');
+  const role = (request.cookies.get('role')?.value || request.nextUrl.searchParams.get('role') || '')
+    .toUpperCase()
+    .replace(/^ROLE_/, '');
 
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
@@ -24,7 +27,13 @@ export function middleware(request: NextRequest) {
   // If trying to access protected route without token, redirect to login
   if (isProtectedRoute && !token) {
     const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // If non-admin attempts to access /admin portal, redirect to standard dashboard
+  if (pathname.startsWith('/admin') && role && role !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // If trying to access auth pages WITH a token, redirect to dashboard

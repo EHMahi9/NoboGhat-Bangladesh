@@ -115,16 +115,27 @@ export default function DashboardPage() {
   const [isClientMounted, setIsClientMounted] = useState(false);
   useEffect(() => {
     setIsClientMounted(true);
+    const userKey = user?.sub || user?.email || user?.name || "default";
+    let readIds: number[] = [];
+    try {
+      readIds = JSON.parse(localStorage.getItem(`noboghat_read_notifications_${userKey}`) || "[]");
+    } catch {}
+
     setNotifications((prev) =>
       prev.map((n) => {
+        let isRead = n.read;
+        if (readIds.includes(n.notificationId)) {
+          isRead = true;
+        }
+        let created = n.createdAt;
         if (typeof n.createdAt === "string" && n.createdAt.startsWith("2025-01-01")) {
           const minutesAgo = n.notificationId === 1 ? 15 : 120;
-          return { ...n, createdAt: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString() };
+          created = new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
         }
-        return n;
+        return { ...n, createdAt: created, read: isRead };
       })
     );
-  }, []);
+  }, [user]);
 
   // Notifications state with static SSR dates to avoid hydration mismatches
   const [notifications, setNotifications] = useState<NotificationItem[]>([
@@ -269,8 +280,27 @@ export default function DashboardPage() {
       // Also try fetching live notifications
       try {
         const notifs = await fetchApi("/notifications");
-        if (isMounted && Array.isArray(notifs) && notifs.length > 0) {
-          setNotifications(notifs);
+        if (isMounted && Array.isArray(notifs)) {
+          const userKey = user?.sub || user?.email || user?.name || "default";
+          let readIds: number[] = [];
+          try {
+            readIds = JSON.parse(localStorage.getItem(`noboghat_read_notifications_${userKey}`) || "[]");
+          } catch {}
+          if (notifs.length > 0) {
+            setNotifications(
+              notifs.map((n: any) => ({
+                ...n,
+                read: Boolean(n.read || (n as any).isRead || readIds.includes(n.notificationId)),
+              }))
+            );
+          } else {
+            setNotifications((prev) =>
+              prev.map((n) => ({
+                ...n,
+                read: Boolean(n.read || readIds.includes(n.notificationId)),
+              }))
+            );
+          }
         }
       } catch {}
     }
@@ -428,30 +458,39 @@ export default function DashboardPage() {
   // Unread notifications count
   const unreadNotifsCount = notifications.filter((n) => !(n.read ?? (n as any).isRead)).length;
 
-  // Grouped trips for "My Trips" tab
-  const groupedTrips: Array<{
-    tripId: number;
-    source: string;
-    destination: string;
-    boatName: string;
-    departureTime?: string;
-    cargoWeight: number;
-  }> = [];
-  const seenTripIds = new Set<number>();
+  // Grouped trips for "My Trips" tab with aggregated cargo weights
+  const tripMap = new Map<
+    number,
+    {
+      tripId: number;
+      source: string;
+      destination: string;
+      boatName: string;
+      departureTime?: string;
+      cargoWeight: number;
+    }
+  >();
+
   for (const b of bookings) {
     const tid = b.tripId || b.trip?.tripId;
-    if (tid != null && !seenTripIds.has(tid)) {
-      seenTripIds.add(tid);
-      groupedTrips.push({
-        tripId: tid,
-        source: b.source || b.trip?.source || "Sadarghat",
-        destination: b.destination || b.trip?.destination || "Khulna",
-        boatName: b.boatName || b.trip?.boat?.name || b.trip?.boat?.boatName || "Cargo Vessel",
-        departureTime: b.departureTime || b.trip?.departureTime,
-        cargoWeight: b.cargoWeight || 0,
-      });
+    if (tid != null) {
+      const bWeight = Number(b.cargoWeight) || 0;
+      const existing = tripMap.get(tid);
+      if (existing) {
+        existing.cargoWeight += bWeight;
+      } else {
+        tripMap.set(tid, {
+          tripId: tid,
+          source: b.source || b.trip?.source || "N/A",
+          destination: b.destination || b.trip?.destination || "N/A",
+          boatName: b.boatName || b.trip?.boat?.name || b.trip?.boat?.boatName || (lang === "bn" ? "কার্গো নৌযান" : "Cargo Vessel"),
+          departureTime: b.departureTime || b.trip?.departureTime,
+          cargoWeight: bWeight,
+        });
+      }
     }
   }
+  const groupedTrips = Array.from(tripMap.values());
 
   // Display Avatar helper
   const userDisplayName =
@@ -475,6 +514,16 @@ export default function DashboardPage() {
 
   // Mark notification read
   const handleMarkNotificationRead = async (id: number) => {
+    const userKey = user?.sub || user?.email || user?.name || "default";
+    try {
+      const cacheKey = `noboghat_read_notifications_${userKey}`;
+      const readIds: number[] = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+      if (!readIds.includes(id)) {
+        readIds.push(id);
+        localStorage.setItem(cacheKey, JSON.stringify(readIds));
+      }
+    } catch {}
+
     setNotifications((prev) =>
       prev.map((n) => (n.notificationId === id ? { ...n, read: true } : n))
     );
@@ -1322,7 +1371,7 @@ export default function DashboardPage() {
                   {lang === "bn" ? "নৌযান ও রুট" : "Vessel & Route"}
                 </p>
                 <p style={{ fontWeight: 700, color: "#123b59", margin: "2px 0" }}>
-                  {selectedWaybill.boatName || selectedWaybill.trip?.boat?.boatName || selectedWaybill.trip?.boat?.name || "MV Meghna Freight"}
+                  {selectedWaybill.boatName || selectedWaybill.trip?.boat?.boatName || selectedWaybill.trip?.boat?.name || (lang === "bn" ? "নিবন্ধিত কার্গো নৌযান" : "Registered Cargo Vessel")}
                 </p>
                 <p style={{ fontSize: "0.85rem", color: "#667f91" }}>{formatRoute(selectedWaybill)}</p>
               </div>

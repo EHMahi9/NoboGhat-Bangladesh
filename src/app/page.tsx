@@ -51,8 +51,8 @@ export default function Home() {
 
   // Live real data statistics
   const [liveStats, setLiveStats] = useState({
-    activeRoutes: 5,
-    registeredTraders: 18,
+    activeRoutes: 4,
+    registeredTraders: 26,
     authorizedBoats: 5,
     successRate: 100,
   });

@@ -58,6 +58,28 @@ function RoutesContent() {
   const [isBooking, setIsBooking] = useState(false);
   const [bookingMessage, setBookingMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  // Safe date parsing helper supporting ISO strings, timestamp numbers and Spring Boot LocalDateTime arrays
+  const parseTripDate = (val?: any): Date | null => {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+      const [year, month, day, hour = 0, minute = 0, second = 0] = val;
+      return new Date(year, month - 1, day, hour, minute, second);
+    }
+    if (typeof val === "number") return new Date(val);
+    const d = new Date(val);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatDepartureDate = (val?: any) => {
+    const d = parseTripDate(val);
+    if (!d) return "TBD";
+    return d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   // Fetch available routes for dropdowns and auto-load upcoming trips (with URL search params support)
   useEffect(() => {
     const urlFrom = searchParams.get("from") || searchParams.get("source") || "";
@@ -84,7 +106,7 @@ function RoutesContent() {
         if (urlDate) query.append("date", urlDate);
 
         const endpoint = query.toString() ? `/trips?${query.toString()}` : "/trips";
-        const tripsData = await fetchApi(endpoint);
+        const tripsData = await fetchApi(endpoint, { requireAuth: false });
         setTrips(tripsData || []);
         setHasSearched(true);
       } catch (e) {
@@ -123,7 +145,7 @@ function RoutesContent() {
       if (destination) query.append("destination", destination);
       if (date) query.append("date", date);
 
-      const data = await fetchApi(`/trips?${query.toString()}`);
+      const data = await fetchApi(`/trips?${query.toString()}`, { requireAuth: false });
       if (data && data.length > 0) {
         setTrips(data);
       } else if (date) {
@@ -131,7 +153,7 @@ function RoutesContent() {
         const fallbackQuery = new URLSearchParams();
         if (source) fallbackQuery.append("source", source);
         if (destination) fallbackQuery.append("destination", destination);
-        const fallbackData = await fetchApi(`/trips?${fallbackQuery.toString()}`);
+        const fallbackData = await fetchApi(`/trips?${fallbackQuery.toString()}`, { requireAuth: false });
         if (fallbackData && fallbackData.length > 0) {
           setTrips(fallbackData);
           setSearchError(lang === "bn"
@@ -152,6 +174,7 @@ function RoutesContent() {
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBooking) return;
     if (!user) {
       router.push(`/login?redirect=/routes&message=${encodeURIComponent(lang === "bn" ? "বুকিং করতে অনুগ্রহ করে প্রথমে লগইন করুন" : "Please log in first to book cargo")}`);
       return;
@@ -301,7 +324,7 @@ function RoutesContent() {
                       const query = new URLSearchParams();
                       if (source) query.append("source", source);
                       if (destination) query.append("destination", destination);
-                      fetchApi(`/trips?${query.toString()}`).then((data) => {
+                      fetchApi(`/trips?${query.toString()}`, { requireAuth: false }).then((data) => {
                         setTrips(data || []);
                         setSearchError("");
                       }).catch(() => {});
@@ -348,7 +371,7 @@ function RoutesContent() {
                     setDestination("");
                     setDate("");
                     setSearchError("");
-                    fetchApi("/trips").then(d => setTrips(d || []));
+                    fetchApi("/trips", { requireAuth: false }).then(d => setTrips(d || []));
                   }}
                   className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-2xs hover:bg-slate-50 transition-colors h-[46px]"
                 >
@@ -409,7 +432,7 @@ function RoutesContent() {
                       <div>
                         <p className="text-xs text-slate-500 font-medium">{t("routes.departure")}</p>
                         <p className="font-semibold text-slate-900">
-                          {trip.departureTime ? new Date(trip.departureTime).toLocaleDateString() : 'TBD'}
+                          {formatDepartureDate(trip.departureTime)}
                         </p>
                       </div>
                       <div>
