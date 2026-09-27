@@ -549,6 +549,12 @@ body {
     background: #ffffff !important;
     color: #000000 !important;
   }
+  .modal-overlay {
+    background: transparent !important;
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
   body * {
     visibility: hidden;
   }

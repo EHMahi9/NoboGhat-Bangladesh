@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { fetchApi } from "@/lib/api";
@@ -55,49 +55,6 @@ interface NotificationItem {
   read: boolean;
 }
 
-function resizeAndConvertToBase64(file: File, maxWidth = 320, maxHeight = 320): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (readerEvent) => {
-      const img = new window.Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(readerEvent.target?.result as string);
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
-        resolve(dataUrl);
-      };
-      img.onerror = () => {
-        resolve(readerEvent.target?.result as string);
-      };
-      img.src = readerEvent.target?.result as string;
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function DashboardPage() {
   const { user, loading, logout, updateUserProfile } = useAuth();
@@ -158,13 +115,7 @@ export default function DashboardPage() {
   const [profilePhone, setProfilePhone] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
   const [profilePicPreview, setProfilePicPreview] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isUploadingPic, setIsUploadingPic] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [avatarError, setAvatarError] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Waybill Modal State
   const [selectedWaybill, setSelectedWaybill] = useState<BookingItem | null>(null);
@@ -555,168 +506,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Profile Picture File Upload
-  const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 8 * 1024 * 1024) {
-      setProfileMessage({
-        text: lang === "bn" ? "ফাইলের সাইজ সর্বোচ্চ ৮ মেগাবাইট হতে পারবে।" : "File size cannot exceed 8MB.",
-        type: "error",
-      });
-      return;
-    }
-
-    setIsUploadingPic(true);
-    setProfileMessage(null);
-    setAvatarError(false);
-
-    try {
-      // 1. Optimize and convert to permanent Base64 Data URL (never 404s, works reliably across serverless instances)
-      const base64DataUrl = await resizeAndConvertToBase64(file, 360, 360);
-      setProfilePicPreview(base64DataUrl);
-      setAvatarError(false);
-
-      const currentName = profileName.trim() || user?.name?.trim() || "User";
-      const currentPhone = profilePhone.trim() || user?.phone?.trim() || undefined;
-
-      // 2. Persist to browser storage immediately
-      if (user?.sub) {
-        try {
-          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
-          const parsed = cached ? JSON.parse(cached) : {};
-          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
-            ...parsed,
-            name: currentName,
-            phone: currentPhone,
-            profilePictureUrl: base64DataUrl,
-          }));
-        } catch (e) {}
-      }
-
-      // 3. Update auth state immediately
-      updateUserProfile({
-        name: currentName,
-        phone: currentPhone,
-        profilePictureUrl: base64DataUrl,
-      });
-
-      // 4. Update backend profile
-      await fetchApi("/users/profile", {
-        method: "PUT",
-        body: JSON.stringify({
-          name: currentName,
-          phone: currentPhone,
-          profilePictureUrl: base64DataUrl,
-        }),
-      });
-
-      // 5. Also sync to /api/files/upload in background
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const token = Cookies.get("token");
-        await fetch("/api/files/upload", {
-          method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: formData,
-        });
-      } catch (e) {}
-
-      setProfileMessage({
-        text: lang === "bn" ? "প্রোফাইল ছবি সফলভাবে পরিবর্তিত হয়েছে!" : "Profile photo updated successfully!",
-        type: "success",
-      });
-    } catch (err: any) {
-      setProfileMessage({
-        text: err.message || (lang === "bn" ? "ছবি আপলোড করতে সমস্যা হয়েছে।" : "Upload failed."),
-        type: "error",
-      });
-    } finally {
-      setIsUploadingPic(false);
-    }
-  };
-
-  // Save Profile Settings Form
-  const handleSaveProfileSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingProfile(true);
-    setProfileMessage(null);
-
-    try {
-      const targetPic = profilePicPreview || user?.profilePictureUrl || null;
-      const payload: any = {
-        name: profileName.trim(),
-        phone: profilePhone.trim() || null,
-        profilePictureUrl: targetPic,
-      };
-      if (currentPassword) payload.currentPassword = currentPassword;
-      if (newPassword) payload.newPassword = newPassword;
-
-      const resp = await fetchApi("/users/profile", {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-
-      updateUserProfile({
-        name: profileName.trim(),
-        phone: profilePhone.trim(),
-        profilePictureUrl: targetPic || undefined,
-      });
-
-      if (user?.sub && targetPic) {
-        try {
-          const cached = localStorage.getItem(`noboghat_profile_${user.sub}`);
-          const parsed = cached ? JSON.parse(cached) : {};
-          localStorage.setItem(`noboghat_profile_${user.sub}`, JSON.stringify({
-            ...parsed,
-            name: profileName.trim(),
-            phone: profilePhone.trim(),
-            profilePictureUrl: targetPic,
-          }));
-        } catch (e) {}
-      }
-
-      setCurrentPassword("");
-      setNewPassword("");
-
-      setProfileMessage({
-        text: resp.message || (lang === "bn" ? "প্রোফাইল সফলভাবে আপডেট করা হয়েছে!" : "Profile updated successfully!"),
-        type: "success",
-      });
-    } catch (err: any) {
-      setProfileMessage({
-        text: err.message || (lang === "bn" ? "তথ্য সংরক্ষণ ব্যর্থ হয়েছে।" : "Failed to update profile."),
-        type: "error",
-      });
-    } finally {
-      setIsSavingProfile(false);
-    }
-  };
-
-  // Deactivate Account
-  const handleDeactivateAccount = async () => {
-    const confirm1 =
-      lang === "bn"
-        ? "আপনি কি নিশ্চিতভাবে আপনার অ্যাকাউন্টটি নিষ্ক্রিয় করতে চান? এটি পূর্বাবস্থায় ফিরিয়ে আনা যাবে না।"
-        : "Are you sure you want to deactivate your account? This action cannot be undone.";
-    if (!window.confirm(confirm1)) return;
-
-    const confirm2 =
-      lang === "bn"
-        ? "আপনার সমস্ত সক্রিয় বুকিং বাতিল হয়ে যাবে। এগিয়ে যেতে চান?"
-        : "All your active bookings will be cancelled. Proceed?";
-    if (!window.confirm(confirm2)) return;
-
-    try {
-      await fetchApi("/users/profile", { method: "DELETE" });
-      logout();
-      window.location.replace("/login?message=" + encodeURIComponent("Your account has been deactivated."));
-    } catch (err: any) {
-      alert(err.message || "Deactivation failed.");
-    }
-  };
 
 
   return (

@@ -53,6 +53,29 @@ export default function AdminPage() {
   const [newBoat, setNewBoat] = useState({ boatName: "", capacity: 5000 });
   const [newTrip, setNewTrip] = useState({ routeId: "", boatId: "", departureTime: "" });
 
+  const parseDateTime = (val?: any): Date | null => {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+      const [year, month, day, hour = 0, minute = 0, second = 0] = val;
+      return new Date(year, month - 1, day, hour, minute, second);
+    }
+    if (typeof val === "number") return new Date(val);
+    const d = new Date(val);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatAdminDate = (val?: any) => {
+    const d = parseDateTime(val);
+    if (!d) return "TBD";
+    return d.toLocaleString(lang === "bn" ? "bn-BD" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const loadAllAdminData = async () => {
     setIsLoadingData(true);
     try {
@@ -174,13 +197,18 @@ export default function AdminPage() {
     e.preventDefault();
     if (!newTrip.routeId || !newTrip.boatId || !newTrip.departureTime) return;
     try {
+      const formattedDeparture =
+        newTrip.departureTime.length === 16
+          ? `${newTrip.departureTime}:00`
+          : newTrip.departureTime;
+
       await fetchApi("/admin/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           routeId: Number(newTrip.routeId),
           boatId: Number(newTrip.boatId),
-          departureTime: newTrip.departureTime,
+          departureTime: formattedDeparture,
         }),
       });
       setActionMessage({ text: "New trip departure scheduled successfully!", type: "success" });
@@ -362,7 +390,7 @@ export default function AdminPage() {
                     {bookingsList.slice(0, 5).map((b) => (
                       <tr key={b.bookingId} className="hover:bg-slate-50">
                         <td className="py-3 px-4 font-mono font-bold text-slate-900">#NBG-{b.bookingId}</td>
-                        <td className="py-3 px-4">{formatLocation(b.source || "Sadarghat")} ➔ {formatLocation(b.destination || "Khulna")}</td>
+                        <td className="py-3 px-4">{b.source ? formatLocation(b.source) : "N/A"} ➔ {b.destination ? formatLocation(b.destination) : "N/A"}</td>
                         <td className="py-3 px-4">{b.cargoWeight} kg ({b.cargoType})</td>
                         <td className="py-3 px-4 font-bold text-slate-900">৳{Number(b.totalFare || 0).toFixed(2)}</td>
                         <td className="py-3 px-4">
@@ -503,7 +531,7 @@ export default function AdminPage() {
                       <td className="py-3 px-4 font-mono font-bold">#{t.tripId}</td>
                       <td className="py-3 px-4 font-medium text-slate-900">{t.source} ➔ {t.destination}</td>
                       <td className="py-3 px-4">{t.boatName}</td>
-                      <td className="py-3 px-4 text-xs font-mono">{new Date(t.departureTime).toLocaleString()}</td>
+                      <td className="py-3 px-4 text-xs font-mono">{formatAdminDate(t.departureTime)}</td>
                       <td className="py-3 px-4 font-bold text-emerald-700">{t.remainingCapacity || t.boatCapacity} kg</td>
                     </tr>
                   ))}

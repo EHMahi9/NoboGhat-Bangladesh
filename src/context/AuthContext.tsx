@@ -62,11 +62,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // 1. Check URL search parameters for OAuth2 token (e.g. Google OAuth redirect)
+    // 1. Check URL search parameters or localStorage for token fallback
     let token = Cookies.get('token');
     let savedRole = Cookies.get('role');
 
     if (typeof window !== 'undefined') {
+      if (!token) {
+        try {
+          const localTok = localStorage.getItem('noboghatToken');
+          if (localTok) {
+            token = localTok;
+            Cookies.set('token', localTok, { expires: 7 });
+          }
+          const localRole = localStorage.getItem('noboghatRole');
+          if (localRole) {
+            savedRole = localRole;
+            Cookies.set('role', localRole, { expires: 7 });
+          }
+        } catch (e) {}
+      }
+
       const params = new URLSearchParams(window.location.search);
       const urlToken = params.get('token');
       const urlRole = params.get('role');

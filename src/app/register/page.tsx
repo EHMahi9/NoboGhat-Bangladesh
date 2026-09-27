@@ -69,12 +69,19 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      const roleMap: Record<string, string> = {
+        owner: "BOAT_OWNER",
+        farmer: "FARMER",
+        trader: "TRADER",
+      };
+      const normalizedRole = roleMap[role.toLowerCase()] || role.toUpperCase();
+
       const payload: any = {
         name: trimmedName,
         phone: trimmedPhone || undefined,
         email: trimmedEmail || (!trimmedPhone ? undefined : ""),
         password,
-        role,
+        role: normalizedRole,
       };
       // Backwards compatible with legacy single email/phone parameter
       if (!payload.email && trimmedPhone) {
@@ -101,7 +108,6 @@ export default function RegisterPage() {
 
       // Pre-seed local storage so Navbar and Dashboard immediately know the registered name & email
       const primaryKey = trimmedPhone || trimmedEmail;
-      const normalizedRole = role === "owner" ? "BOAT_OWNER" : role.toUpperCase();
       const profileCache = {
         name: trimmedName,
         phone: trimmedPhone,
