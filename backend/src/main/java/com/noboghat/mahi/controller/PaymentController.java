@@ -4,6 +4,7 @@ import com.noboghat.mahi.model.PaymentTransaction;
 import com.noboghat.mahi.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -29,12 +30,18 @@ public class PaymentController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> payload) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> payload, Authentication authentication) {
         // In a real scenario, this would verify the signature of the gateway
         String transactionRef = payload.get("transactionRef") != null ? payload.get("transactionRef").toString() : null;
         String status = payload.get("status") != null ? payload.get("status").toString() : null;
 
-        paymentService.handleWebhook(transactionRef, status);
+        paymentService.handleWebhook(transactionRef, status, authentication != null ? authentication.getName() : null, isAdmin(authentication));
         return ResponseEntity.ok("Webhook received.");
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 }

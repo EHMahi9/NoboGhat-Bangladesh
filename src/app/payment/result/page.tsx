@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Loader2,
@@ -11,13 +11,11 @@ import {
   Home,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { useAuth } from "@/context/AuthContext";
 
 function ResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { lang, formatStatus } = useLanguage();
-  const { user } = useAuth();
 
   const status = searchParams.get("status") || "failed";
   const transactionRef = searchParams.get("transactionRef") || "";
@@ -26,20 +24,6 @@ function ResultContent() {
   const amount = searchParams.get("amount") || "0";
 
   const isSuccess = status === "success";
-
-  useEffect(() => {
-    if (isSuccess && bookingId) {
-      try {
-        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-        const numId = Number(bookingId);
-        if (!confirmedList.includes(numId)) {
-          confirmedList.push(numId);
-          localStorage.setItem(cacheKey, JSON.stringify(confirmedList));
-        }
-      } catch {}
-    }
-  }, [isSuccess, bookingId, user]);
 
   return (
     <div className="min-h-[calc(100vh-140px)] bg-slate-50 flex items-center justify-center px-4 py-12">

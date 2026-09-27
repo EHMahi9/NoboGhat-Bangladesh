@@ -2,8 +2,10 @@ package com.noboghat.mahi.service;
 
 import com.noboghat.mahi.model.Booking;
 import com.noboghat.mahi.model.PaymentTransaction;
+import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.BookingRepository;
 import com.noboghat.mahi.repository.PaymentTransactionRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,16 @@ public class PaymentService {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
-    public PaymentService(PaymentTransactionRepository paymentTransactionRepository, BookingRepository bookingRepository, NotificationService notificationService) {
+    public PaymentService(PaymentTransactionRepository paymentTransactionRepository,
+                          BookingRepository bookingRepository,
+                          NotificationService notificationService,
+                          UserService userService) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.bookingRepository = bookingRepository;
         this.notificationService = notificationService;
+        this.userService = userService;
     }
 
     @Transactional
@@ -56,16 +63,30 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentTransaction handleWebhook(String transactionRef, String status) {
+    public PaymentTransaction handleWebhook(String transactionRef, String status, String requester, boolean isAdmin) {
         PaymentTransaction transaction = paymentTransactionRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found."));
+
+        Booking booking = transaction.getBooking();
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking not associated with this transaction.");
+        }
+
+        if (!isAdmin) {
+            if (requester == null || requester.isBlank()) {
+                throw new AccessDeniedException("Authentication required to process payment.");
+            }
+            User requestUser = userService.getUserByIdentifier(requester);
+            if (booking.getUser() == null || !booking.getUser().getUserId().equals(requestUser.getUserId())) {
+                throw new AccessDeniedException("You can process payments only for your own bookings.");
+            }
+        }
 
         transaction.setStatus(status.toUpperCase());
         paymentTransactionRepository.save(transaction);
 
         if ("SUCCESS".equalsIgnoreCase(status)) {
             // Confirm booking automatically on successful payment
-            Booking booking = transaction.getBooking();
             booking.setStatus("CONFIRMED");
             bookingRepository.save(booking);
 
@@ -75,5 +96,10 @@ public class PaymentService {
         }
 
         return transaction;
+    }
+
+    @Transactional
+    public PaymentTransaction handleWebhook(String transactionRef, String status) {
+        return handleWebhook(transactionRef, status, null, true);
     }
 }

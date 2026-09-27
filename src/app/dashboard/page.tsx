@@ -132,19 +132,7 @@ export default function DashboardPage() {
     setLoadingBookings(true);
     try {
       const data = await fetchApi("/bookings");
-      let list = Array.isArray(data) ? data : [];
-      try {
-        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-        if (confirmedList.length > 0) {
-          list = list.map((b: BookingItem) => {
-            if (confirmedList.includes(b.bookingId)) {
-              return { ...b, status: "CONFIRMED" };
-            }
-            return b;
-          });
-        }
-      } catch {}
+      const list = Array.isArray(data) ? data : [];
       setBookings(list);
       if (typeof window !== "undefined") {
         const urlParams = new URLSearchParams(window.location.search);
@@ -161,15 +149,7 @@ export default function DashboardPage() {
         }
       }
     } catch {
-      try {
-        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-        setBookings((prev) =>
-          prev.map((b) => (confirmedList.includes(b.bookingId) ? { ...b, status: "CONFIRMED" } : b))
-        );
-      } catch {
-        setBookings([]);
-      }
+      setBookings([]);
     } finally {
       setLoadingBookings(false);
     }
@@ -494,12 +474,6 @@ export default function DashboardPage() {
     try {
       await fetchApi(`/bookings/${id}`, { method: "DELETE" });
       setBookings((prev) => prev.map((b) => (b.bookingId === id ? { ...b, status: "CANCELLED" } : b)));
-      try {
-        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-        const updatedList = confirmedList.filter((bId: number) => bId !== id);
-        localStorage.setItem(cacheKey, JSON.stringify(updatedList));
-      } catch {}
       alert(lang === "bn" ? "বুকিং সফলভাবে বাতিল করা হয়েছে।" : "Booking cancelled successfully.");
     } catch (err: any) {
       alert(err.message || (lang === "bn" ? "বুকিং বাতিল করা যায়নি।" : "Could not cancel booking."));

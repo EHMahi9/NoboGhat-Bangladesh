@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Loader2,
@@ -12,13 +12,11 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
-import { useAuth } from "@/context/AuthContext";
 
 function GatewayContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { lang } = useLanguage();
-  const { user } = useAuth();
 
   const transactionRef = searchParams.get("transactionRef") || "";
   const amount = searchParams.get("amount") || "0";
@@ -40,23 +38,10 @@ function GatewayContent() {
     // Simulate gateway processing delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    if (success && bookingId) {
-      try {
-        const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
-        const confirmedList = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-        const numId = Number(bookingId);
-        if (!confirmedList.includes(numId)) {
-          confirmedList.push(numId);
-          localStorage.setItem(cacheKey, JSON.stringify(confirmedList));
-        }
-      } catch {}
-    }
-
     try {
       // Call webhook to update payment status
       await fetchApi("/payments/webhook", {
         method: "POST",
-        requireAuth: false,
         body: JSON.stringify({
           bookingId: bookingId ? Number(bookingId) : undefined,
           transactionRef,
@@ -64,7 +49,6 @@ function GatewayContent() {
           gateway,
         }),
       });
-
     } catch (e) {
       // Even if webhook fails, redirect with status
     }

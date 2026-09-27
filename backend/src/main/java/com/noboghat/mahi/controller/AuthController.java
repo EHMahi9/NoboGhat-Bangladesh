@@ -134,11 +134,14 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, Object>> forgotPassword(@Valid @RequestBody ForgotPasswordDto forgotPasswordDto) {
-        String token = userService.generatePasswordResetToken(forgotPasswordDto.getEmail());
+        try {
+            userService.generatePasswordResetToken(forgotPasswordDto.getEmail());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // Avoid user enumeration: do not reveal if the email is not registered or deactivated
+        }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "A recovery token has been generated. In this demo, check the server console for the token.");
-        response.put("token", token); // Demo convenience so the flow is testable end-to-end
+        response.put("message", "If that email is registered, a recovery token has been sent.");
         return ResponseEntity.ok(response);
     }
 
