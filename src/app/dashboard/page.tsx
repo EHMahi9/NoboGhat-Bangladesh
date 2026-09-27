@@ -115,6 +115,15 @@ export default function DashboardPage() {
   const [isClientMounted, setIsClientMounted] = useState(false);
   useEffect(() => {
     setIsClientMounted(true);
+    setNotifications((prev) =>
+      prev.map((n) => {
+        if (typeof n.createdAt === "string" && n.createdAt.startsWith("2025-01-01")) {
+          const minutesAgo = n.notificationId === 1 ? 15 : 120;
+          return { ...n, createdAt: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString() };
+        }
+        return n;
+      })
+    );
   }, []);
 
   // Notifications state with static SSR dates to avoid hydration mismatches
@@ -308,11 +317,29 @@ export default function DashboardPage() {
     );
   }
 
-  // Formatting helpers matching classic dashboard
-  const formatDate = (val?: string) => {
-    if (!val) return "N/A";
+  // Bengali digits converter helper
+  const toBnDigits = (num: number | string) => {
+    const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+    return String(num).replace(/\d/g, (d) => bnDigits[Number(d)]);
+  };
+
+  const parseDateTime = (val?: any): Date | null => {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+      const [year, month, day, hour = 0, minute = 0, second = 0] = val;
+      return new Date(year, month - 1, day, hour, minute, second);
+    }
+    if (typeof val === "number") {
+      return new Date(val);
+    }
     const d = new Date(val);
-    if (Number.isNaN(d.getTime())) return "N/A";
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  // Formatting helpers matching classic dashboard
+  const formatDate = (val?: any) => {
+    const d = parseDateTime(val);
+    if (!d) return "N/A";
     if (!isClientMounted) {
       return d.toISOString().split("T")[0];
     }
@@ -320,6 +347,46 @@ export default function DashboardPage() {
       year: "numeric",
       month: "short",
       day: "numeric",
+    });
+  };
+
+  // Smart relative date & time helper for notifications
+  const formatNotificationDate = (val?: any) => {
+    const d = parseDateTime(val);
+    if (!d) return "N/A";
+    if (!isClientMounted) {
+      return d.toISOString().split("T")[0];
+    }
+
+    const now = Date.now();
+    const diffMs = now - d.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 60 && diffSec >= 0) {
+      return lang === "bn" ? "এইমাত্র" : "Just now";
+    }
+    if (diffMin < 60 && diffMin > 0) {
+      return lang === "bn" ? `${toBnDigits(diffMin)} মিনিট আগে` : `${diffMin} min ago`;
+    }
+    if (diffHour < 24 && diffHour > 0) {
+      return lang === "bn" ? `${toBnDigits(diffHour)} ঘণ্টা আগে` : `${diffHour} hr${diffHour > 1 ? "s" : ""} ago`;
+    }
+    if (diffDay === 1) {
+      return lang === "bn" ? "গতকাল" : "Yesterday";
+    }
+    if (diffDay < 7 && diffDay > 1) {
+      return lang === "bn" ? `${toBnDigits(diffDay)} দিন আগে` : `${diffDay} days ago`;
+    }
+
+    return d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -1162,7 +1229,7 @@ export default function DashboardPage() {
                         return (
                           <tr key={item.notificationId}>
                             <td>{displayMsg}</td>
-                            <td>{formatDate(item.createdAt)}</td>
+                            <td>{formatNotificationDate(item.createdAt)}</td>
                             <td>
                               <span className={`status ${isRead ? "completed" : "pending"}`}>
                                 {isRead ? (lang === "bn" ? "পঠিত" : "Read") : (lang === "bn" ? "অপঠিত" : "Unread")}
