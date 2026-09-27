@@ -167,7 +167,14 @@ function RoutesContent() {
       });
       return;
     }
-    if (availableCap > 0 && weightNum > availableCap) {
+    if (availableCap <= 0) {
+      setBookingMessage({
+        text: lang === "bn" ? "দুঃখিত, এই ট্রিপের সমস্ত কার্গো স্পেস পূর্ণ হয়ে গেছে।" : "Sorry, all cargo capacity on this trip is fully booked.",
+        type: "error",
+      });
+      return;
+    }
+    if (weightNum > availableCap) {
       setBookingMessage({
         text: lang === "bn" ? `কার্গোর ওজন অবশিষ্ট ধারণক্ষমতার (${availableCap} কেজি) বেশি হতে পারবে না` : `Cargo weight cannot exceed remaining capacity (${availableCap} kg)`,
         type: "error",
@@ -417,12 +424,22 @@ function RoutesContent() {
                   </div>
                   
                   <div className="shrink-0">
-                    <button
-                      onClick={() => setSelectedTrip(trip)}
-                      className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-[#2E8B57] hover:bg-[#246e45] px-6 py-2.5 text-sm font-bold text-white shadow-xs hover:shadow-sm transition-all active:scale-[0.98]"
-                    >
-                      {t("routes.bookSpace")}
-                    </button>
+                    {((trip.remainingCapacity ?? trip.availableCapacity ?? 0) <= 0) ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-slate-200 px-6 py-2.5 text-sm font-bold text-slate-500 cursor-not-allowed shadow-none"
+                      >
+                        {lang === "bn" ? "স্পেস পূর্ণ" : "Capacity Full"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedTrip(trip)}
+                        className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-[#2E8B57] hover:bg-[#246e45] px-6 py-2.5 text-sm font-bold text-white shadow-xs hover:shadow-sm transition-all active:scale-[0.98]"
+                      >
+                        {t("routes.bookSpace")}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

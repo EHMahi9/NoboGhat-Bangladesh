@@ -134,6 +134,13 @@ function ResultContent() {
             {isSuccess ? (
               <>
                 <button
+                  onClick={() => router.push(`/dashboard?tab=cargo-bookings&waybill=${bookingId}`)}
+                  className="w-full flex items-center justify-center rounded-xl bg-[#2E8B57] hover:bg-[#246e45] px-4 py-3 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {lang === "bn" ? "ডিজিটাল চালান রশিদ দেখুন" : "View Digital Waybill"}
+                </button>
+                <button
                   onClick={() => router.push("/dashboard")}
                   className="w-full flex items-center justify-center rounded-xl bg-[#0F4C81] hover:bg-[#0a355c] px-4 py-3 text-sm font-semibold text-white shadow-xs transition-colors"
                 >

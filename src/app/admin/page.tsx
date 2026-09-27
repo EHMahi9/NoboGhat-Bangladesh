@@ -537,26 +537,32 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {usersList.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50">
-                      <td className="py-3 px-4 font-mono">#{u.id}</td>
-                      <td className="py-3 px-4 font-medium text-slate-900">{u.email}</td>
-                      <td className="py-3 px-4">
-                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleDeleteUser(u.id)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50"
-                          title="Remove user"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {usersList.map((u) => {
+                    const uid = u.userId || u.id;
+                    return (
+                      <tr key={uid} className="hover:bg-slate-50">
+                        <td className="py-3 px-4 font-mono font-bold">#{uid}</td>
+                        <td className="py-3 px-4">
+                          {u.name && <div className="font-bold text-slate-900 text-sm">{u.name}</div>}
+                          <div className="font-medium text-slate-600 text-xs">{u.email || u.phone}</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => handleDeleteUser(uid)}
+                            className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                            title="Remove user"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

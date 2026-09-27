@@ -175,6 +175,20 @@ export default function DashboardPage() {
         }
       } catch {}
       setBookings(list);
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const waybillParam = urlParams.get("waybill");
+        const tabParam = urlParams.get("tab");
+        if (tabParam === "cargo-bookings" || tabParam === "overview" || tabParam === "my-trips" || tabParam === "notifications" || tabParam === "profile-settings") {
+          setActiveTab(tabParam as any);
+        }
+        if (waybillParam) {
+          const matched = list.find((b: BookingItem) => String(b.bookingId) === waybillParam);
+          if (matched) {
+            setSelectedWaybill(matched);
+          }
+        }
+      }
     } catch {
       try {
         const cacheKey = `noboghat_confirmed_bookings_${user?.sub || user?.name || "guest"}`;
@@ -345,7 +359,7 @@ export default function DashboardPage() {
   const activeCount = bookings.filter((b) => b.status === "PENDING" || b.status === "CONFIRMED").length;
 
   // Unread notifications count
-  const unreadNotifsCount = notifications.filter((n) => !n.read).length;
+  const unreadNotifsCount = notifications.filter((n) => !(n.read ?? (n as any).isRead)).length;
 
   // Grouped trips for "My Trips" tab
   const groupedTrips: Array<{
@@ -828,7 +842,24 @@ export default function DashboardPage() {
                                 </span>
                               </td>
                               <td>
-                                {bStatus === "PENDING" ? (
+                                {user?.role === "BOAT_OWNER" ? (
+                                  bStatus === "PENDING" ? (
+                                    <span className="status pending" style={{ fontSize: "0.78rem" }}>
+                                      {lang === "bn" ? "পেমেন্ট বাকি" : "Awaiting Payment"}
+                                    </span>
+                                  ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
+                                    <button
+                                      type="button"
+                                      className="btn-outline"
+                                      style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                      onClick={() => setSelectedWaybill(booking)}
+                                    >
+                                      {lang === "bn" ? "চালান রশিদ" : "View Waybill"}
+                                    </button>
+                                  ) : (
+                                    "-"
+                                  )
+                                ) : bStatus === "PENDING" ? (
                                   <div style={{ display: "flex", gap: "6px" }}>
                                     <Link
                                       href={`/payment/${booking.bookingId}`}
@@ -952,7 +983,24 @@ export default function DashboardPage() {
                               </span>
                             </td>
                             <td>
-                              {bStatus === "PENDING" ? (
+                              {user?.role === "BOAT_OWNER" ? (
+                                bStatus === "PENDING" ? (
+                                  <span className="status pending" style={{ fontSize: "0.78rem" }}>
+                                    {lang === "bn" ? "পেমেন্ট বাকি" : "Awaiting Payment"}
+                                  </span>
+                                ) : bStatus === "CONFIRMED" || bStatus === "COMPLETED" ? (
+                                  <button
+                                    type="button"
+                                    className="btn-outline"
+                                    style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                    onClick={() => setSelectedWaybill(booking)}
+                                  >
+                                    {lang === "bn" ? "চালান রশিদ" : "View Waybill"}
+                                  </button>
+                                ) : (
+                                  "-"
+                                )
+                              ) : bStatus === "PENDING" ? (
                                 <div style={{ display: "flex", gap: "6px" }}>
                                   <Link
                                     href={`/payment/${booking.bookingId}`}
@@ -1103,31 +1151,40 @@ export default function DashboardPage() {
                         </td>
                       </tr>
                     ) : (
-                      notifications.map((item) => (
-                        <tr key={item.notificationId}>
-                          <td>{item.message}</td>
-                          <td>{formatDate(item.createdAt)}</td>
-                          <td>
-                            <span className={`status ${item.read ? "completed" : "pending"}`}>
-                              {item.read ? (lang === "bn" ? "পঠিত" : "Read") : (lang === "bn" ? "অপঠিত" : "Unread")}
-                            </span>
-                          </td>
-                          <td>
-                            {!item.read ? (
-                              <button
-                                type="button"
-                                className="btn-outline"
-                                style={{ fontSize: "0.78rem", padding: "4px 10px" }}
-                                onClick={() => handleMarkNotificationRead(item.notificationId)}
-                              >
-                                {lang === "bn" ? "পঠিত চিহ্নিত করুন" : "Mark Read"}
-                              </button>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                        </tr>
-                      ))
+                      notifications.map((item) => {
+                        const isRead = Boolean(item.read ?? (item as any).isRead);
+                        const displayMsg =
+                          item.notificationId === 1 && lang === "bn"
+                            ? "নবোঘাটে আপনাকে স্বাগতম! আপনার অ্যাকাউন্ট সক্রিয় ও ভেরিফাইড।"
+                            : item.notificationId === 2 && lang === "bn"
+                            ? "নদী পরিবহন সতর্কতা সক্রিয়: পদ্মা ও মেঘনা নৌপথ পরিষ্কার ও স্বাভাবিক।"
+                            : item.message;
+                        return (
+                          <tr key={item.notificationId}>
+                            <td>{displayMsg}</td>
+                            <td>{formatDate(item.createdAt)}</td>
+                            <td>
+                              <span className={`status ${isRead ? "completed" : "pending"}`}>
+                                {isRead ? (lang === "bn" ? "পঠিত" : "Read") : (lang === "bn" ? "অপঠিত" : "Unread")}
+                              </span>
+                            </td>
+                            <td>
+                              {!isRead ? (
+                                <button
+                                  type="button"
+                                  className="btn-outline"
+                                  style={{ fontSize: "0.78rem", padding: "4px 10px" }}
+                                  onClick={() => handleMarkNotificationRead(item.notificationId)}
+                                >
+                                  {lang === "bn" ? "পঠিত চিহ্নিত করুন" : "Mark Read"}
+                                </button>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

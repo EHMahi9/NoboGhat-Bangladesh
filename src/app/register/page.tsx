@@ -101,12 +101,13 @@ export default function RegisterPage() {
 
       // Pre-seed local storage so Navbar and Dashboard immediately know the registered name & email
       const primaryKey = trimmedPhone || trimmedEmail;
+      const normalizedRole = role === "owner" ? "BOAT_OWNER" : role.toUpperCase();
       const profileCache = {
         name: trimmedName,
         phone: trimmedPhone,
         email: trimmedEmail,
         profilePictureUrl: "",
-        role: role.toUpperCase(),
+        role: normalizedRole,
       };
 
       if (trimmedPhone) {
