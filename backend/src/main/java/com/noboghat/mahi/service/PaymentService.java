@@ -97,9 +97,4 @@ public class PaymentService {
 
         return transaction;
     }
-
-    @Transactional
-    public PaymentTransaction handleWebhook(String transactionRef, String status) {
-        return handleWebhook(transactionRef, status, null, true);
-    }
 }

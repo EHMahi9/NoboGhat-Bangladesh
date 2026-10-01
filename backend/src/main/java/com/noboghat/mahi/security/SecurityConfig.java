@@ -113,7 +113,7 @@ public class SecurityConfig {
                                 "/api/trips", "/api/trips/**",
                                 "/api/routes", "/api/routes/**",
                                 "/api/boats", "/api/boats/**",
-                                "/error", "/api/test-error", "/api/db-check")
+                                "/error")
                         .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

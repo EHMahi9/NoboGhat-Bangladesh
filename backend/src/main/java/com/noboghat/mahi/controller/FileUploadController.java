@@ -38,19 +38,20 @@ public class FileUploadController {
     }
 
     @GetMapping("/{fileName:.+}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         try {
             Path baseDirPath = Paths.get("uploads").toAbsolutePath().normalize();
             Path filePath = baseDirPath.resolve(fileName).normalize();
 
             // Prevent path traversal attacks
-            if (!filePath.startsWith(baseDirPath)) {
+            if (!filePath.startsWith(baseDirPath) || filePath.equals(baseDirPath)) {
                 return ResponseEntity.badRequest().build();
             }
 
             Resource resource = new UrlResource(filePath.toUri());
 
-            if (resource.exists()) {
+            if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType("application/octet-stream"))
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
