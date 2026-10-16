@@ -80,6 +80,41 @@ function RoutesContent() {
     });
   };
 
+  const loadInitialData = async (fromVal?: string, toVal?: string, dateVal?: string) => {
+    try {
+      const routesData = await fetchApi("/routes", { requireAuth: false });
+      setAvailableRoutes(routesData || []);
+    } catch (e) {
+      // Handled gracefully
+    }
+
+    setIsSearching(true);
+    setSearchError("");
+    try {
+      const qFrom = fromVal !== undefined ? fromVal : source;
+      const qTo = toVal !== undefined ? toVal : destination;
+      const qDate = dateVal !== undefined ? dateVal : date;
+
+      const query = new URLSearchParams();
+      if (qFrom) query.append("source", qFrom);
+      if (qTo) query.append("destination", qTo);
+      if (qDate) query.append("date", qDate);
+
+      const endpoint = query.toString() ? `/trips?${query.toString()}` : "/trips";
+      const tripsData = await fetchApi(endpoint, { requireAuth: false });
+      setTrips(Array.isArray(tripsData) ? tripsData : []);
+    } catch (e: any) {
+      setSearchError(
+        lang === "bn"
+          ? "সার্ভার সংযোগে কিছুটা সময় লাগছে বা ট্রিপ তথ্য লোড করা যায়নি। অনুগ্রহ করে কয়েক সেকেন্ড পর পুনরায় চেষ্টা করুন।"
+          : "Server took longer than expected to respond. Please try again in a few moments."
+      );
+    } finally {
+      setHasSearched(true);
+      setIsSearching(false);
+    }
+  };
+
   // Fetch available routes for dropdowns and auto-load upcoming trips (with URL search params support)
   useEffect(() => {
     const urlFrom = searchParams.get("from") || searchParams.get("source") || "";
@@ -90,32 +125,7 @@ function RoutesContent() {
     if (urlTo) setDestination(urlTo);
     if (urlDate) setDate(urlDate);
 
-    const loadInitialData = async () => {
-      try {
-        const routesData = await fetchApi("/routes", { requireAuth: false });
-        setAvailableRoutes(routesData || []);
-      } catch (e) {
-        // Silently fail
-      }
-
-      setIsSearching(true);
-      try {
-        const query = new URLSearchParams();
-        if (urlFrom) query.append("source", urlFrom);
-        if (urlTo) query.append("destination", urlTo);
-        if (urlDate) query.append("date", urlDate);
-
-        const endpoint = query.toString() ? `/trips?${query.toString()}` : "/trips";
-        const tripsData = await fetchApi(endpoint, { requireAuth: false });
-        setTrips(tripsData || []);
-        setHasSearched(true);
-      } catch (e) {
-        // Silently fail
-      } finally {
-        setIsSearching(false);
-      }
-    };
-    loadInitialData();
+    loadInitialData(urlFrom, urlTo, urlDate);
   }, [searchParams]);
 
   // Derive unique source and destination lists
@@ -371,7 +381,9 @@ function RoutesContent() {
                     setDestination("");
                     setDate("");
                     setSearchError("");
-                    fetchApi("/trips", { requireAuth: false }).then(d => setTrips(d || []));
+                    fetchApi("/trips", { requireAuth: false })
+                      .then(d => setTrips(Array.isArray(d) ? d : []))
+                      .catch(() => {});
                   }}
                   className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-2xs hover:bg-slate-50 transition-colors h-[46px]"
                 >
@@ -384,12 +396,22 @@ function RoutesContent() {
 
         {/* Search Message / Notification */}
         {searchError && (
-          <div className={`mb-8 rounded-lg p-4 border ${
-            searchError.includes("Showing available trips")
+          <div className={`mb-8 rounded-lg p-4 border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${
+            searchError.includes("Showing available trips") || searchError.includes("উপলভ্য যাত্রা")
               ? "bg-amber-50 text-amber-800 border-amber-200"
               : "bg-red-50 text-red-600 border-red-200"
           }`}>
-            {searchError}
+            <span>{searchError}</span>
+            {!searchError.includes("Showing available trips") && !searchError.includes("উপলভ্য যাত্রা") && (
+              <button
+                type="button"
+                onClick={() => loadInitialData()}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-xs transition-colors"
+              >
+                <Loader2 className={`h-3.5 w-3.5 ${isSearching ? "animate-spin" : ""}`} />
+                {lang === "bn" ? "পুনরায় চেষ্টা করুন" : "Retry"}
+              </button>
+            )}
           </div>
         )}
 
@@ -398,15 +420,40 @@ function RoutesContent() {
           
           {/* Trip List */}
           <div className="lg:col-span-2 space-y-4">
+            {isSearching && trips.length === 0 && (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#0F4C81] mb-3" />
+                <h3 className="text-base font-bold text-slate-800">
+                  {lang === "bn" ? "উপলব্ধ নদীপথের ট্রিপ লোড হচ্ছে..." : "Loading available river trips..."}
+                </h3>
+                <p className="text-slate-500 mt-1 text-sm">
+                  {lang === "bn" ? "সার্ভার থেকে লাইভ ক্যাপাসিটি ও সময়সূচি আনা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন।" : "Connecting to server for real-time capacity and schedule."}
+                </p>
+              </div>
+            )}
+
             {hasSearched && trips.length === 0 && !isSearching && (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                 <Ship className="mx-auto h-12 w-12 text-slate-300 mb-4" />
                 <h3 className="text-lg font-bold text-slate-900">
                   {lang === "bn" ? "কোনো ট্রিপ পাওয়া যায়নি" : "No routes found"}
                 </h3>
-                <p className="text-slate-500 mt-1 text-sm">
+                <p className="text-slate-500 mt-1 text-sm mb-4">
                   {lang === "bn" ? "অন্য কোনো ঘাট বা তারিখ নির্বাচন করে পুনরায় অনুসন্ধান করুন।" : "Try adjusting your search criteria or dates."}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSource("");
+                    setDestination("");
+                    setDate("");
+                    setSearchError("");
+                    loadInitialData("", "", "");
+                  }}
+                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-[#0F4C81] hover:bg-[#0a355c] rounded-lg transition-colors shadow-2xs"
+                >
+                  {lang === "bn" ? "সকল উপলভ্য ট্রিপ দেখুন" : "View All Available Trips"}
+                </button>
               </div>
             )}
 

@@ -10,24 +10,23 @@ Expo ships breaking changes every SDK release. APIs you remember are likely rena
 
 ## Commands
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+Package manager is npm (`mobile/package-lock.json` present — do not introduce bun/yarn/pnpm locks).
 
 ```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
+npx expo install <package>  # ALWAYS use instead of npm/yarn add — resolves SDK-compatible versions
 npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
+npx tsc --noEmit            # typecheck (run inside mobile/ — the only verification available)
 npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
 
-Run lint and typecheck before declaring any task done.
+There is no lint setup and no test suite in this app; `npx tsc --noEmit` (clean) is the done check.
 
 ## Navigation & Routing
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+- This app uses **React Navigation**, not Expo Router. Navigator: `src/navigation/AppNavigator.tsx` (native stack); screens: `src/screens/*.tsx`; API client: `src/api/client.ts`.
+- Do not add `expo-router` or create an `src/app/` routes directory.
+- Docs: https://reactnavigation.org/docs/getting-started
 
 ## Building with EAS
 

@@ -40,11 +40,19 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Google did not provide an email address.");
             return;
         }
+
+        Object emailVerifiedObj = googleUser.getAttribute("email_verified");
+        if (emailVerifiedObj instanceof Boolean && !((Boolean) emailVerifiedObj)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Google account email is not verified.");
+            return;
+        }
+
         String name = googleUser.getAttribute("name");
         User user = userService.registerGoogleUser(email, name);
         UserDetails details = userService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(details);
-        String location = frontendUrl + "/dashboard?token="
+        // Transmit token via hash fragment (#) to avoid edge/access log exposure and Referer header leakage
+        String location = frontendUrl + "/dashboard#token="
                 + URLEncoder.encode(token, StandardCharsets.UTF_8)
                 + "&role=" + URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8);
         getRedirectStrategy().sendRedirect(request, response, location);

@@ -64,11 +64,12 @@ public class BookingService {
         return toSummaryDto(saved);
     }
 
-    public Booking getBookingById(Long id, String requester, boolean isAdmin) {
+    @Transactional(readOnly = true)
+    public BookingSummaryDto getBookingById(Long id, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + id));
         requireOwnerOrAdmin(booking, requester, isAdmin);
-        return booking;
+        return toSummaryDto(booking);
     }
 
     @Transactional(readOnly = true)
@@ -125,9 +126,11 @@ public class BookingService {
 
         if (!isAdmin) {
             User requestUser = userService.getUserByIdentifier(requester);
-            boolean isBoatOwner = "ROLE_BOAT_OWNER".equals(requestUser.getRole());
-            boolean ownsBoat = booking.getTrip().getBoat().getOwner() != null 
-                && booking.getTrip().getBoat().getOwner().getUserId().equals(requestUser.getUserId());
+            boolean isBoatOwner = "BOAT_OWNER".equalsIgnoreCase(requestUser.getRole())
+                    || "ROLE_BOAT_OWNER".equalsIgnoreCase(requestUser.getRole());
+            boolean ownsBoat = booking.getTrip().getBoat() != null
+                    && booking.getTrip().getBoat().getOwner() != null 
+                    && booking.getTrip().getBoat().getOwner().getUserId().equals(requestUser.getUserId());
             
             if (!isBoatOwner || !ownsBoat) {
                 throw new org.springframework.security.access.AccessDeniedException("Only administrators or the owner of the boat can update booking status.");
@@ -137,6 +140,18 @@ public class BookingService {
         String desiredStatus = statusUpdateDto.getStatus() == null ? "" : statusUpdateDto.getStatus().trim().toUpperCase();
         if (!ALLOWED_STATUSES.contains(desiredStatus)) {
             throw new IllegalArgumentException("Unsupported booking status: " + statusUpdateDto.getStatus());
+        }
+
+        String currentStatus = booking.getStatus();
+        // If re-activating a CANCELLED booking, verify remaining boat capacity under pessimistic lock
+        if ("CANCELLED".equalsIgnoreCase(currentStatus) && ("CONFIRMED".equalsIgnoreCase(desiredStatus) || "PENDING".equalsIgnoreCase(desiredStatus))) {
+            Trip trip = tripRepository.findByIdForBooking(booking.getTrip().getTripId())
+                    .orElseThrow(() -> new IllegalArgumentException("Trip not found."));
+            double reserved = bookingRepository.totalReservedCargoWeight(trip.getTripId());
+            double capacity = trip.getBoat() != null ? trip.getBoat().getCapacity() : 0.0;
+            if (reserved + booking.getCargoWeight() > capacity) {
+                throw new IllegalStateException("Cannot re-activate booking #" + id + ": exceeds boat remaining capacity.");
+            }
         }
 
         booking.setStatus(desiredStatus);

@@ -970,10 +970,29 @@ export default function DashboardPage() {
                   <tbody>
                     {groupedTrips.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "#667f91" }}>
-                          {lang === "bn"
-                            ? "আপনার অ্যাকাউন্টে কোনো ট্রিপ পাওয়া যায়নি।"
-                            : "No trips found for your account."}
+                        <td colSpan={5} style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#667f91" }}>
+                          <p style={{ marginBottom: "1rem", fontSize: "0.95rem" }}>
+                            {lang === "bn"
+                              ? "আপনার অ্যাকাউন্টে এখনো কোনো বুকিংকৃত ট্রিপ নেই।"
+                              : "No booked trips found for your account yet."}
+                          </p>
+                          <Link
+                            href="/routes"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              backgroundColor: "#0F4C81",
+                              color: "#fff",
+                              padding: "0.5rem 1rem",
+                              borderRadius: "0.5rem",
+                              fontWeight: 600,
+                              fontSize: "0.875rem",
+                              textDecoration: "none",
+                            }}
+                          >
+                            {lang === "bn" ? "নতুন ট্রিপ খুঁজুন ও বুক করুন" : "Explore Trips & Book Cargo"}
+                          </Link>
                         </td>
                       </tr>
                     ) : (

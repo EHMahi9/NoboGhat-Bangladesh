@@ -89,11 +89,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setRole(profileRes.data.role.replace(/^ROLE_/, ''));
           }
         }
-      } catch (error) {
-        // Token expired or invalid
-        await clearToken();
-        setToken(null);
-        setUser(null);
+      } catch (error: any) {
+        // Only clear token if backend explicitly rejected with 401 Unauthorized or 403 Forbidden
+        if (error?.response?.status === 401 || error?.response?.status === 403) {
+          await clearToken();
+          setToken(null);
+          setUser(null);
+        } else {
+          console.warn('Network or timeout during auth initialization. Preserving session token:', error?.message);
+        }
       } finally {
         setIsLoading(false);
       }

@@ -82,9 +82,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (e) {}
       }
 
-      const params = new URLSearchParams(window.location.search);
-      const urlToken = params.get('token');
-      const urlRole = params.get('role');
+      // Check for token in URL hash fragment (preferred to prevent edge log and Referer leakage)
+      // with queryParams as fallback during migration
+      const hash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
+      const hashParams = new URLSearchParams(hash);
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const urlToken = hashParams.get('token') || queryParams.get('token');
+      const urlRole = hashParams.get('role') || queryParams.get('role');
       if (urlToken) {
         token = urlToken;
         savedRole = (urlRole || savedRole || 'PENDING').replace(/^ROLE_/, '');
@@ -94,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem('noboghatToken', token);
           localStorage.setItem('noboghatRole', savedRole);
         } catch (e) {}
-        // Remove token from address bar to protect against history leakage
+        // Remove token and hash fragment from address bar to protect against history leakage
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
       }

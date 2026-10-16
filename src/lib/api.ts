@@ -11,26 +11,39 @@ export async function fetchApi(endpoint: string, options: FetchOptions = {}) {
   
   const token = Cookies.get('token');
 
+  const isFormData = typeof FormData !== 'undefined' && customConfig.body instanceof FormData;
+  const configHeaders: Record<string, string> = {
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...(headers as Record<string, string>),
+  };
+
   const config: RequestInit = {
     ...customConfig,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers: configHeaders,
   };
 
   if (requireAuth && token) {
-    (config.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    configHeaders['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  } catch (netErr: any) {
+    const error = new Error(netErr?.message || 'Network connection error. Please check your connection.');
+    error.name = 'NetworkError';
+    throw error;
+  }
   
-  let data: any = {};
+  let data: any = null;
   try {
     const text = await response.text();
-    if (text) data = JSON.parse(text);
+    if (text && text.trim().length > 0) {
+      data = JSON.parse(text);
+    }
   } catch (e) {
     // text wasn't valid json
+    data = null;
   }
 
   if (!response.ok) {
@@ -48,7 +61,8 @@ export async function fetchApi(endpoint: string, options: FetchOptions = {}) {
       }
     }
     
-    throw new Error(data.message || data.error || `API Error: ${response.status}`);
+    const message = (data && (data.message || data.error)) || `API Error: ${response.status}`;
+    throw new Error(message);
   }
   
   return data;

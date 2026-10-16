@@ -49,7 +49,11 @@ public class TripController {
             @org.springframework.web.bind.annotation.RequestParam(required = false) String source,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String destination,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String date,
+            @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean ownerOnly,
             Authentication authentication) {
+        if (ownerOnly && authentication != null) {
+            return tripService.getTripsWithCapacityByOwner(authentication.getName());
+        }
         java.time.LocalDate parsedDate = null;
         if (date != null && !date.isBlank()) {
             try { parsedDate = java.time.LocalDate.parse(date); } catch (Exception ignored) {}
@@ -60,13 +64,13 @@ public class TripController {
         if (hasFilter) {
             return tripService.searchTripsWithCapacity(source, destination, parsedDate);
         }
-        
-        String role = authentication != null && authentication.getAuthorities().iterator().hasNext() ? 
-            authentication.getAuthorities().iterator().next().getAuthority() : null;
-        if ("ROLE_BOAT_OWNER".equals(role)) {
-            return tripService.getTripsWithCapacityByOwner(authentication.getName());
-        }
         return tripService.getAllTripsWithCapacity();
+    }
+
+    @GetMapping("/owner")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_BOAT_OWNER')")
+    public List<TripWithCapacityDto> getOwnerTrips(Authentication authentication) {
+        return tripService.getTripsWithCapacityByOwner(authentication.getName());
     }
 
     @DeleteMapping("/{id}")

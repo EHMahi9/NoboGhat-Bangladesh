@@ -16,7 +16,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000,
+  timeout: 50000,
 });
 
 // Secure Store Token Helpers
@@ -60,16 +60,31 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Catch 401 and trigger logout/redirect
+// Response Interceptor: Catch 401 and trigger logout/redirect, retry on cold-start timeout for GET
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const config = error.config;
     if (error.response && error.response.status === 401) {
       await clearToken();
       if (onUnauthorizedHandler) {
         onUnauthorizedHandler();
       }
+      return Promise.reject(error);
     }
+
+    // Auto-retry once on cold-start timeout or network abort for idempotent GET requests
+    if (
+      config &&
+      (!config.method || config.method.toUpperCase() === 'GET') &&
+      !config._retry &&
+      (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || error.message?.includes('Network Error'))
+    ) {
+      config._retry = true;
+      await new Promise((res) => setTimeout(res, 2000));
+      return apiClient(config);
+    }
+
     return Promise.reject(error);
   }
 );

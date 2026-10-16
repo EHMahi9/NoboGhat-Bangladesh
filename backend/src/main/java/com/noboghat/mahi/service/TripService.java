@@ -15,6 +15,7 @@ import com.noboghat.mahi.dto.TripWithCapacityDto;
 import com.noboghat.mahi.model.Boat;
 import com.noboghat.mahi.model.Route;
 import com.noboghat.mahi.model.Trip;
+import com.noboghat.mahi.model.User;
 import com.noboghat.mahi.repository.BoatRepository;
 import com.noboghat.mahi.repository.BookingRepository;
 import com.noboghat.mahi.repository.RouteRepository;
@@ -38,6 +39,14 @@ public class TripService {
         this.recurringTripScheduleService = recurringTripScheduleService;
     }
 
+    private boolean isOwner(Boat boat, String identifier) {
+        if (boat == null || boat.getOwner() == null || identifier == null) {
+            return false;
+        }
+        User owner = boat.getOwner();
+        return identifier.equalsIgnoreCase(owner.getEmail()) || identifier.equalsIgnoreCase(owner.getPhone());
+    }
+
     @Transactional
     @CacheEvict(value = "trips", allEntries = true)
     public Trip createTrip(TripDto tripDto, String username, boolean isAdmin) {
@@ -47,7 +56,7 @@ public class TripService {
                 .orElseThrow(() -> new IllegalArgumentException("Boat not found."));
 
         if (!isAdmin) {
-            if (boat.getOwner() == null || !boat.getOwner().getEmail().equals(username) && !boat.getOwner().getPhone().equals(username)) {
+            if (!isOwner(boat, username)) {
                 throw new org.springframework.security.access.AccessDeniedException("You can only create trips for boats you own.");
             }
         }
@@ -87,8 +96,7 @@ public class TripService {
     public List<TripWithCapacityDto> getTripsWithCapacityByOwner(String identifier) {
         recurringTripScheduleService.generateUpcomingTrips();
         return tripRepository.findAll().stream()
-                .filter(trip -> trip.getBoat() != null && trip.getBoat().getOwner() != null && 
-                    (trip.getBoat().getOwner().getEmail().equals(identifier) || trip.getBoat().getOwner().getPhone().equals(identifier)))
+                .filter(trip -> isOwner(trip.getBoat(), identifier))
                 .map(this::toCapacityDto)
                 .toList();
     }
@@ -132,8 +140,6 @@ public class TripService {
         );
     }
 
-
-
     @Transactional
     @CacheEvict(value = "trips", allEntries = true)
     public void deleteTrip(Long tripId, String username, boolean isAdmin) {
@@ -141,14 +147,13 @@ public class TripService {
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found with id: " + tripId));
                 
         if (!isAdmin) {
-            Boat boat = trip.getBoat();
-            if (boat == null || boat.getOwner() == null || (!boat.getOwner().getEmail().equals(username) && !boat.getOwner().getPhone().equals(username))) {
+            if (!isOwner(trip.getBoat(), username)) {
                 throw new org.springframework.security.access.AccessDeniedException("You can only delete trips for boats you own.");
             }
         }
         
-        if (bookingRepository.countByTripTripId(tripId) > 0) {
-            throw new IllegalStateException("Trip cannot be deleted because bookings already exist.");
+        if (bookingRepository.countByTripTripIdAndStatusIn(tripId, List.of("PENDING", "CONFIRMED")) > 0) {
+            throw new IllegalStateException("Trip cannot be deleted because active bookings already exist.");
         }
         tripRepository.delete(trip);
     }
