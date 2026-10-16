@@ -52,11 +52,15 @@ export async function fetchApi(endpoint: string, options: FetchOptions = {}) {
       Cookies.remove('token');
       Cookies.remove('role');
       if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('noboghatToken');
+          localStorage.removeItem('noboghatRole');
+        } catch (e) {}
         const currentPath = window.location.pathname + window.location.search;
         if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
-          window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+          window.location.href = `/login?sessionExpired=true&redirect=${encodeURIComponent(currentPath)}`;
         } else {
-          window.location.href = '/login';
+          window.location.href = '/login?sessionExpired=true';
         }
       }
     }

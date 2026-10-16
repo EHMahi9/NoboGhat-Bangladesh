@@ -21,11 +21,19 @@ public class PaymentController {
 
     @PostMapping("/initiate")
     @PreAuthorize("hasAnyRole('FARMER', 'TRADER', 'ADMIN')")
-    public ResponseEntity<PaymentTransaction> initiatePayment(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<PaymentTransaction> initiatePayment(@RequestBody Map<String, Object> payload, Authentication authentication) {
+        if (payload == null || payload.get("bookingId") == null) {
+            throw new IllegalArgumentException("Booking ID is required to initiate payment.");
+        }
         Long bookingId = Long.valueOf(payload.get("bookingId").toString());
         String gateway = payload.getOrDefault("gateway", "SSLCommerz").toString();
 
-        PaymentTransaction transaction = paymentService.initiatePayment(bookingId, gateway);
+        PaymentTransaction transaction = paymentService.initiatePayment(
+                bookingId,
+                gateway,
+                authentication != null ? authentication.getName() : null,
+                isAdmin(authentication)
+        );
         return ResponseEntity.ok(transaction);
     }
 

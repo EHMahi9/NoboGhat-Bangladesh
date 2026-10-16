@@ -40,6 +40,10 @@ public class BookingService {
         Trip trip = tripRepository.findByIdForBooking(bookingDto.getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found."));
 
+        if (trip.getDepartureTime() != null && trip.getDepartureTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalStateException("Cannot book cargo for a trip that has already departed.");
+        }
+
         double reservedWeight = bookingRepository.totalReservedCargoWeight(trip.getTripId());
         double requestedWeight = bookingDto.getCargoWeight();
         Double capacityOpt = trip.getBoat().getCapacity();

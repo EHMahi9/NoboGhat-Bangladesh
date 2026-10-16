@@ -26,6 +26,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const isTokenValid = (token: string): boolean => {
+  try {
+    const decoded = jwtDecode<any>(token);
+    if (!decoded) return false;
+    if (decoded.exp && typeof decoded.exp === 'number') {
+      return decoded.exp * 1000 > Date.now() + 10000;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -105,6 +118,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // Verify token validity before accepting it
+    if (token && !isTokenValid(token)) {
+      Cookies.remove('token');
+      Cookies.remove('role');
+      try {
+        localStorage.removeItem('noboghatToken');
+        localStorage.removeItem('noboghatRole');
+      } catch (e) {}
+      token = undefined;
+      savedRole = undefined;
+    }
+
     if (token) {
       try {
         const decoded = jwtDecode<any>(token);
@@ -122,7 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Failed to decode token", error);
         Cookies.remove('token');
         Cookies.remove('role');
+        try {
+          localStorage.removeItem('noboghatToken');
+          localStorage.removeItem('noboghatRole');
+        } catch (e) {}
+        setUser(null);
       }
+    } else {
+      setUser(null);
     }
     setLoading(false);
   }, []);

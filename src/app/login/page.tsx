@@ -23,6 +23,10 @@ export default function LoginPage() {
     if (!loading && user) {
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
+        // Do not auto-redirect if user arrived here due to session expiration
+        if (params.get("sessionExpired") === "true") {
+          return;
+        }
         const redirect = params.get("redirect");
         if (redirect && redirect.startsWith("/")) {
           router.replace(redirect);
@@ -40,6 +44,13 @@ export default function LoginPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      if (params.get("sessionExpired") === "true") {
+        setError(
+          lang === "bn"
+            ? "আপনার পূর্ববর্তী সেশনের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করুন।"
+            : "Your session has expired. Please sign in again to continue."
+        );
+      }
       if (params.get("registered") === "true") {
         setSuccessMsg(lang === "bn" ? "নিবন্ধন সম্পন্ন হয়েছে! পাসওয়ার্ড প্রদান করে লগইন করুন।" : "Registration completed! Please log in with your password.");
       }
