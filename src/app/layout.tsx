@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "ATg_GxDOjA2axlUCapCzuL7JQYV9_BRKdBIvFj_0XQ8",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "CVzVJhcNUP0h80LYMYdUmDLXMR9cUpveW4aoZW4UX7E",
   },
   icons: {
     icon: [
@@ -174,6 +174,7 @@ export default function RootLayout({
   return (
     <html lang="bn" dir="ltr" className={`${plusJakarta.variable} ${notoSansBengali.variable}`}>
       <head>
+        <meta name="google-site-verification" content="CVzVJhcNUP0h80LYMYdUmDLXMR9cUpveW4aoZW4UX7E" />
         <meta name="google-site-verification" content="ATg_GxDOjA2axlUCapCzuL7JQYV9_BRKdBIvFj_0XQ8" />
         <JsonLd data={rootStructuredData} />
       </head>
