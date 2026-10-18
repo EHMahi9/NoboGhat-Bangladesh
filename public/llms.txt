@@ -1,0 +1,30 @@
+# NoboGhat (নোবোঘাট) — Inland Waterway Cargo & Logistics Platform
+
+> NoboGhat is Bangladesh's pioneering digital river transport platform connecting farmers, agro-traders, boat owners (launch and cargo vessel operators), and ghat authorities across the country's extensive inland water network.
+
+## Core Capabilities
+- **Cargo Trip Scheduling & Discovery**: Real-time river routes, scheduled departure times, verified boat capacities, and per-kilogram freight pricing.
+- **Digital Cargo Booking & Waybills**: Direct digital waybills, cargo weight classification, and secure seat/freight reservation.
+- **Terminal & Route Coverage**: Major inland river terminals including Dhaka (Sadarghat), Chandpur, Barishal, Bhola (Ilisha), Patuakhali, and Chittagong.
+- **Transparency & Safety**: Direct integration with verified boat masters, BIWTA safety guideline compliance, and transparent trip statuses.
+
+## Primary Navigation & Routes
+- [Home Page](https://noboghatbangladesh.vercel.app/): Overview of inland river cargo booking, interactive search, and live platform statistics.
+- [Route Search & Schedules](https://noboghatbangladesh.vercel.app/routes): Live catalog of active river routes, launch operators, available payload capacity, and departure schedules.
+- [About NoboGhat](https://noboghatbangladesh.vercel.app/about): Our mission to modernize Bangladesh's 24,000 km river network with digital transparency.
+- [Terms of Service](https://noboghatbangladesh.vercel.app/terms): User obligations, cargo liabilities, cancellation terms, and safety rules.
+- [Privacy Policy](https://noboghatbangladesh.vercel.app/privacy): User data protection, session encryption, and role-based access standards.
+
+## Frequently Asked Questions (FAQ)
+
+### What is NoboGhat?
+NoboGhat (নোবোঘাট) is a dedicated digital river logistics marketplace in Bangladesh. It digitizes traditional river transport by connecting cargo shippers (farmers, merchants, industrial goods traders) with verified launch and vessel owners.
+
+### Which river routes are supported?
+Core routes include Dhaka (Sadarghat) ↔ Chandpur, Dhaka ↔ Barishal, Chandpur ↔ Bhola (Ilisha), Dhaka ↔ Patuakhali, and regional southern delta connections.
+
+### How are freight charges calculated?
+Cargo charges are calculated per kilogram (৳/kg) or per bulk metric ton depending on the cargo category (agricultural produce, perishables, dry cargo, packaged goods) and vessel capacity.
+
+### Is NoboGhat compliant with Bangladesh maritime regulations?
+Yes. NoboGhat adheres to standards set forth by the Bangladesh Inland Water Transport Authority (BIWTA) and the Department of Shipping regarding vessel capacity and river route safety.
