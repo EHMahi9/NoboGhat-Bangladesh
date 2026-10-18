@@ -44,11 +44,23 @@ export default async function Image() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "28px",
                 color: "white",
               }}
             >
-              ⚓
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="5" r="3" />
+                <line x1="12" y1="22" x2="12" y2="8" />
+                <path d="M5 12H2a10 10 0 0 0 20 0h-3" />
+              </svg>
             </div>
             <span
               style={{
@@ -115,9 +127,9 @@ export default async function Image() {
           }}
         >
           <div style={{ display: "flex", gap: "32px", fontSize: "20px", color: "#cbd5e1" }}>
-            <span>✓ রিয়েল-টাইম রুট ট্র্যাকিং</span>
-            <span>✓ স্বচ্ছ কেজি-প্রতি ভাড়া</span>
-            <span>✓ ডিজিটাল ওয়েবিল ও নিরাপত্তা</span>
+            <span>• রিয়েল-টাইম রুট ট্র্যাকিং</span>
+            <span>• স্বচ্ছ কেজি-প্রতি ভাড়া</span>
+            <span>• ডিজিটাল ওয়েবিল ও নিরাপত্তা</span>
           </div>
           <span style={{ fontSize: "20px", color: "#38bdf8", fontWeight: 700 }}>
             noboghatbangladesh.vercel.app
