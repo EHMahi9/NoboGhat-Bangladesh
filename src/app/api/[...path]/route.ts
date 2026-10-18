@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60;
+
 const BASE_REMOTE_BACKEND = process.env.BACKEND_API_URL || "https://noboghat-bangladesh.onrender.com";
 
 // Allowed headers to forward to remote Spring Boot backend
@@ -78,9 +80,9 @@ async function proxyRequest(req: NextRequest, context: { params: Promise<{ path:
     }
   }
 
-  // 35-second timeout to handle Render free-tier cold starts gracefully
+  // 45-second timeout to handle Render free-tier cold starts gracefully while staying safely within maxDuration
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 35000);
+  const timeoutId = setTimeout(() => controller.abort(), 45000);
 
   try {
     let body: ArrayBuffer | undefined = undefined;

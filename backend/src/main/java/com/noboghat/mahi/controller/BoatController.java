@@ -47,13 +47,19 @@ public class BoatController {
     }
 
     @GetMapping
-    public List<Boat> getAllBoats(Authentication authentication) {
-        String role = authentication != null && authentication.getAuthorities().iterator().hasNext() ? 
-            authentication.getAuthorities().iterator().next().getAuthority() : null;
-        if ("ROLE_BOAT_OWNER".equals(role)) {
+    public List<Boat> getAllBoats(
+            @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean ownerOnly,
+            Authentication authentication) {
+        if (ownerOnly && authentication != null) {
             return boatService.getBoatsByOwner(authentication.getName());
         }
         return boatService.getAllBoats();
+    }
+
+    @GetMapping("/owner")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_BOAT_OWNER')")
+    public List<Boat> getOwnerBoats(Authentication authentication) {
+        return boatService.getBoatsByOwner(authentication.getName());
     }
 
     @PutMapping("/{id}")

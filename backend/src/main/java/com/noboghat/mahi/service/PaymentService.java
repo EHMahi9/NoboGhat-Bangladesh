@@ -30,9 +30,19 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentTransaction initiatePayment(Long bookingId, String gateway) {
+    public PaymentTransaction initiatePayment(Long bookingId, String gateway, String requester, boolean isAdmin) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found."));
+
+        if (!isAdmin) {
+            if (requester == null || requester.isBlank()) {
+                throw new AccessDeniedException("Authentication required to initiate payment.");
+            }
+            User requestUser = userService.getUserByIdentifier(requester);
+            if (booking.getUser() == null || !booking.getUser().getUserId().equals(requestUser.getUserId())) {
+                throw new AccessDeniedException("You can initiate payment only for your own bookings.");
+            }
+        }
 
         if ("CANCELLED".equalsIgnoreCase(booking.getStatus())) {
             throw new IllegalStateException("Cannot initiate payment for a cancelled booking.");
@@ -96,10 +106,5 @@ public class PaymentService {
         }
 
         return transaction;
-    }
-
-    @Transactional
-    public PaymentTransaction handleWebhook(String transactionRef, String status) {
-        return handleWebhook(transactionRef, status, null, true);
     }
 }

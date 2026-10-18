@@ -71,13 +71,15 @@ public class SecurityConfig {
                 .filter(origin -> !origin.isBlank())
                 .toList();
 
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Exact production origins come from configuration. The pattern permits
-        // previews for this Vercel project and the main domain.
-        configuration.setAllowedOriginPatterns(Stream.concat(
+        // Exact production origins come from configuration and verified production domains.
+        List<String> explicitAllowedOrigins = Stream.concat(
                 origins.stream(),
-                Stream.of("https://noboghatbangladesh-*.vercel.app", "https://noboghat-bangladesh.vercel.app", "https://noboghat-bangladesh-*.vercel.app"))
-                .toList());
+                Stream.of("https://noboghatbangladesh.vercel.app", "https://noboghat-bangladesh.vercel.app"))
+                .distinct()
+                .toList();
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(explicitAllowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setExposedHeaders(List.of("Authorization"));
@@ -113,7 +115,7 @@ public class SecurityConfig {
                                 "/api/trips", "/api/trips/**",
                                 "/api/routes", "/api/routes/**",
                                 "/api/boats", "/api/boats/**",
-                                "/error", "/api/test-error", "/api/db-check")
+                                "/error")
                         .permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

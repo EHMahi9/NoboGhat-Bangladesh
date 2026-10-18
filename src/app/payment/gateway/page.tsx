@@ -38,6 +38,9 @@ function GatewayContent() {
     // Simulate gateway processing delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
+    let finalStatus = success ? "success" : "failed";
+    let failureReason = "";
+
     try {
       // Call webhook to update payment status
       await fetchApi("/payments/webhook", {
@@ -49,17 +52,23 @@ function GatewayContent() {
           gateway,
         }),
       });
-    } catch (e) {
-      // Even if webhook fails, redirect with status
+    } catch (e: any) {
+      if (success) {
+        finalStatus = "failed";
+        failureReason = e.message || "Payment gateway webhook confirmation timed out.";
+      }
     }
 
     const resultParams = new URLSearchParams({
-      status: success ? "success" : "failed",
+      status: finalStatus,
       transactionRef,
       bookingId,
       gateway,
       amount,
     });
+    if (failureReason) {
+      resultParams.set("reason", failureReason);
+    }
 
     router.push(`/payment/result?${resultParams.toString()}`);
   };

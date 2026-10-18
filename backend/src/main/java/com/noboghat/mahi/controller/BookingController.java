@@ -53,7 +53,7 @@ public class BookingController {
     
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_FARMER', 'ROLE_TRADER')")
-    public Booking getBooking(@PathVariable Long id, Authentication authentication) {
+    public BookingSummaryDto getBooking(@PathVariable Long id, Authentication authentication) {
         return bookingService.getBookingById(id, authentication.getName(), isAdmin(authentication));
     }
 

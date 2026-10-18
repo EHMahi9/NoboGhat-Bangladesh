@@ -26,7 +26,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     List<Trip> findByRecurringScheduleScheduleIdAndDepartureTimeAfter(Long scheduleId, LocalDateTime departureTime);
 
-    @Query("SELECT t FROM Trip t JOIN t.route r " +
+    @Query("SELECT t FROM Trip t JOIN FETCH t.route r JOIN FETCH t.boat b " +
            "WHERE (:source IS NULL OR LOWER(r.source) LIKE LOWER(CONCAT('%', :source, '%'))) " +
            "AND (:destination IS NULL OR LOWER(r.destination) LIKE LOWER(CONCAT('%', :destination, '%'))) " +
            "AND (:date IS NULL OR CAST(t.departureTime AS date) = :date) " +

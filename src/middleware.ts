@@ -15,9 +15,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/routes${search}`, request.url));
   }
 
-  // 2. Get token and role from cookies OR URL search params (e.g. returning from Google OAuth2 redirect)
-  const token = request.cookies.get('token')?.value || request.nextUrl.searchParams.get('token');
-  const role = (request.cookies.get('role')?.value || request.nextUrl.searchParams.get('role') || '')
+  // 2. Get token and role strictly from authenticated cookies to prevent URL parameter spoofing
+  const token = request.cookies.get('token')?.value;
+  const role = (request.cookies.get('role')?.value || '')
     .toUpperCase()
     .replace(/^ROLE_/, '');
 

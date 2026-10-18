@@ -64,7 +64,7 @@ export default function Navbar() {
           >
             {t("nav.routes")}
           </Link>
-          {user && (
+          {!loading && user && (
             <Link
               href="/dashboard"
               className={`text-sm px-3.5 py-1.5 rounded-lg transition-all ${
@@ -76,7 +76,7 @@ export default function Navbar() {
               {t("nav.dashboard")}
             </Link>
           )}
-          {user && user.role === "ADMIN" && (
+          {!loading && user && user.role === "ADMIN" && (
             <Link
               href="/admin"
               className={`text-sm px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${

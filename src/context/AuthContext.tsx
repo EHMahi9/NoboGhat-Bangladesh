@@ -26,6 +26,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const isTokenValid = (token: string): boolean => {
+  try {
+    const decoded = jwtDecode<any>(token);
+    if (!decoded) return false;
+    if (decoded.exp && typeof decoded.exp === 'number') {
+      return decoded.exp * 1000 > Date.now() + 10000;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,9 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (e) {}
       }
 
-      const params = new URLSearchParams(window.location.search);
-      const urlToken = params.get('token');
-      const urlRole = params.get('role');
+      // Check for token in URL hash fragment (preferred to prevent edge log and Referer leakage)
+      // with queryParams as fallback during migration
+      const hash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
+      const hashParams = new URLSearchParams(hash);
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const urlToken = hashParams.get('token') || queryParams.get('token');
+      const urlRole = hashParams.get('role') || queryParams.get('role');
       if (urlToken) {
         token = urlToken;
         savedRole = (urlRole || savedRole || 'PENDING').replace(/^ROLE_/, '');
@@ -94,10 +112,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem('noboghatToken', token);
           localStorage.setItem('noboghatRole', savedRole);
         } catch (e) {}
-        // Remove token from address bar to protect against history leakage
+        // Remove token and hash fragment from address bar to protect against history leakage
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
       }
+    }
+
+    // Verify token validity before accepting it
+    if (token && !isTokenValid(token)) {
+      Cookies.remove('token');
+      Cookies.remove('role');
+      try {
+        localStorage.removeItem('noboghatToken');
+        localStorage.removeItem('noboghatRole');
+      } catch (e) {}
+      token = undefined;
+      savedRole = undefined;
     }
 
     if (token) {
@@ -117,7 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Failed to decode token", error);
         Cookies.remove('token');
         Cookies.remove('role');
+        try {
+          localStorage.removeItem('noboghatToken');
+          localStorage.removeItem('noboghatRole');
+        } catch (e) {}
+        setUser(null);
       }
+    } else {
+      setUser(null);
     }
     setLoading(false);
   }, []);

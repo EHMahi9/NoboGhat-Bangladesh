@@ -55,9 +55,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 // Load the user details from the database
                 UserDetails userDetails = this.userService.loadUserByUsername(username);
 
-                // 4. Validate the token
-                if (jwtUtil.validateToken(jwt, userDetails)) {
-
+                // 4. Validate that token is not a refresh token and matches user details
+                String tokenType = jwtUtil.extractTokenType(jwt);
+                if ("REFRESH".equalsIgnoreCase(tokenType)) {
+                    SecurityContextHolder.clearContext();
+                } else if (jwtUtil.validateToken(jwt, userDetails)) {
                     // 5. Create an authentication object manually
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
